@@ -64,7 +64,7 @@ where p is the chance of being decisive, B what the outcome is worth to you, C t
 
 The model
 
-Polls: each firm's latest poll with fieldwork ending 27 October – 10 November 2026, 16 firms; the median of each list. No firm is excluded. One poll in the window was released by a party (Vox); without it, P(F ≥ 176) is 94.8% instead of 94.2% and P(S ≥ 176) 3.7% instead of 4.2%.
+Polls: each firm's latest poll with fieldwork ending 27 October – 10 November 2026, 16 firms; the median of each list. No firm is excluded. One poll in the window was released by a party (Vox); without it, P(F ≥ 176) is 94.8% instead of 94.2% and P(S ≥ 176) 3.7% instead of 4.2%.
 
 National error: each share moves on the logit scale with σ = 0.22, the size of the same median's errors 19 days out in 2015–2023 (43 cases). Errors are centred on zero.
 
@@ -296,7 +296,7 @@ Persuading people barely moves votes in general elections (Kalla and Broockman, 
 
 Limits. Polls 19 days out. Proportional swing; SALF and Adelante Andalucía rest on the 2024 European vote or a flat share. Local lists can surprise. Blocs fixed by 2023 votes.
 
-Takeaways. A seat is a far likelier prize than the majority. Between constituencies the odds of deciding the majority differ up to 56-fold. Selfishly, voting rarely pays; counting others, it can.
+Takeaways. A seat is a far likelier prize than the majority. Between constituencies the odds of deciding the majority differ by a factor of up to 56. Selfishly, voting rarely pays; counting others, it can.
 
 github.com/oscargarcialopez/spain-vote-ev
 

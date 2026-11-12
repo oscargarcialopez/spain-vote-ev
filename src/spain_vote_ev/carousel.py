@@ -133,6 +133,11 @@ def P(src: str) -> str:
     return "".join(out)
 
 
+def nb(text: str) -> str:
+    """No line breaks inside: day and month stay together."""
+    return text.replace(" ", "\u00a0").replace("\u00a0–\u00a0", " – ")
+
+
 def head(h: str) -> str:
     return "[" + " \\ ".join(T(part) for part in h.split("\n")) + "]"
 
@@ -424,15 +429,16 @@ def page_model(s: dict, f: dict, out: Path, png: Path | None) -> Page:
              f"$P(S >= 176)$ {f['sens.S.p']} instead of {f['bloc.S.p1']}."
              if f["party_released"] != "none" else "")
     pg.bullets([
-        f"Polls: each firm's latest poll with fieldwork ending {f['window']}, "
+        f"Polls: each firm's latest poll with fieldwork ending {nb(f['window'])}, "
         f"{f['firms']} firms; the median of each list. No firm is excluded."
         + party,
-        f"National error: each share moves on the logit scale with $sigma$ = {f['sigma_nat']}, "
+        f"National error: each share moves on the logit scale with $sigma = {f['sigma_nat']}$, "
         f"the size of the same median's errors {f['lead']} days out in 2015–2023 "
         f"({f['n_poll_errors']} cases). Errors are centred on zero.",
         "Constituencies: proportional swing from 2023 (the 2024 European vote for SALF and to "
-        f"split Sumar's vote), with regional and provincial deviations ($sigma$ = "
-        f"{f['tau_ccaa']} and {f['tau_prov']}) estimated from past swings; turnout varies too.",
+        f"split Sumar's vote), with regional and provincial deviations "
+        f"($sigma = {f['tau_ccaa']}$ and {f['tau_prov']}) estimated from past swings; turnout "
+        "varies too.",
         "Seats: D'Hondt with the 3% threshold, and for each list $Delta$, the extra votes it "
         "needs for one more seat."])
     pg.p("The chance that one vote is decisive is the density of $Delta$ at zero:")
@@ -569,11 +575,11 @@ def page_limits(s: dict, f: dict, out: Path, png: Path | None) -> Page:
         "2023 votes."))
     pg.raw("#emph[Takeaways.] " + T(
         f"A seat is a far likelier prize than the majority. Between constituencies the odds "
-        f"of deciding the majority differ up to {f['majority_any.spread']}-fold. Selfishly, "
-        "voting rarely pays; counting others, it can."), "Takeaways. " + P(
+        f"of deciding the majority differ by a factor of up to {f['majority_any.spread']}. "
+        "Selfishly, voting rarely pays; counting others, it can."), "Takeaways. " + P(
         f"A seat is a far likelier prize than the majority. Between constituencies the odds "
-        f"of deciding the majority differ up to {f['majority_any.spread']}-fold. Selfishly, "
-        "voting rarely pays; counting others, it can."))
+        f"of deciding the majority differ by a factor of up to {f['majority_any.spread']}. "
+        "Selfishly, voting rarely pays; counting others, it can."))
     pg.raw(f"#align(center, strong[{T(REPO)}])", REPO)
     refs = [f"[{T(lead)} #emph[{T(journal)}] {T(tail)}]" for lead, journal, tail in REFERENCES]
     pg.raw("#block(above: 0.6em, {\n  set text(8.6pt)\n  set par(justify: false, "
