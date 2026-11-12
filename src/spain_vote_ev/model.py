@@ -193,8 +193,10 @@ def _family_values(window: pd.DataFrame, spec: dict) -> list[float]:
     return out
 
 
-def poll_summary(target: Target, cutoff: date) -> tuple[pd.DataFrame, dict[str, dict]]:
-    window = polls.window(poll_wide(target.key), cutoff)
+def poll_summary(target: Target, cutoff: date, exclude_firms: tuple[str, ...] = ()
+                 ) -> tuple[pd.DataFrame, dict[str, dict]]:
+    wide = poll_wide(target.key)
+    window = polls.window(wide[~wide["firm"].isin(exclude_firms)], cutoff)
     out = {}
     for f in target.families:
         spec = target.poll_spec.get(f, {"cols": [f]})
@@ -271,7 +273,8 @@ def _target_results(target: Target, labels: list[str]) -> tuple[np.ndarray, np.n
     return pres, seats.to_numpy(), votes.to_numpy()
 
 
-def build(key: str, cutoff: date | None = None, lead: int | None = None) -> Setup:
+def build(key: str, cutoff: date | None = None, lead: int | None = None,
+          exclude_firms: tuple[str, ...] = ()) -> Setup:
     target = TARGETS[key]
     ed = date.fromisoformat(ELECTION_DATE[key])
     if cutoff is None:
@@ -320,7 +323,7 @@ def build(key: str, cutoff: date | None = None, lead: int | None = None) -> Setu
             b[miss, k] = b[b[:, k] > 0, k].mean()
     base_national = weights @ b / weights.sum()
 
-    window, medians = poll_summary(target, cutoff)
+    window, medians = poll_summary(target, cutoff, exclude_firms)
     national = base_national.copy()
     polled = np.zeros(K, bool)
     for f, m in medians.items():
