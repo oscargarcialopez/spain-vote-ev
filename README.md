@@ -26,7 +26,7 @@ the bandwidth choice moves the answers by 0.2% (seat) and 3.2% (majority), and w
 errors, a different swing model or different blocs would move them more (see
 [Limits](#limits)).
 
-![Figure 1](figures/fig-1-odds.png)
+![The odds of deciding, against two references](figures/fig-odds.png)
 
 The [carousel](carousel/carousel.pdf) is a nine-page summary in paper form
 ([plain text](carousel/slides.txt)).
@@ -70,7 +70,7 @@ votes cast for the modelled lists.
 | S without Junts | 141 | 120–163 | 108–175 | 2.3% | 45.2 million |
 <!-- END blocs -->
 
-![Figure 2](figures/fig-2-seats.png)
+![Seats per list: means and 80% and 95% intervals](figures/fig-seats.png)
 
 <!-- BEGIN lists -->
 | List | Vote share (centre) | Mean seats | 80% | 95% | P(at least one seat) |
@@ -82,14 +82,14 @@ votes cast for the modelled lists.
 | ERC | 2.4% | 9 | 7–13 | 6–15 | 100% |
 | EH Bildu | 1.4% | 7 | 5–9 | 3–11 | 100% |
 | Junts | 1.4% | 5 | 3–8 | 2–8 | 100% |
-| PNV | 0.9% | 4 | 2–6 | 2–6 | 100% |
-| BNG | 0.9% | 3 | 2–5 | 1–6 | 99% |
+| PNV | 0.91% | 4 | 2–6 | 2–6 | 100% |
+| BNG | 0.91% | 3 | 2–5 | 1–6 | 99% |
 | Adelante Andalucía | 1.4% | 2 | 0–4 | 0–7 | 87% |
 | Podemos | 1.9% | 1 | 0–2 | 0–2 | 82% |
-| CC | 0.4% | 1 | 1–1 | 0–3 | 91% |
+| CC | 0.40% | 1 | 1–1 | 0–3 | 91% |
 | SALF | 1.7% | 0 | 0–0 | 0–1 | 6% |
-| Soria ¡Ya! | 0.0% | 0 | 0–0 | 0–0 | 1% |
-| Teruel Existe | 0.0% | 0 | 0–0 | 0–0 | 0% |
+| Soria ¡Ya! | 0.04% | 0 | 0–0 | 0–0 | 1% |
+| Teruel Existe | 0.04% | 0 | 0–0 | 0–0 | 0.01% |
 <!-- END lists -->
 
 "Vote share (centre)" is the share the simulation is centred on: the poll median for polled
@@ -105,7 +105,7 @@ one vote changes the seat with probability 1 in 10,000 and the majority 1 in 740
 Soria, where the seats at stake rarely move a bloc across 176, the majority odds are 1 in 41.4
 million.
 
-![Figure 3](figures/fig-3-constituencies.png)
+![The odds in each constituency against its seats](figures/fig-constituencies.png)
 
 Every constituency, sorted by the chance of changing a seat:
 
@@ -113,7 +113,7 @@ Every constituency, sorted by the chance of changing a seat:
 | Constituency | Seats | Electors per seat | Seat: 1 in | Either bloc to 176: 1 in | F: 1 in | S: 1 in | S without Junts: 1 in |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Ceuta | 1 | 66,000 | 10,000 | 740,000 | 1.2 million | 1.6 million | 2.5 million |
-| Soria | 2 | 39,000 | 18,000 | 41.4 million | 103.6 million | 69.1 million | never |
+| Soria | 2 | 39,000 | 18,000 | 41.4 million | 103.6 million | 69.1 million | — |
 | Ávila | 3 | 46,000 | 21,000 | 38.7 million | 45.6 million | 256.3 million | 53.2 million |
 | Segovia | 3 | 40,000 | 21,000 | 10 million | 18.6 million | 21.6 million | 31.8 million |
 | Teruel | 3 | 35,000 | 22,000 | 3.8 million | 5.2 million | 12.5 million | 7.5 million |
@@ -166,7 +166,10 @@ Every constituency, sorted by the chance of changing a seat:
 | Madrid | 38 | 150,000 | 130,000 | 12.6 million | 19.1 million | 27.3 million | 77.8 million |
 <!-- END provinces -->
 
-The same numbers, with expected votes and turnout, are in
+"—": no such event in the runs. The majority figures of a single constituency rest on few
+simulated events and are noisy; the national figures above are precise.
+
+The same numbers, with expected votes, are in
 [results/provinces.csv](results/provinces.csv); simulated mean seats by constituency and list
 are in [results/seats_by_province.csv](results/seats_by_province.csv).
 
@@ -183,34 +186,34 @@ The 2023 Congress:
 
 | List | Seats | Seat share | Shapley–Shubik | Banzhaf |
 | --- | ---: | ---: | ---: | ---: |
-| PP | 137 | 39% | 41% | 41% |
-| PSOE | 121 | 35% | 20% | 18% |
-| Vox | 33 | 9% | 15% | 16% |
-| Sumar | 31 | 9% | 12% | 14% |
-| ERC | 7 | 2% | 3% | 3% |
-| Junts | 7 | 2% | 3% | 3% |
-| EH Bildu | 6 | 2% | 2% | 2% |
-| PNV | 5 | 1% | 2% | 2% |
-| BNG | 1 | 0% | 1% | 1% |
-| CC | 1 | 0% | 1% | 1% |
-| UPN | 1 | 0% | 1% | 1% |
+| PP | 137 | 39.1% | 40.6% | 41.5% |
+| PSOE | 121 | 34.6% | 20.1% | 17.8% |
+| Vox | 33 | 9.4% | 15.0% | 15.8% |
+| Sumar | 31 | 8.9% | 12.3% | 13.8% |
+| ERC | 7 | 2.0% | 3.1% | 2.8% |
+| Junts | 7 | 2.0% | 3.1% | 2.8% |
+| EH Bildu | 6 | 1.7% | 2.5% | 2.4% |
+| PNV | 5 | 1.4% | 1.6% | 1.6% |
+| BNG | 1 | 0.3% | 0.5% | 0.5% |
+| CC | 1 | 0.3% | 0.5% | 0.5% |
+| UPN | 1 | 0.3% | 0.5% | 0.5% |
 
 Averaged over 10,000 simulated 2026 parliaments (lists with at least 0.1% of the seats):
 
 | List | Mean seat share | Shapley–Shubik | Banzhaf |
 | --- | ---: | ---: | ---: |
-| PP | 38% | 38% | 38% |
-| PSOE | 30% | 27% | 27% |
-| Vox | 20% | 27% | 26% |
-| Frente Amplio | 4% | 2% | 3% |
-| ERC | 3% | 2% | 2% |
-| EH Bildu | 2% | 1% | 1% |
-| Junts | 1% | 1% | 1% |
-| PNV | 1% | 1% | 1% |
-| BNG | 1% | 0% | 0% |
-| Adelante Andalucía | 1% | 0% | 0% |
-| Podemos | 0% | 0% | 0% |
-| CC | 0% | 0% | 0% |
+| PP | 38.0% | 38.4% | 38.1% |
+| PSOE | 29.7% | 27.0% | 26.7% |
+| Vox | 19.5% | 26.5% | 26.4% |
+| Frente Amplio | 3.6% | 2.4% | 2.5% |
+| ERC | 2.7% | 1.7% | 1.8% |
+| EH Bildu | 2.0% | 1.2% | 1.4% |
+| Junts | 1.4% | 0.9% | 1.0% |
+| PNV | 1.1% | 0.7% | 0.8% |
+| BNG | 0.7% | 0.4% | 0.5% |
+| Adelante Andalucía | 0.7% | 0.4% | 0.5% |
+| Podemos | 0.3% | 0.2% | 0.2% |
+| CC | 0.3% | 0.2% | 0.2% |
 <!-- END power -->
 
 ### Players and payoffs
@@ -247,7 +250,7 @@ gain per person and α the weight the voter gives a stranger relative to themsel
 p·N = 4.6 for the majority: with b = 100 €, voting pays once α passes 1.1% (about 1 in 93);
 with b = 1,000 €, once it passes 0.11%. For a seat, p·N = 650.
 
-![Figure 4](figures/fig-4-break-even.png)
+![The weight on others at which voting pays](figures/fig-break-even.png)
 
 **Others' votes.** Persuasion has, on average, no measurable effect in general elections
 (Kalla and Broockman, 2018). Mobilisation does have effects: in a US field experiment, a
@@ -302,6 +305,8 @@ actual seat counts fall in their 80% intervals, or fewer than 90% in their 95% i
 
 Result: 22 of 26 inside the 80% intervals and 24 of 26 inside the 95% ones, so no widening
 (factor 1.00).
+
+![Backtests: intervals and actual seats](figures/fig-backtests.png)
 
 <!-- BEGIN backtests -->
 | Election | List | Actual seats | 80% | 95% |
