@@ -28,8 +28,9 @@ errors, a different swing model or different blocs would move them more (see
 
 ![The odds of deciding, against two references](figures/fig-odds.png)
 
-The [carousel](carousel/carousel.pdf) is a nine-page summary in paper form
-([plain text](carousel/slides.txt)).
+The carousel is a nine-page summary in paper form: [in Spanish](carousel/carousel.pdf) (the
+one posted; [plain text](carousel/slides.txt)) and [in English](carousel/en/carousel.pdf)
+([plain text](carousel/en/slides.txt)).
 
 ## The question
 
@@ -445,15 +446,17 @@ uv run voteev download    # fetch the sources (polls are refetched each time)
 uv run voteev prepare     # parse them into data/processed/
 uv run voteev analyze     # backtests, the 2026 simulation, results/summary.json
 uv run voteev figures     # figures/*.png
-uv run voteev carousel    # carousel/carousel.pdf, slide-NN.png, slides.txt
+uv run voteev carousel    # in Spanish: carousel/carousel.pdf, slide-NN.png, slides.txt
+uv run voteev carousel --lang en   # in English, in carousel/en/ (and the README's figures)
 uv run voteev tables      # refresh the tables in this README
-uv run voteev check       # every number in README.md, POST.md and the carousel is in summary.json
+uv run voteev check       # every number in README.md, POST.md and both carousels is in summary.json
 uv run pytest && uv run ruff check
 ```
 
 The `Makefile` runs the same steps (`make all`). `results/summary.json` is the only source of
-the numbers in this README, the carousel and the post; `voteev check` fails if a number in
-them is not there.
+the numbers in this README, the carousels and the post; `voteev check` fails if a number in
+them is not there, or is not written in its language's format (`76,000` and `94.2%` in
+English; `76.000` and `94,2 %` in Spanish, with a no-break space before % and €).
 
 Fonts: STIX Two (SIL Open Font License, in `src/spain_vote_ev/fonts/`).
 
