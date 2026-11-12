@@ -5,7 +5,7 @@
     voteev simulate    a quick 2026 run: seats, blocs and pivot odds, nothing written
     voteev backtest    the pre-declared backtests (Nov 2019, 2023) and their coverage
     voteev analyze     everything: writes results/summary.json, the only source of numbers
-    voteev figures     the four figures, as PNG (and SVG) in figures/
+    voteev figures     the five figures, as PNG (and SVG) in figures/
     voteev carousel    the nine-page carousel: carousel/carousel.pdf, slide-NN.png, slides.txt
                        in Spanish (the one published); --lang en writes carousel/en/
     voteev tables      rewrite the README's generated tables from summary.json
@@ -24,7 +24,7 @@ from .sources import RESULTS, ROOT
 
 # The published texts and their language; a file can switch midway with a line
 # `<!-- lang: en -->` (see facts.py).
-CHECKED = [("README.md", "en"), ("POST.md", "en"), ("carousel/slides.txt", "es"),
+CHECKED = [("README.md", "en"), ("POST.md", "es"), ("carousel/slides.txt", "es"),
            ("carousel/en/slides.txt", "en")]
 
 
