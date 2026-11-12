@@ -14,12 +14,12 @@ election); 100,000 simulated elections (seed 20261129).
 | changes whether either bloc reaches 176 seats | 1 in 10.8 million | 1 in 10.2 million – 11.3 million |
 | … F reaching 176 | 1 in 18 million | 1 in 16.9 million – 19.3 million |
 | … S reaching 176 | 1 in 22.8 million | 1 in 21.2 million – 24.6 million |
-| … S without Junts reaching 176 | 1 in 45.2 million | |
+| … S without Junts reaching 176 | 1 in 45.2 million | 1 in 41.2 million – 50.2 million |
 
 For scale: picking all six numbers of 49 is 1 in 14 million (13,983,816 combinations), and
 Gelman, Silver and Edlin (2012) put the chance that one vote decided the 2008 US presidency at
-about 1 in 60 million for the average voter, 6 times less likely than deciding the Spanish
-majority here.
+about 1 in 60 million for the average voter: the Spanish majority figure here is about 6
+times larger.
 
 The Monte Carlo intervals only measure simulation noise. The real uncertainty is in the model:
 the bandwidth choice moves the answers by 0.2% (seat) and 3.2% (majority), and wider poll
@@ -50,9 +50,9 @@ The totals are those recorded in the Diario de Sesiones
 ([27 Sep 2023](https://www.congreso.es/public_oficiales/L15/CONG/DS/PL/DSCD-15-PL-5.PDF),
 [16 Nov 2023](https://www.congreso.es/public_oficiales/L15/CONG/DS/PL/DSCD-15-PL-8.PDF)); the
 transcript gives totals only, and the split by party above adds up to them. Frente Amplio and
-Podemos, both part of Sumar's group in 2023, count in S; Coalición Canaria voted yes both times,
-so it counts in both; lists without a seat in 2023 count in neither. S without Junts is
-reported too.
+Podemos, the two 2026 lists that share Sumar's 2023 vote, count in S; Coalición Canaria voted
+yes both times, so it counts in both; lists without a seat in 2023 count in neither. S without
+Junts is reported too.
 
 **The average voter.** Each constituency's probability for each list, averaged with weights
 equal to the list's expected votes there: the chance for a vote picked at random from all the
@@ -270,16 +270,17 @@ reckoning above.
 2. **National error.** Each polled share moves on the logit scale by a normal error with
    σ = 0.22: the root mean square of the same median's errors 19 days before the 2015, 2016,
    April 2019, November 2019 and 2023 elections (43 list-elections with at least 1%; errors
-   centred on zero, no bias correction). For lists above 10%, those errors were 2.7 points
-   RMS and at most 6.0 points. Past errors show no positive correlation within blocs, so none
+   centred on zero, no bias correction). For lists that won at least 10%, those errors were
+   2.7 points RMS and at most 6.0 points. Past errors show no positive correlation within blocs, so none
    is added.
 3. **Constituencies.** Proportional swing from 2023: each list's share in a constituency is
    its 2023 share times its national ratio, times exp(δ), with δ the sum of a regional effect
    (σ = 0.11) and a constituency effect (σ = 0.07), both estimated from how 974 provincial
    swings departed from national ones; then shares are raked to the national draw. Sumar's
    2023 vote is split between Frente Amplio and Podemos by their 2024 European ratio in each
-   province; SALF starts from its 2024 European vote; Adelante Andalucía, new in 2023's
-   absence, from a flat share in its constituencies.
+   province; SALF starts from its 2024 European vote; Adelante Andalucía, which in 2023
+   stood only in Cádiz, from a flat share across the Andalusian constituencies where it
+   stands.
 4. **Turnout.** National and constituency logit errors (σ = 0.19 and 0.10) around 2023
    turnout.
 5. **Seats.** D'Hondt with the 3% threshold in every constituency
@@ -292,9 +293,10 @@ reckoning above.
    For the majority, only runs where the seat that changes hands moves a bloc across 176
    count.
 
-The lists modelled in 2026 are those proclaimed in the BOE: every list with a 2023 seat or a
-polled national share, plus local lists that won seats before (Teruel Existe, Soria ¡Ya!);
-the rest are pooled as "others", which never win seats here.
+The 2026 lists are the candidacies proclaimed in the BOE, labelled by name. Modelled: every
+list that at least 5 firms poll, plus Teruel Existe and Soria ¡Ya!, local lists with a large
+vote in their province in 2023. All other candidacies are pooled as "others", which keep
+their 2023 share and win no seats here.
 
 ## Backtests
 
@@ -369,8 +371,8 @@ one list, so the 2026 intervals may be a little narrow.
 One poll in the window was released by a party (Vox). Without it, P(F ≥ 176) is 94.8%
 instead of 94.2%, and P(S ≥ 176) 3.7% instead of 4.2%.
 
-The CIS is not in the window (its last fieldwork ended on 6 October 2026). Against the median
-of the 8 other firms with fieldwork in the 14 days to that date:
+The CIS is not in the window: its latest poll in the data ended fieldwork on 6 October 2026.
+Against the median of the 8 other firms with fieldwork in the 14 days to that date:
 
 <!-- BEGIN cis -->
 | List | CIS (%) | Median of the other firms (%) | Difference (points) |

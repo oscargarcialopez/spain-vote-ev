@@ -10,7 +10,7 @@ For the average voter, one more vote changes a seat in Congress with probability
 
 It changes whether either of the two 2023 investiture blocs reaches 176 seats with probability 1 in 10.8 million. That is close to the odds of picking all six numbers of 49 (1 in 14 million), and about 6 times likelier than deciding the 2008 US presidency (1 in 60 million, by Gelman, Silver and Edlin's estimate).
 
-Where the vote is cast matters a lot. In Ceuta, a one-seat race, the seat odds are 1 in 10,000; in Madrid, 1 in 130,000. For the majority, the odds differ up to 56-fold between constituencies.
+The constituency matters. In Ceuta, a one-seat race, the seat odds are 1 in 10,000; in Madrid, 1 in 130,000. For the majority, the odds differ up to 56-fold between constituencies.
 
 How it works:
 1. The median of 16 pollsters' latest polls, with none excluded.
