@@ -1,0 +1,262 @@
+## Slide 1
+
+What is one vote worth?
+
+Spain's general election of 29 November 2026
+
+Óscar García López
+
+November 2026
+
+Abstract
+
+I simulate Spain's election 100,000 times from the polls to 10 November 2026, constituency by constituency, with errors measured on the same poll summary in past elections. For the average voter, one more vote changes a seat with probability 1 in 76,000, and changes whether either 2023 investiture bloc reaches 176 seats with probability 1 in 10.8 million: about 6 times likelier than deciding the 2008 US presidency, and close to the odds of picking all six numbers of 49. The numbers treat every list alike and advise no one.
+
+Figure 1. How likely one vote is to decide. Black: this model, average Spanish voter. Hatched: references (Gelman, Silver and Edlin, 2012).
+
+one vote changes a seat
+
+1 in 76,000
+
+one vote changes whether a bloc has 176 seats
+
+1 in 10.8 million
+
+picking all six numbers of 49
+
+1 in 14 million
+
+one vote decides the 2008 US presidency
+
+1 in 60 million
+
+odds, 1 in N (log scale)
+
+1 million
+
+10 million
+
+100 million
+
+Code, data and method: linked in the first comment.
+
+## Slide 2
+
+The question
+
+A vote matters when it changes something. Spain elects 350 deputies in 52 constituencies by D'Hondt, with a 3% threshold in each; Ceuta and Melilla elect one each. One more vote can move a seat from one list to another, or move the seat that decides a majority of 176.
+
+For the majority I use the coalitions of the two 2023 investiture votes, so no party is placed by anyone's judgement:
+
+Bloc | Vote | Yes votes
+
+F | Feijóo, 27 Sep 2023: 172 | PP 137, Vox 33, UPN 1, CC 1
+
+S | Sánchez, 16 Nov 2023: 179 | PSOE 121, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1
+
+Frente Amplio and Podemos, both in Sumar's group in 2023, count in S; lists with no seat in 2023 count in neither; Coalición Canaria voted yes twice, so it is in both. I also report S without Junts.
+
+Whether voting pays is the calculus of voting (Riker and Ordeshook, 1968):
+
+R = pB − C + D (1)
+
+where p is the chance of being decisive, B what the outcome is worth to you, C the cost of voting and D what voting is worth in itself. This study estimates p.
+
+## Slide 3
+
+The model
+
+Polls: each firm's latest poll with fieldwork ending 27 October – 10 November 2026, 16 firms; the median of each list. No firm is excluded. One poll in the window was released by a party (Vox); without it, P(F ≥ 176) is 94.8% instead of 94.2% and P(S ≥ 176) 3.7% instead of 4.2%.
+
+National error: each share moves on the logit scale with σ = 0.22, the size of the same median's errors 19 days out in 2015–2023 (43 cases). Errors are centred on zero.
+
+Constituencies: proportional swing from 2023 (the 2024 European vote for SALF and to split Sumar's vote), with regional and provincial deviations (σ = 0.11 and 0.07) estimated from past swings; turnout varies too.
+
+Seats: D'Hondt with the 3% threshold, and for each list Δ, the extra votes it needs for one more seat.
+
+The chance that one vote is decisive is the density of Δ at zero:
+
+p ≈ N_h / (n h) (2)
+
+where Nh counts the n = 100,000 runs with 0 < Δ ≤ h, and h is 2% of the constituency's votes per seat. With h from 1% to 5% the national answers move by 0.2% (seat) and 3.2% (majority). For a majority, only the runs where that seat moves a bloc across 176 count.
+
+## Slide 4
+
+Does it work? Backtests
+
+I ran the same code seven days before the elections of November 2019 and July 2023, calibrated only on earlier elections. The rule for widening the errors was committed before the first run: widen if fewer than 75% of the actual seat counts fall in the 80% intervals, or fewer than 90% in the 95% ones.
+
+Result: 22 of 26 lists inside their 80% intervals, 24 of 26 inside the 95% ones, so no widening. The 80% misses: Cs (10 vs 12–30), BNG (1 vs 0–0) in 2019; CUP (0 vs 1–1), Teruel Existe (0 vs 1–1) in 2023.
+
+Table 1. Where the actual bloc total fell in the simulated distribution. The 2019 bloc is PSOE, Unidas Podemos, PNV, Más País and BNG.
+
+Election, bloc | Forecast P(≥ 176) | Actual seats | Percentile of the actual
+
+2023, F | 62% | 172 | 30%
+
+2023, S | 31% | 179 | 76%
+
+Nov 2019, investiture bloc | 17% | 165 | 61%
+
+Run 19 days out, as for 2026, coverage is 20 of 26 and 23 of 26: a little short at 95%, so the 2026 intervals may be slightly narrow.
+
+## Slide 5
+
+The 2026 parliament
+
+Figure 2. Seats per list in 100,000 simulated elections: mean (circle), 80% (thick) and 95% (thin) intervals.
+
+seats
+
+CC
+
+Podemos
+
+Adelante Andalucía
+
+BNG
+
+PNV
+
+Junts
+
+EH Bildu
+
+ERC
+
+Frente Amplio
+
+Vox
+
+PSOE
+
+PP
+
+Table 2. The two 2023 investiture blocs.
+
+Bloc | Mean seats | 80% interval | P(≥ 176)
+
+F | 202 | 181–224 | 94%
+
+S | 146 | 125–168 | 4%
+
+S without Junts | 141 | 120–163 | 2%
+
+## Slide 6
+
+What one vote is worth
+
+For the average voter, one more vote changes a seat with probability 1 in 76,000, and changes whether F or S reaches 176 with probability 1 in 10.8 million (F alone 1 in 18 million, S alone 1 in 22.8 million).
+
+Figure 3. The average voter of each of the 52 constituencies.
+
+Ceuta
+
+Madrid
+
+Soria
+
+Palencia
+
+seats in the constituency (log scale)
+
+odds, 1 in N
+
+1 million
+
+10 million
+
+100 million
+
+changes a seat
+
+changes whether a bloc has 176
+
+Small constituencies weigh more: 35,000 electors per seat in Teruel, 150,000 in Madrid. Ceuta, a one-seat race, is the most decisive (1 in 10,000 for its seat, 1 in 740,000 for the majority); for the majority, Soria is the least, at 1 in 41.4 million.
+
+## Slide 7
+
+Who holds the power
+
+Seats are not power. The Shapley–Shubik index is the share of the orders in which lists could join a coalition where a list's seats carry it past 176. It assumes any coalition can form: it measures arithmetic leverage, not who will govern.
+
+Table 3. Seat share and Shapley–Shubik power of the lists with 5 or more seats in 2023 (Banzhaf agrees closely; README).
+
+List | Seats 2023 | Power 2023 | Seats 2026 runs | Power 2026 runs
+
+PP | 39% | 41% | 38% | 38%
+
+PSOE | 35% | 20% | 30% | 27%
+
+Vox | 9% | 15% | 20% | 27%
+
+Sumar / Frente Amplio | 9% | 12% | 4% | 2%
+
+ERC | 2% | 3% | 3% | 2%
+
+Junts | 2% | 3% | 1% | 1%
+
+EH Bildu | 2% | 2% | 2% | 1%
+
+PNV | 1% | 2% | 1% | 1%
+
+The players
+
+Voters: the outcome (B) and the act itself (D).
+
+Parties: votes, office and policy (Strøm, 1990); their leverage is the table above.
+
+Pollsters and media: they shape what each player expects the others to do; LOREG art. 69.7 bans publishing polls in the five days before the vote.
+
+Outside constraints, such as EU fiscal rules, narrow what any majority can do.
+
+## Slide 8
+
+Why vote at all
+
+With three or more options, no ranking rule meets all of Arrow's (1951) conditions, and every non-dictatorial rule can reward voting against one's true ranking (Gibbard, 1973; Satterthwaite, 1975). Spain's rule is given; is one vote worth its cost?
+
+At 30 minutes and 10 €/h, C = 5 €. With p = 1 in 10.8 million, a selfish voter breaks even only if the majority is worth 53.8 million € to them (Downs, 1957). If B counts everyone (Edlin, Gelman and Kaplan, 2007):
+
+B = N b α (3)
+
+with N = 49.9 million residents, b the gain per person, α the weight you give a stranger. Here p N = 4.6: with b = 100 €, voting pays once α passes 1.1%, about 1 in 93.
+
+Figure 4. Above each line, p N b α exceeds the 5 € cost.
+
+voting pays
+
+$b$, gain per person from the outcome (€)
+
+$\alpha$, weight on others
+
+majority: $p$ = 1 in 10.8 million
+
+a seat: $p$ = 1 in 76,000
+
+## Slide 9
+
+Others' votes, limits, takeaways
+
+Persuading people barely moves votes in general elections (Kalla and Broockman, 2018); getting them out does, in US experiments (Gerber, Green and Larimer, 2008). At an assumed 0.1 to 1.0 extra voters per hour, an hour beats 10 €/h only if the majority is worth 107.7 million € to 1.1 billion € to you, or on the social reckoning of (3).
+
+Limits. Polls 19 days out. Proportional swing; SALF and Adelante Andalucía rest on the 2024 European vote or a flat share. Local lists can surprise. Blocs fixed by 2023 votes.
+
+Takeaways. A seat is a far likelier prize than the majority. Between constituencies the odds of deciding the majority differ up to 56-fold. Selfishly, voting rarely pays; counting others, it can.
+
+github.com/oscargarcialopez/spain-vote-ev
+
+## References
+
+Arrow, K. J. (1951). Social Choice and Individual Values. Wiley.
+Banzhaf, J. F. (1965). Weighted voting doesn't work. Rutgers Law Review 19(2), 317–343.
+Downs, A. (1957). An Economic Theory of Democracy. Harper.
+Edlin, A., Gelman, A., & Kaplan, N. (2007). Voting as a rational choice. Rationality and Society 19(3), 293–314.
+Gelman, A., Silver, N., & Edlin, A. (2012). What is the probability your vote will make a difference? Economic Inquiry 50(2), 321–326.
+Gerber, A. S., Green, D. P., & Larimer, C. W. (2008). Social pressure and voter turnout. American Political Science Review 102(1), 33–48.
+Gibbard, A. (1973). Manipulation of voting schemes. Econometrica 41(4), 587–601.
+Kalla, J. L., & Broockman, D. E. (2018). The minimal persuasive effects of campaign contact in general elections. American Political Science Review 112(1), 148–166.
+Riker, W. H., & Ordeshook, P. C. (1968). A theory of the calculus of voting. American Political Science Review 62(1), 25–42.
+Satterthwaite, M. A. (1975). Strategy-proofness and Arrow's conditions. Journal of Economic Theory 10(2), 187–217.
+Shapley, L. S., & Shubik, M. (1954). A method for evaluating the distribution of power in a committee system. American Political Science Review 48(3), 787–792.
+Strøm, K. (1990). A behavioral theory of competitive political parties. American Journal of Political Science 34(2), 565–598.
