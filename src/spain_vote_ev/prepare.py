@@ -4,6 +4,7 @@ results.csv          election, code, label, votes, seats: every list's votes by 
                      labelled (parties.py); 'OTH' is every unlabelled list, computed as Cuadro
                      I's candidate votes minus the labelled lists, so totals always match.
 summary.csv          Cuadro I: electors, voters, valid, candidate, blank, null votes.
+list_results.csv     every list by name (2016: the lists that won seats), for completeness.py.
 ep2024.csv           the 2024 European Parliament votes by province and label.
 constituencies_2026  seats (decree), electors (INE) per constituency.
 candidacies_2026     every Congreso list proclaimed for 2026, with its label.
@@ -31,8 +32,8 @@ RESULT_FILES = {
 }
 
 
-def official_results() -> tuple[pd.DataFrame, pd.DataFrame]:
-    lists, summaries = [], []
+def official_results() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    lists, summaries, named_lists = [], [], []
     for e, (xml, pdf) in RESULT_FILES.items():
         if e == "2016":
             lst = boe.parse_pdf_seat_lists_2016(RAW / pdf)
@@ -43,6 +44,8 @@ def official_results() -> tuple[pd.DataFrame, pd.DataFrame]:
                 summ = boe.parse_pdf_summary(RAW / pdf, e)
         lst["label"] = [parties.label_for(e, n, a) for n, a in zip(lst["list"], lst["abbr"],
                                                                      strict=True)]
+        named_lists.append(lst.assign(election=e)[
+            ["election", "code", "list", "abbr", "label", "votes", "seats"]])
         named = lst[lst["label"] != "OTH"].groupby(["code", "label"], as_index=False)[
             ["votes", "seats"]].sum()
         # Every unlabelled list is 'others': Cuadro I's candidate votes minus the labelled
@@ -61,7 +64,7 @@ def official_results() -> tuple[pd.DataFrame, pd.DataFrame]:
         summaries.append(summ)
     results = pd.concat(lists, ignore_index=True)
     summary = pd.concat(summaries, ignore_index=True)
-    return results, summary
+    return results, summary, pd.concat(named_lists, ignore_index=True)
 
 
 def ep2024() -> pd.DataFrame:
@@ -114,8 +117,9 @@ def population() -> dict:
 
 def prepare() -> None:
     PROCESSED.mkdir(parents=True, exist_ok=True)
-    results, summary = official_results()
+    results, summary, named = official_results()
     results.to_csv(PROCESSED / "results.csv", index=False)
+    named.to_csv(PROCESSED / "list_results.csv", index=False)
     summary.to_csv(PROCESSED / "summary.csv", index=False)
     ep2024().to_csv(PROCESSED / "ep2024.csv", index=False)
     constituencies_2026().to_csv(PROCESSED / "constituencies_2026.csv", index=False)

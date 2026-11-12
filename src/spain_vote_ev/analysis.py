@@ -10,7 +10,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from . import backtest, investiture, model, parties, power, theory
+from . import backtest, completeness, investiture, model, parties, power, theory
 from .provinces import NAME
 from .sources import ELECTION_DATE, RESULTS
 
@@ -284,6 +284,7 @@ def run(n: int = N, cutoff: date | None = None, backtest_n: int = backtest.N) ->
                                       **backtest.coverage(bt_lead)},
                      "sigma_rule": {k: v for k, v in srule.items()}},
         "robustness": rob,
+        "completeness": completeness.check(),
         "sensitivity_party_polls": sens,
         "context": {**context, "gse_2012_one_in": GSE_2012_ONE_IN},
     }

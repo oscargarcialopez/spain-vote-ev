@@ -359,40 +359,103 @@ def fig_seats(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> list[st
     return save(fig, svg, png)
 
 
-LABEL_AT = {"seat.top1": (6, -3, "left"), "seat.bottom1": (-6, 6, "right"),
-            "majority_any.bottom1": (6, 2, "left"), "majority_any.top2": (16, -16, "left")}
 ODDS_TICKS_Y = {"en": ["10,000", "100,000", "1 million", "10 million", "100 million"],
                 "es": ["10.000", "100.000", "1 millón", "10 millones", "100 millones"]}
+# Where a label may go around its point, nearest first: offsets in points, alignment.
+LABEL_SPOTS = [(dx * r, dy * r, ha, va) for r in (1, 2, 3)
+               for dx, dy, ha, va in ((5, 0, "left", "center"), (-5, 0, "right", "center"),
+                                      (0, 5, "center", "bottom"), (0, -5, "center", "top"),
+                                      (4, 4, "left", "bottom"), (-4, 4, "right", "bottom"),
+                                      (4, -4, "left", "top"), (-4, -4, "right", "top"))]
+MARKER_PT = 3.8  # marker diameter of the constituency figure, in points
 
 
-def fig_constituencies(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> list[str]:
+def point_boxes(ax, xy: np.ndarray, size_pt: float = MARKER_PT) -> list:
+    """The display-space box of every marker."""
+    from matplotlib.transforms import Bbox
+    r = size_pt / 2 * ax.figure.dpi / 72 + 1
+    return [Bbox.from_extents(x - r, y - r, x + r, y + r) for x, y in ax.transData.transform(xy)]
+
+
+def place_labels(ax, items: list[tuple[str, tuple[float, float]]], points: np.ndarray,
+                 fontsize: float = 9.5) -> list:
+    """Each (text, point) label at the nearest spot around its point where it stays inside
+    the axes and overlaps no marker, no other label and the legend."""
+    fig = ax.figure
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    frame = ax.get_window_extent(rend)
+    taken = point_boxes(ax, points)
+    if ax.get_legend():
+        taken.append(ax.get_legend().get_window_extent(rend))
+    out = []
+    for text, xy in items:
+        for dx, dy, ha, va in LABEL_SPOTS:
+            far = abs(dx) + abs(dy) > 10
+            t = ax.annotate(text, xy, xytext=(dx, dy), textcoords="offset points", ha=ha,
+                            va=va, fontsize=fontsize, color=GREY,
+                            arrowprops={"arrowstyle": "-", "lw": 0.5, "color": GREY,
+                                        "shrinkA": 0, "shrinkB": 2.5} if far else None)
+            box = t.get_window_extent(rend).padded(1)
+            inside = (box.x0 >= frame.x0 and box.x1 <= frame.x1 and box.y0 >= frame.y0
+                      and box.y1 <= frame.y1)
+            if inside and not any(box.overlaps(b) for b in taken):
+                taken.append(box)
+                out.append(t)
+                break
+            t.remove()
+        else:
+            raise ValueError(f"no room for the label {text!r}")
+    return out
+
+
+def extremes(prov: list[dict], events: tuple[str, ...]) -> list[tuple[str, int]]:
+    """The most and the least decisive constituency of each event: (event, index)."""
+    out = []
+    for ev in events:
+        vals = [r[f"one_in_{ev}"] for r in prov]
+        out += [(ev, int(np.argmin(vals))), (ev, int(np.argmax(vals)))]
+    return out
+
+
+def draw_constituencies(s: dict, L: Lang):
+    """Figure 4 and what its test needs: the axes, the markers' positions and the labels."""
     prov = s["vote"]["provinces"]
+    ev2 = "government" if "one_in_government" in prov[0] else "majority_any"
     seats = np.array([r["seats"] for r in prov], float)
-    jitter = 1 + 0.035 * (np.arange(len(prov)) % 3 - 1)
+    x = seats * (1 + 0.035 * (np.arange(len(prov)) % 3 - 1))
+    y = {ev: np.array([r[f"one_in_{ev}"] for r in prov]) for ev in ("seat", ev2)}
     fig, ax = plt.subplots(figsize=(TEXT_W, 2.7))
-    ax.plot(seats * jitter, [r["one_in_seat"] for r in prov], "o", ms=3.6, mfc=INK, mec=INK,
-            mew=0.5, label=L("changes a seat", "cambia un escaño"))
-    ax.plot(seats * jitter, [r["one_in_majority_any"] for r in prov], "o", ms=3.8,
-            mfc="white", mec=ACCENT, mew=0.9,
-            label=L("changes whether a bloc has 176", "decide si un bloque llega a 176"))
+    ax.plot(x, y["seat"], "o", ms=3.6, mfc=INK, mec=INK, mew=0.5,
+            label=L("changes a seat", "cambia un escaño"))
+    ax.plot(x, y[ev2], "o", ms=MARKER_PT, mfc="white", mec=ACCENT, mew=0.9,
+            label=L("changes who is invested", "cambia quién es investido")
+            if ev2 == "government" else
+            L("changes whether a bloc has 176", "decide si un bloque llega a 176"))
     ax.set_xscale("log")
     ax.set_yscale("log")
     top = int(seats.max())
     ax.set_xlim(0.8, top * 1.35)
-    ax.set_ylim(2e3, 2e8)
+    lo = min(y["seat"].min(), y[ev2].min())
+    hi = max(y["seat"].max(), y[ev2].max())
+    ax.set_ylim(10 ** np.floor(np.log10(lo) - 0.3), 10 ** np.ceil(np.log10(hi) + 0.3))
     ax.set_xticks([1, 2, 5, 10, 20, top], ["1", "2", "5", "10", "20", str(top)])
     ax.minorticks_off()
-    ax.set_yticks([1e4, 1e5, 1e6, 1e7, 1e8], ODDS_TICKS_Y[L.code], fontsize=9.5)
+    ticks = [t for t in (1e4, 1e5, 1e6, 1e7, 1e8) if ax.get_ylim()[0] <= t <= ax.get_ylim()[1]]
+    ax.set_yticks(ticks, [ODDS_TICKS_Y[L.code][int(np.log10(t)) - 4] for t in ticks],
+                  fontsize=9.5)
     ax.set_xlabel(L("seats in the constituency (log scale)",
                     "escaños de la circunscripción (escala logarítmica)"), fontsize=11)
     ax.set_ylabel(L("odds, 1 in N", "probabilidad, 1 entre N"), fontsize=11)
-    for key, (dx, dy, ha) in LABEL_AT.items():
-        r = next(x for x in prov if x["name"] == f[key])
-        ev = "seat" if key.startswith("seat") else "majority_any"
-        arrow = {"arrowstyle": "-", "lw": 0.5, "color": GREY} if abs(dy) > 10 else None
-        ax.annotate(r["name"], (r["seats"], r[f"one_in_{ev}"]), xytext=(dx, dy), ha=ha,
-                    textcoords="offset points", fontsize=9.5, color=GREY, arrowprops=arrow)
-    ax.legend(loc="lower right", fontsize=9.5, handletextpad=0.3, borderpad=0.4)
+    ax.legend(loc="best", fontsize=9.5, handletextpad=0.3, borderpad=0.4)
+    points = np.vstack([np.column_stack([x, y[ev]]) for ev in ("seat", ev2)])
+    items = [(prov[i]["name"], (x[i], y[ev][i])) for ev, i in extremes(prov, ("seat", ev2))]
+    labels = place_labels(ax, items, points)
+    return fig, ax, points, labels
+
+
+def fig_constituencies(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> list[str]:
+    fig, *_ = draw_constituencies(s, L)
     return save(fig, svg, png)
 
 
