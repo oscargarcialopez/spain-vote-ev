@@ -10,3 +10,4 @@ data/raw/*
 # carousel build intermediates
 carousel/*.typ
 carousel/fig-*.svg
+figures/*.svg
