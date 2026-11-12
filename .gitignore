@@ -8,6 +8,6 @@ __pycache__/
 data/raw/*
 !data/raw/MANIFEST.tsv
 # carousel build intermediates
-carousel/*.typ
-carousel/fig-*.svg
+carousel/**/*.typ
+carousel/**/fig-*.svg
 figures/*.svg

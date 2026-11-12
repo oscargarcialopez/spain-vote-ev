@@ -1,92 +1,92 @@
-## Slide 1
+## Diapositiva 1
 
-What is one vote worth?
+¿Cuánto vale un voto?
 
-Spain's general election of 29 November 2026
+Las elecciones generales del 29 de noviembre de 2026
 
 Óscar García López
 
-November 2026
+Noviembre de 2026
 
-Abstract
+Resumen
 
-I simulate Spain's election 100,000 times from the polls to 10 November 2026, constituency by constituency, with errors measured on the same poll summary in past elections. For the average voter, one more vote changes a seat with probability 1 in 76,000, and changes whether either 2023 investiture bloc reaches 176 seats with probability 1 in 10.8 million: about 6 times likelier than deciding the 2008 US presidency, and close to the odds of picking all six numbers of 49. The numbers treat every list alike and advise no one.
+Simulo 100.000 veces las elecciones, circunscripción a circunscripción, con la mediana de las encuestas hasta el 10 de noviembre de 2026 y los errores que tuvo en elecciones pasadas. Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 76.000 y decide si uno de los bloques de las investiduras de 2023 llega a 176 escaños con una de 1 entre 10,8 millones, unas 6 veces mayor que la de decidir las presidenciales de EE. UU. de 2008 y parecida a la de acertar los seis números de la Primitiva. El cálculo trata igual a todas las listas y no aconseja nada a nadie.
 
-Figure 1. How likely one vote is to decide. Black: this model, average Spanish voter. Hatched: references (Gelman, Silver and Edlin, 2012).
+Figura 1. Probabilidad de que un voto decida. Barras negras: este modelo, votante medio de España. Rayadas: referencias (Gelman, Silver y Edlin, 2012).
 
-one vote changes a seat
+un voto cambia un escaño
 
-1 in 76,000
+1 entre 76.000
 
-one vote changes whether a bloc has 176 seats
+un voto decide si un bloque llega a 176 escaños
 
-1 in 10.8 million
+1 entre 10,8 millones
 
-picking all six numbers of 49
+acertar los seis números de la Primitiva
 
-1 in 14 million
+1 entre 14 millones
 
-one vote decides the 2008 US presidency
+un voto decide las presidenciales de EE. UU. de 2008
 
-1 in 60 million
+1 entre 60 millones
 
-odds, 1 in N (log scale)
+probabilidad, 1 entre N (escala logarítmica)
 
-10 million
+10 millones
 
-1 billion
+1.000 millones
 
-Code, data and method: linked in the first comment.
+Código, datos y método: enlace en el primer comentario.
 
-## Slide 2
+## Diapositiva 2
 
-The question
+La pregunta
 
-A vote matters when it changes something. Spain elects 350 deputies in 52 constituencies by D'Hondt, with a 3% threshold in each; Ceuta and Melilla elect one each. One more vote can move a seat from one list to another, or move the seat that decides a majority of 176.
+Un voto importa cuando cambia algo. España elige 350 diputados en 52 circunscripciones con la ley D'Hondt y un umbral del 3 % en cada una; Ceuta y Melilla eligen uno cada una. Un voto más puede pasar un escaño de una lista a otra, o mover el escaño que decide una mayoría absoluta de 176.
 
-For the majority I use the coalitions of the two 2023 investiture votes, so no party is placed by anyone's judgement:
+Para la mayoría uso los bloques de las dos votaciones de investidura de 2023; así nadie decide a mano dónde va cada partido:
 
-Bloc | Vote | Yes votes
+Bloque | Votación | Votos a favor
 
-F | Feijóo, 27 Sep 2023: 172 | PP 137, Vox 33, UPN 1, CC 1
+F | Feijóo, 27 de septiembre de 2023: 172 | PP 137, Vox 33, UPN 1, CC 1
 
-S | Sánchez, 16 Nov 2023: 179 | PSOE 121, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1
+S | Sánchez, 16 de noviembre de 2023: 179 | PSOE 121, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1
 
-Frente Amplio and Podemos, both in Sumar's group in 2023, count in S; lists with no seat in 2023 count in neither; Coalición Canaria voted yes twice, so it is in both. I also report S without Junts.
+Frente Amplio y Podemos, que en 2023 estaban en el grupo de Sumar, cuentan en S; las listas sin escaño en 2023 no cuentan en ninguno; Coalición Canaria votó sí las dos veces, así que está en los dos. También doy S sin Junts.
 
-Whether voting pays is the calculus of voting (Riker and Ordeshook, 1968):
+Si votar compensa o no es el cálculo del voto (Riker y Ordeshook, 1968):
 
 R = pB − C + D (1)
 
-where p is the chance of being decisive, B what the outcome is worth to you, C the cost of voting and D what voting is worth in itself. This study estimates p.
+donde p es la probabilidad de que tu voto decida, B lo que vale para ti el resultado, C el coste de votar y D lo que vale votar en sí. Este estudio estima p.
 
-## Slide 3
+## Diapositiva 3
 
-The model
+El modelo
 
-Polls: each firm's latest poll with fieldwork ending 27 October – 10 November 2026, 16 firms; the median of each list. No firm is excluded. One poll in the window was released by a party (Vox); without it, P(F ≥ 176) is 94.8% instead of 94.2% and P(S ≥ 176) 3.7% instead of 4.2%.
+Encuestas: de cada empresa, la última con el trabajo de campo acabado entre el 27 de octubre y el 10 de noviembre de 2026; son 16 empresas, y tomo la mediana de cada lista. No se excluye ninguna. Una de las encuestas del periodo la publicó un partido (Vox); sin ella, P(F ≥ 176) es 94,8 % en vez de 94,2 %, y P(S ≥ 176), 3,7 % en vez de 4,2 %.
 
-National error: each share moves on the logit scale with σ = 0.22, the size of the same median's errors 19 days out in 2015–2023 (43 cases). Errors are centred on zero.
+Error nacional: el porcentaje de cada lista se mueve en escala logit con σ = 0,22, el tamaño de los errores de la misma mediana a 19 días de las elecciones de 2015–2023 (43 casos). Los errores están centrados en cero.
 
-Constituencies: proportional swing from 2023 (the 2024 European vote for SALF and to split Sumar's vote), with regional and provincial deviations (σ = 0.11 and 0.07) estimated from past swings; turnout varies too.
+Circunscripciones: el cambio desde 2023 se aplica en proporción (con las europeas de 2024 para SALF y para repartir el voto de Sumar), con desviaciones autonómicas y provinciales (σ = 0,11 y 0,07) estimadas con cambios pasados; la participación también varía.
 
-Seats: D'Hondt with the 3% threshold, and for each list Δ, the extra votes it needs for one more seat.
+Escaños: D'Hondt con el umbral del 3 %, y para cada lista Δ, los votos que le faltan para un escaño más.
 
-The chance that one vote is decisive is the density of Δ at zero:
+La probabilidad de que un voto sea decisivo es la densidad de Δ en cero:
 
 p ≈ N_h / (n h) (2)
 
-where Nh counts the n = 100,000 runs with 0 < Δ ≤ h, and h is 2% of the constituency's votes per seat. With h from 1% to 5% the national answers move by 0.2% (seat) and 3.2% (majority). For a majority, only the runs where that seat moves a bloc across 176 count.
+donde Nh cuenta las simulaciones, de n = 100.000, con 0 < Δ ≤ h, y h es el 2 % de los votos por escaño de la circunscripción. Con h entre el 1 % y el 5 %, los resultados nacionales se mueven un 0,2 % (escaño) y un 3,2 % (mayoría). Para la mayoría solo cuentan las simulaciones en que ese escaño cambia si un bloque llega a 176.
 
-## Slide 4
+## Diapositiva 4
 
-Does it work? Backtests
+¿Funciona? Contraste con elecciones pasadas
 
-I ran the same code seven days before the elections of November 2019 and July 2023, calibrated only on earlier elections. The rule for widening the errors was committed before the first run: widen if fewer than 75% of the actual seat counts fall in the 80% intervals, or fewer than 90% in the 95% ones. Result: 22 of 26 and 24 of 26, so no widening.
+Ejecuté el mismo código siete días antes de las generales de noviembre de 2019 y de julio de 2023, calibrado solo con las anteriores. La regla para ensanchar los errores se fijó antes de empezar: si menos del 75 % de las listas queda dentro de su horquilla del 80 %, o menos del 90 % dentro de la del 95 %. Resultado: 22 de 26 y 24 de 26; no se ensanchan.
 
-Figure 2. Simulated 80% (thick) and 95% (thin) intervals and the actual seats (diamonds, filled when outside the 80% interval).
+Figura 2. Horquillas simuladas del 80 % (trazo grueso) y del 95 % (fino) y escaños reales (rombos, rellenos si quedan fuera de la horquilla del 80 %).
 
-seats (square-root scale)
+escaños (escala de raíz cuadrada)
 
 BNG
 
@@ -116,7 +116,7 @@ PP
 
 PSOE
 
-seats (square-root scale)
+escaños (escala de raíz cuadrada)
 
 CUP
 
@@ -142,25 +142,25 @@ PSOE
 
 PP
 
-Table 1. Where the actual bloc total fell among the simulated ones. 2019 bloc: PSOE, Unidas Podemos, PNV, Más País, BNG.
+Tabla 1. P(≥ 176) prevista y dónde quedó el total real del bloque entre los simulados. S en 2019: PSOE, Unidas Podemos, PNV, Más País y BNG.
 
-Election, bloc | Forecast P(≥ 176) | Actual seats | Percentile of the actual
+Elección, bloque | P(≥ 176) | Escaños reales | Percentil del real
 
-2023, F | 62% | 172 | 30%
+2023, F | 62 % | 172 | 30 %
 
-2023, S | 31% | 179 | 76%
+2023, S | 31 % | 179 | 76 %
 
-Nov 2019, investiture bloc | 17% | 165 | 61%
+Noviembre de 2019, S | 17 % | 165 | 61 %
 
-Run 19 days out, as for 2026: 20 of 26 and 23 of 26, short of the 95% target, so the 2026 intervals may be a little narrow.
+A 19 días de la votación, como para 2026: 20 de 26 y 23 de 26, por debajo del objetivo del 95 %; las horquillas de 2026 pueden quedarse algo estrechas.
 
-## Slide 5
+## Diapositiva 5
 
-The 2026 parliament
+El Congreso de 2026
 
-Figure 3. Seats per list in 100,000 simulated elections: mean (circle), 80% (thick) and 95% (thin) intervals.
+Figura 3. Escaños por lista en 100.000 elecciones simuladas: media (círculo) y horquillas del 80 % (trazo grueso) y del 95 % (fino).
 
-seats
+escaños
 
 CC
 
@@ -186,23 +186,23 @@ PSOE
 
 PP
 
-Table 2. The two 2023 investiture blocs.
+Tabla 2. Los dos bloques de las investiduras de 2023.
 
-Bloc | Mean seats | 80% interval | P(≥ 176)
+Bloque | Escaños (media) | Horquilla del 80 % | P(≥ 176)
 
-F | 202 | 181–224 | 94%
+F | 202 | 181–224 | 94 %
 
-S | 146 | 125–168 | 4%
+S | 146 | 125–168 | 4 %
 
-S without Junts | 141 | 120–163 | 2%
+S sin Junts | 141 | 120–163 | 2 %
 
-## Slide 6
+## Diapositiva 6
 
-What one vote is worth
+Cuánto vale un voto
 
-For the average voter, one more vote changes a seat with probability 1 in 76,000, and changes whether F or S reaches 176 with probability 1 in 10.8 million (F alone 1 in 18 million, S alone 1 in 22.8 million).
+Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 76.000, y decide si F o S llega a 176 con una de 1 entre 10,8 millones (solo F, 1 entre 18 millones; solo S, 1 entre 22,8 millones).
 
-Figure 4. The average voter of each of the 52 constituencies.
+Figura 4. El votante medio de cada una de las 52 circunscripciones.
 
 Ceuta
 
@@ -212,95 +212,95 @@ Soria
 
 Palencia
 
-seats in the constituency (log scale)
+escaños de la circunscripción (escala logarítmica)
 
-odds, 1 in N
+probabilidad, 1 entre N
 
-1 million
+1 millón
 
-10 million
+10 millones
 
-100 million
+100 millones
 
-changes a seat
+cambia un escaño
 
-changes whether a bloc has 176
+decide si un bloque llega a 176
 
-Small constituencies weigh more: 35,000 electors per seat in Teruel, 150,000 in Madrid. Ceuta, a one-seat race, is the most decisive (1 in 10,000 for its seat, 1 in 740,000 for the majority); for the majority, Soria is the least, at 1 in 41.4 million.
+Las circunscripciones pequeñas pesan más: 35.000 electores por escaño en Teruel y 150.000 en Madrid. Ceuta, que elige un solo diputado, es la más decisiva (1 entre 10.000 para su escaño y 1 entre 740.000 para la mayoría); para la mayoría, la que menos es Soria, con 1 entre 41,4 millones.
 
-## Slide 7
+## Diapositiva 7
 
-Who holds the power
+Quién tiene el poder
 
-Seats are not power. The Shapley–Shubik index is the share of the orders in which lists could join a coalition where a list's seats carry it past 176. It assumes any coalition can form: it measures arithmetic leverage, not who will govern.
+Tener escaños no es lo mismo que tener poder. El índice de Shapley–Shubik es la fracción de los órdenes posibles de formar una coalición en los que los escaños de una lista son los que la llevan a 176. Supone que cualquier coalición puede formarse: mide peso aritmético, no quién va a gobernar.
 
-Table 3. Seat share and Shapley–Shubik power of the lists with 5 or more seats in 2023 (Banzhaf agrees closely; README).
+Tabla 3. Porcentaje de escaños y poder de Shapley–Shubik de las listas con 5 escaños o más en 2023 (el índice de Banzhaf da casi lo mismo; ver el README).
 
-List | Seats 2023 | Power 2023 | Seats 2026 runs | Power 2026 runs
+Lista | Escaños 2023 | Poder 2023 | Escaños 2026 (sim.) | Poder 2026 (sim.)
 
-PP | 39.1% | 40.6% | 38.0% | 38.4%
+PP | 39,1 % | 40,6 % | 38,0 % | 38,4 %
 
-PSOE | 34.6% | 20.1% | 29.7% | 27.0%
+PSOE | 34,6 % | 20,1 % | 29,7 % | 27,0 %
 
-Vox | 9.4% | 15.0% | 19.5% | 26.5%
+Vox | 9,4 % | 15,0 % | 19,5 % | 26,5 %
 
-Sumar / Frente Amplio | 8.9% | 12.3% | 3.6% | 2.4%
+Sumar / Frente Amplio | 8,9 % | 12,3 % | 3,6 % | 2,4 %
 
-ERC | 2.0% | 3.1% | 2.7% | 1.7%
+ERC | 2,0 % | 3,1 % | 2,7 % | 1,7 %
 
-Junts | 2.0% | 3.1% | 1.4% | 0.9%
+Junts | 2,0 % | 3,1 % | 1,4 % | 0,9 %
 
-EH Bildu | 1.7% | 2.5% | 2.0% | 1.2%
+EH Bildu | 1,7 % | 2,5 % | 2,0 % | 1,2 %
 
-PNV | 1.4% | 1.6% | 1.1% | 0.7%
+PNV | 1,4 % | 1,6 % | 1,1 % | 0,7 %
 
-The players
+Los jugadores
 
-Voters: the outcome (B) and the act itself (D).
+Votantes: el resultado (B) y el propio acto de votar (D).
 
-Parties: votes, office and policy (Strøm, 1990); their leverage is the table above.
+Partidos: votos, cargos y políticas (Strøm, 1990); su peso es el de la tabla.
 
-Pollsters and media: they shape what each player expects the others to do; LOREG art. 69.7 bans publishing polls in the five days before the vote.
+Encuestadoras y medios: forman lo que cada jugador espera que hagan los demás; el art. 69.7 de la LOREG prohíbe publicar encuestas los cinco días anteriores a la votación.
 
-Outside constraints, such as EU fiscal rules, narrow what any majority can do.
+Límites externos, como las reglas fiscales de la UE, acotan lo que puede hacer cualquier mayoría.
 
-## Slide 8
+## Diapositiva 8
 
-Why vote at all
+¿Por qué votar?
 
-With three or more options, no ranking rule meets all of Arrow's (1951) conditions, and every non-dictatorial rule can reward voting against one's true ranking (Gibbard, 1973; Satterthwaite, 1975). Spain's rule is given; is one vote worth its cost?
+Con tres opciones o más, ninguna regla de ordenación cumple todas las condiciones de Arrow (1951), y toda regla no dictatorial puede premiar votar en contra de las propias preferencias (Gibbard, 1973; Satterthwaite, 1975). La regla española es la que es; ¿compensa un voto lo que cuesta?
 
-At 30 minutes and 10 €/h, C = 5 €. With p = 1 in 10.8 million, a selfish voter breaks even only if the majority is worth 53.8 million € to them (Downs, 1957). If B counts everyone (Edlin, Gelman and Kaplan, 2007):
+Con 30 minutos a 10 €/h, C = 5 €. Con p = 1 entre 10,8 millones, a un votante egoísta solo le sale a cuenta si para él la mayoría vale 53,8 millones de euros (Downs, 1957). Si B cuenta a todos (Edlin, Gelman y Kaplan, 2007):
 
 B = N b α (3)
 
-with N = 49.9 million residents, b the gain per person, α the weight you give a stranger. Here p N = 4.6: with b = 100 €, voting pays once α passes 1.1%, about 1 in 93.
+con N = 49,9 millones de residentes, b el beneficio por persona y α el peso que das a un desconocido. Aquí p N = 4,6: con b = 100 €, votar compensa cuando α pasa del 1,1 %, más o menos 1 entre 93.
 
-Figure 5. Above each line, p N b α exceeds the 5 € cost.
+Figura 5. Por encima de cada línea, p N b α supera el coste de 5 €.
 
-voting pays (majority)
+votar compensa (mayoría)
 
-majority: $p$ = 1 in 10.8 million
+mayoría: p = 1 entre 10,8 millones
 
-a seat: $p$ = 1 in 76,000
+un escaño: p = 1 entre 76.000
 
-$b$, gain per person from the outcome (€)
+b, lo que gana cada persona con el resultado (€)
 
-$\alpha$, weight on others
+α, peso de los demás
 
-## Slide 9
+## Diapositiva 9
 
-Others' votes, limits, takeaways
+Movilizar, límites y conclusiones
 
-Persuading people barely moves votes in general elections (Kalla and Broockman, 2018); getting them out does, in US experiments (Gerber, Green and Larimer, 2008). At an assumed 0.1 to 1.0 extra voters per hour, an hour beats 10 €/h only if the majority is worth 107.7 million € to 1.1 billion € to you, or on the social reckoning of (3).
+Convencer apenas mueve votos en unas generales (Kalla y Broockman, 2018); movilizar sí, en experimentos en EE. UU. (Gerber, Green y Larimer, 2008). Suponiendo de 0,1 a 1 votantes más por hora, una hora movilizando vale más que 10 €/h solo si la mayoría vale para ti entre 107,7 millones de euros y 1.100 millones de euros, o con la cuenta social de (3).
 
-Limits. Polls 19 days out. Proportional swing; SALF and Adelante Andalucía rest on the 2024 European vote or a flat share. Local lists can surprise. Blocs fixed by 2023 votes.
+Límites. Encuestas a 19 días. Cambio proporcional; SALF y Adelante Andalucía se apoyan en las europeas de 2024 o en un porcentaje fijo. Las listas locales pueden sorprender. Bloques fijados por las votaciones de 2023.
 
-Takeaways. A seat is a far likelier prize than the majority. Between constituencies the odds of deciding the majority differ by a factor of up to 56. Selfishly, voting rarely pays; counting others, it can.
+Conclusiones. Un escaño es un premio mucho más probable que la mayoría. Entre circunscripciones, la probabilidad de decidir la mayoría varía hasta 56 veces. Por interés propio, votar rara vez compensa; contando a los demás, puede compensar.
 
 github.com/oscargarcialopez/spain-vote-ev
 
-## References
+## Referencias
 
 Arrow, K. J. (1951). Social Choice and Individual Values. Wiley.
 Banzhaf, J. F. (1965). Weighted voting doesn't work. Rutgers Law Review 19(2), 317–343.

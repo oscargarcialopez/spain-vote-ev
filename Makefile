@@ -30,7 +30,8 @@ figures:
 	$(RUN) figures
 
 carousel:
-	$(RUN) carousel
+	$(RUN) carousel --lang es
+	$(RUN) carousel --lang en
 
 tables:
 	$(RUN) tables

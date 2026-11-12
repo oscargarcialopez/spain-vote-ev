@@ -36,6 +36,8 @@ def test_spanish_formats():
     assert en.date("2026-11-29") == "29 November 2026"
     assert es.period("2026-10-27", "2026-11-10") == "del 27 de octubre al 10 de noviembre de 2026"
     assert en.period("2026-10-27", "2026-11-10") == "27 October – 10 November 2026"
+    assert (es.between("2026-10-27", "2026-11-10")
+            == "entre el 27 de octubre y el 10 de noviembre de 2026")
     assert es.of(22, 26) == "22 de 26" and es.signed(-10.71) == "−10,7"
     assert es.num(13_983_816) == "13.983.816"
 

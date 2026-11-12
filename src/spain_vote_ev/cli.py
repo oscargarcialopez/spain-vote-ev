@@ -7,6 +7,7 @@
     voteev analyze     everything: writes results/summary.json, the only source of numbers
     voteev figures     the four figures, as PNG (and SVG) in figures/
     voteev carousel    the nine-page carousel: carousel/carousel.pdf, slide-NN.png, slides.txt
+                       in Spanish (the one published); --lang en writes carousel/en/
     voteev tables      rewrite the README's generated tables from summary.json
     voteev check       flag numbers in the published texts that are not in results/summary.json,
                        or not written in their language's format
@@ -23,7 +24,8 @@ from .sources import RESULTS, ROOT
 
 # The published texts and their language; a file can switch midway with a line
 # `<!-- lang: en -->` (see facts.py).
-CHECKED = [("README.md", "en"), ("POST.md", "en"), ("carousel/slides.txt", "en")]
+CHECKED = [("README.md", "en"), ("POST.md", "en"), ("carousel/slides.txt", "es"),
+           ("carousel/en/slides.txt", "en")]
 
 
 def _download(a: argparse.Namespace) -> int:
@@ -90,7 +92,10 @@ def _figures(a: argparse.Namespace) -> int:
 
 def _carousel(a: argparse.Namespace) -> int:
     from . import carousel
-    carousel.make_carousel(RESULTS, ROOT / "carousel", ROOT / "figures")
+    if a.lang == "es":
+        carousel.make_carousel(RESULTS, ROOT / "carousel", lang="es")
+    else:  # the English one also refreshes the README's figures
+        carousel.make_carousel(RESULTS, ROOT / "carousel" / "en", ROOT / "figures", lang="en")
     return 0
 
 
@@ -144,8 +149,10 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=_analyze)
     sub.add_parser("figures", help="figures/*.png from summary.json").set_defaults(
         fn=_figures)
-    sub.add_parser("carousel", help="the carousel from summary.json").set_defaults(
-        fn=_carousel)
+    p = sub.add_parser("carousel", help="the carousel from summary.json")
+    p.add_argument("--lang", choices=["es", "en"], default="es",
+                   help="es: carousel/ (default, the one published); en: carousel/en/")
+    p.set_defaults(fn=_carousel)
     sub.add_parser("tables", help="rewrite the README's generated tables").set_defaults(
         fn=_tables)
     p = sub.add_parser("check", help="numbers in the texts that are not in summary.json")

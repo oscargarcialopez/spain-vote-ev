@@ -117,6 +117,12 @@ class Fmt:
         first = f"{a.day} {MONTHS['en'][a.month - 1]}" if a.year == b.year else self.date(start)
         return f"{first} – {self.date(end)}"
 
+    def between(self, start: str, end: str) -> str:
+        """27 October – 10 November 2026 / entre el 27 de octubre y el 10 de noviembre de 2026."""
+        if not self.es:
+            return self.period(start, end)
+        return self.period(start, end).replace("del ", "entre el ", 1).replace(" al ", " y el ", 1)
+
     def of(self, a: int, b: int) -> str:
         return f"{a} {'de' if self.es else 'of'} {b}"
 
@@ -168,6 +174,7 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     start_iso = date.fromordinal(start).isoformat()
     f["window_start"] = fm.date(start_iso)
     f["window"] = fm.period(start_iso, polls["cutoff"])
+    f["window_between"] = fm.between(start_iso, polls["cutoff"])
     f["ratio_gse"] = f"{s['context']['gse_2012_one_in'] / nat['majority_any']['one_in']:.0f}"
     prov = vote["provinces"]
     for ev in ("seat", "majority_any"):
