@@ -39,7 +39,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import expit, logit
 
-from . import dhondt, parties, polls
+from . import dhondt, investiture, parties, polls
 from .provinces import CCAA, CODES
 from .sources import ELECTION_DATE, ELECTIONS, PROCESSED
 
@@ -106,6 +106,26 @@ TARGETS: dict[str, Target] = {
                             "BNG", "CC", "CUP", "PRC")},
         drop=("COMPROMIS",),
         new=("MP", "CUP")),
+    # Added backtests (Phase 2). April 2019: Navarra Suma (PP, UPN and Cs in Navarra) counts as
+    # PP; Vox (no 2016 seat) and Compromís (inside Podemos's list in 2016) are new lists; PRC
+    # (no 2016 list, not polled) is not modelled and its seat is counted as unmodelled.
+    "2019A": Target(
+        "2019A", "2016",
+        families=("PP", "PSOE", "UP", "CS", "VOX", "ERC", "JUNTS", "PNV", "BILDU", "CC",
+                  "COMPROMIS"),
+        base_map=_same("PP", "PSOE", "UP", "CS", "ERC", "JUNTS", "PNV", "BILDU", "CC"),
+        poll_spec={"PP": {"cols": ["PP"], "fill": ["NAS"]}},
+        result_map={"PP": ("PP", "NAS"),
+                    **_same("PSOE", "UP", "CS", "VOX", "ERC", "JUNTS", "PNV", "BILDU", "CC",
+                            "COMPROMIS")},
+        new=("VOX", "COMPROMIS")),
+    # June 2016: Unidos Podemos joined Podemos's lists and IU's.
+    "2016": Target(
+        "2016", "2015",
+        families=("PP", "PSOE", "UP", "CS", "ERC", "JUNTS", "PNV", "BILDU", "CC"),
+        base_map={"UP": ("UP", "IU"),
+                  **_same("PP", "PSOE", "CS", "ERC", "JUNTS", "PNV", "BILDU", "CC")},
+        result_map=_same("PP", "PSOE", "UP", "CS", "ERC", "JUNTS", "PNV", "BILDU", "CC")),
 }
 
 # Blocs whose majority status is tracked. 2026: the two 2023 investiture coalitions
@@ -115,6 +135,8 @@ BLOCS: dict[str, dict[str, tuple[str, ...]]] = {
     "2023": {"F": ("PP", "VOX", "CC"),
              "S": ("PSOE", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC")},
     "2019N": {"S": ("PSOE", "UP", "PNV", "MP", "BNG")},
+    "2019A": {"S": ("PSOE",)},             # July 2019: PSOE and PRC (PRC not modelled)
+    "2016": {"F": ("PP", "CS", "CC")},     # October 2016: Rajoy's yes votes
 }
 
 
@@ -171,10 +193,11 @@ def latest_poll_date(election: str) -> date:
 # --- the poll summary -----------------------------------------------------------------------
 
 
-def _family_values(window: pd.DataFrame, spec: dict) -> list[float]:
+def _family_values(window: pd.DataFrame, spec: dict, weights: list | None = None
+                   ) -> list[float]:
     """One value per firm: the joint column if the firm polled the lists together, else the
     sum of the columns; small partner lists a firm leaves out ('fill') take the median of the
-    firms that report them."""
+    firms that report them. If `weights` is a list, each value's poll sample is appended."""
     fills = {c: float(window[c].median()) if c in window and window[c].notna().any() else 0.0
              for c in spec.get("fill", [])}
     out = []
@@ -190,19 +213,73 @@ def _family_values(window: pd.DataFrame, spec: dict) -> list[float]:
         for c, fill in fills.items():
             v += float(row[c]) if c in row and pd.notna(row[c]) else fill
         out.append(v)
+        if weights is not None:
+            weights.append(row.get("sample", np.nan))
     return out
 
 
-def poll_summary(target: Target, cutoff: date, exclude_firms: tuple[str, ...] = ()
-                 ) -> tuple[pd.DataFrame, dict[str, dict]]:
+# Poll aggregation: the median is the base; the others are sensitivities (analysis.py).
+AGGREGATIONS = ("median", "weighted_mean", "days7", "house2023", "no_cis")
+# 2026 poll column -> the 2023 column whose 2023 error a firm carries (house effects).
+HOUSE_2023 = {"PP": "PP", "PSOE": "PSOE", "VOX": "VOX", "FA": "SUMAR", "FV": "SUMAR",
+              "FA+FV": "SUMAR", "PODEMOS": "SUMAR", "ERC": "ERC", "JUNTS": "JUNTS",
+              "BILDU": "BILDU", "PNV": "PNV", "BNG": "BNG", "CC": "CC"}
+
+
+def house_effects_2023() -> dict[str, dict[str, float]]:
+    """Each firm's 2023 miss on the logit scale (actual minus its last poll in the 14 days to
+    the 2023 election), per 2023 poll column."""
+    actual = data()["poll_results"].query("election == '2023'").set_index("party")["share"]
+    last = polls.window(poll_wide("2023"), date.fromisoformat(ELECTION_DATE["2023"]))
+    out: dict[str, dict[str, float]] = {}
+    for _, r in last.iterrows():
+        for col, a in actual.items():
+            v = r.get(col, np.nan)
+            if pd.notna(v) and 0 < v < 100 and a > 0:
+                out.setdefault(r["firm"], {})[col] = float(logit(a / 100) - logit(v / 100))
+    return out
+
+
+def _house_adjusted(window: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """The window with each firm's figures moved by its own 2023 miss, where it had one."""
+    effects = house_effects_2023()
+    w = window.copy()
+    adjusted = 0
+    for i, r in w.iterrows():
+        fx = effects.get(r["firm"])
+        if not fx:
+            continue
+        adjusted += 1
+        for col, col23 in HOUSE_2023.items():
+            if col in w.columns and pd.notna(r.get(col)) and col23 in fx:
+                w.at[i, col] = float(expit(logit(r[col] / 100) + fx[col23]) * 100)
+    return w, adjusted
+
+
+def poll_summary(target: Target, cutoff: date, exclude_firms: tuple[str, ...] = (),
+                 aggregation: str = "median") -> tuple[pd.DataFrame, dict[str, dict]]:
+    """Each list's central poll figure (key "median" whatever the aggregation)."""
+    if aggregation not in AGGREGATIONS:
+        raise ValueError(aggregation)
     wide = poll_wide(target.key)
-    window = polls.window(wide[~wide["firm"].isin(exclude_firms)], cutoff)
+    if aggregation == "no_cis":
+        exclude_firms = (*exclude_firms, "CIS")
+    days = 7 if aggregation == "days7" else polls.WINDOW_DAYS
+    window = polls.window(wide[~wide["firm"].isin(exclude_firms)], cutoff, days)
+    if aggregation == "house2023":
+        window, _ = _house_adjusted(window)
     out = {}
     for f in target.families:
         spec = target.poll_spec.get(f, {"cols": [f]})
-        vals = _family_values(window, spec)
+        samples: list = []
+        vals = _family_values(window, spec, samples)
         if len(vals) >= MIN_FIRMS:
-            out[f] = {"median": float(np.median(vals)), "firms": len(vals),
+            centre = float(np.median(vals))
+            if aggregation == "weighted_mean":
+                w = np.array(samples, float)
+                w = np.where(np.isfinite(w) & (w > 0), w, np.nanmedian(w))
+                centre = float(np.average(vals, weights=w))
+            out[f] = {"median": centre, "firms": len(vals),
                       "min": float(min(vals)), "max": float(max(vals))}
     return window, out
 
@@ -274,7 +351,7 @@ def _target_results(target: Target, labels: list[str]) -> tuple[np.ndarray, np.n
 
 
 def build(key: str, cutoff: date | None = None, lead: int | None = None,
-          exclude_firms: tuple[str, ...] = ()) -> Setup:
+          exclude_firms: tuple[str, ...] = (), aggregation: str = "median") -> Setup:
     target = TARGETS[key]
     ed = date.fromisoformat(ELECTION_DATE[key])
     if cutoff is None:
@@ -323,7 +400,7 @@ def build(key: str, cutoff: date | None = None, lead: int | None = None,
             b[miss, k] = b[b[:, k] > 0, k].mean()
     base_national = weights @ b / weights.sum()
 
-    window, medians = poll_summary(target, cutoff, exclude_firms)
+    window, medians = poll_summary(target, cutoff, exclude_firms, aggregation)
     national = base_national.copy()
     polled = np.zeros(K, bool)
     for f, m in medians.items():
@@ -389,6 +466,11 @@ class Calibration:
     n_residuals: int
     pairs: list[tuple[str, str]]
     within_bloc_check: dict
+    borrowed_pairs: bool = False
+
+    @property
+    def n_errors(self) -> int:
+        return len(self.errors)
 
     def as_dict(self) -> dict:
         return {"before": self.before, "lead_days": self.lead,
@@ -397,7 +479,7 @@ class Calibration:
                 "sigma_turnout_national_logit": self.sigma_turnout_national,
                 "sigma_turnout_province_logit": self.sigma_turnout_province,
                 "n_poll_errors": len(self.errors), "n_provincial_residuals": self.n_residuals,
-                "pairs": [list(p) for p in self.pairs],
+                "pairs": [list(p) for p in self.pairs], "borrowed_pairs": self.borrowed_pairs,
                 "within_bloc_check": self.within_bloc_check}
 
 
@@ -510,9 +592,16 @@ def turnout_sigmas(pairs: list[tuple[str, str]]) -> tuple[float, float]:
 
 
 def calibrate(before: str, lead: int) -> Calibration:
-    """Everything estimated from the elections before `before` only."""
+    """Everything estimated from the elections before `before` only. The data start in 2015,
+    so for 2016 there is no earlier pair of elections: the provincial and turnout spreads then
+    come from the pairs after it (borrowed_pairs), and only the national error is out of
+    sample."""
     past = [e for e in ELECTIONS if ELECTION_DATE[e] < ELECTION_DATE[before]]
     pairs = list(zip(past, past[1:], strict=False))
+    borrowed = not pairs
+    if borrowed:
+        later = [e for e in ELECTIONS if ELECTION_DATE[e] > ELECTION_DATE[before]]
+        pairs = list(zip(later, later[1:], strict=False))
     errors = poll_errors(past, lead)
     sigma = float(np.sqrt(np.mean(np.square(errors["error_logit"]))))
     res = provincial_residuals(pairs)
@@ -521,7 +610,8 @@ def calibrate(before: str, lead: int) -> Calibration:
     return Calibration(before=before, lead=lead, sigma_national=sigma, tau_ccaa=tau_c,
                        tau_province=tau_e, sigma_turnout_national=s_tn,
                        sigma_turnout_province=s_tp, errors=errors, n_residuals=len(res),
-                       pairs=pairs, within_bloc_check=_within_bloc(errors, sigma))
+                       pairs=pairs, within_bloc_check=_within_bloc(errors, sigma),
+                       borrowed_pairs=borrowed)
 
 
 # --- simulation -----------------------------------------------------------------------------
@@ -541,11 +631,22 @@ class SimResult:
     flips: np.ndarray | None = None   # (I, F, H) counts of 0 < Δ ≤ h
     pivots: np.ndarray | None = None  # (I, F, H, B+1) the same, and the seat changes a bloc's
     #                                    majority status; last index: any of the first two
+    behaviour: str | None = None      # the investiture rule (investiture.py)
+    gov: np.ndarray | None = None     # (n,) who is invested: 0 nobody, 1 PP's, 2 PSOE's
+    gov_stage: np.ndarray | None = None  # (n,) in which vote: 1, 2 (0 if nobody)
+    keys: np.ndarray | None = None    # (C, F) runs in which the list's votes were necessary
+    gov_pivots: np.ndarray | None = None  # (I, F, H) 0 < Δ ≤ h and the seat changes who is
+    #                                        invested
 
 
 def simulate(setup: Setup, calib: Calibration, n: int = 100_000, seed: int = SEED,
              widen: float = 1.0, chunk: int = 5_000, track: bool = True,
-             blocs: dict[str, tuple[str, ...]] | None = None) -> SimResult:
+             blocs: dict[str, tuple[str, ...]] | None = None,
+             behaviour: investiture.Behaviour | None = None,
+             sigma_df: int | None = None) -> SimResult:
+    """n simulated elections. sigma_df: if set, the national error's scale is drawn in each
+    simulation from its sampling distribution, σ²·df/χ²(df) (Student-t errors with df degrees
+    of freedom, df = the number of past errors σ was estimated from)."""
     rng = np.random.default_rng(seed)
     blocs = blocs if blocs is not None else BLOCS[setup.key]
     NI, K, F = len(setup.codes), len(setup.labels), setup.F  # noqa: N806
@@ -568,12 +669,20 @@ def simulate(setup: Setup, calib: Calibration, n: int = 100_000, seed: int = SEE
     votes_sum = np.zeros((NI, K))
     flips = np.zeros((NI, F, H)) if track else None
     pivots = np.zeros((NI, F, H, nb + 1)) if track else None
+    gov_on = behaviour is not None
+    if gov_on and list(behaviour.labels) != setup.labels:
+        raise ValueError("the investiture behaviour is for other lists")
+    gov_all, stage_all = [], []
+    keys = np.zeros((len(investiture.CANDIDATES), F)) if gov_on else None
+    gov_pivots = np.zeros((NI, F, H)) if (track and gov_on) else None
     base = setup.base[None]
     ratio_den = np.where(B0 > 0, B0, 1.0)
     for start in range(0, n, chunk):
         m = min(chunk, n - start)
         Sn = np.repeat(S[None], m, axis=0)
         eps = rng.standard_normal((m, int(polled.sum()))) * sig["nat"]
+        if sigma_df:
+            eps *= np.sqrt(sigma_df / rng.chisquare(sigma_df, size=(m, 1)))
         Sn[:, polled] = expit(logit(S[polled])[None] + eps)
         Sn[:, polled] *= (1 - rest) / Sn[:, polled].sum(axis=1, keepdims=True)
         eta = rng.standard_normal((m, 1)) * sig["tn"]
@@ -602,6 +711,14 @@ def simulate(setup: Setup, calib: Calibration, n: int = 100_000, seed: int = SEE
         prov_seats += seats.sum(axis=0)
         prov_win += (seats > 0).sum(axis=0)
         votes_sum += v.sum(axis=0)
+        if gov_on:
+            g_yes, g_no, g_own = investiture.tallies(nat_seats, behaviour)
+            who, stage = investiture.outcome(g_yes, g_no, g_own)
+            gov_all.append(who)
+            stage_all.append(stage)
+            nec = investiture.necessary(nat_seats, behaviour, who)[:, :F]
+            for c in range(len(investiture.CANDIDATES)):
+                keys[c] += nec[who == c + 1].sum(axis=0)
         if not track:
             continue
         pres_cap = setup.present & capable[None]
@@ -616,7 +733,16 @@ def simulate(setup: Setup, calib: Calibration, n: int = 100_000, seed: int = SEE
             for b_ in range(nb):
                 pivots[i, :, :, b_] += (within & change[b_][..., None])[:, :F].sum(axis=0)
             pivots[i, :, :, nb] += (within & any_change[..., None])[:, :F].sum(axis=0)
+            if gov_on:
+                who2, _ = investiture.outcome(*investiture.after_transfer(
+                    g_yes, g_no, g_own, behaviour, loser))
+                g_change = who2 != who[:, None]                      # (m, K)
+                gov_pivots[i] += (within & g_change[..., None])[:, :F].sum(axis=0)
     return SimResult(n=n, seats=np.concatenate(seats_all), blocs=np.concatenate(blocs_all),
                      bloc_names=list(blocs), prov_seats=prov_seats[:, :F] / n,
                      prov_win=prov_win[:, :F] / n, votes=votes_sum / n, quota=quota, h=h,
-                     flips=flips, pivots=pivots)
+                     flips=flips, pivots=pivots,
+                     behaviour=behaviour.name if gov_on else None,
+                     gov=np.concatenate(gov_all) if gov_on else None,
+                     gov_stage=np.concatenate(stage_all) if gov_on else None,
+                     keys=keys, gov_pivots=gov_pivots)

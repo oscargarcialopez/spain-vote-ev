@@ -142,6 +142,21 @@ def pct(x: float, digits: int = 0) -> str:
     return Fmt("en").pct(x, digits)
 
 
+def _government_facts(f: dict[str, str], fm: Fmt, prefix: str, g: dict) -> None:
+    """Who is invested (summary["government"] and its variants)."""
+    for cand, x in g["candidates"].items():
+        f[f"{prefix}.{cand}.p"] = fm.pct(x["p"])
+        f[f"{prefix}.{cand}.p1"] = fm.pct(x["p"], 1)
+        f[f"{prefix}.{cand}.first"] = fm.pct(x["first_vote"], 1)
+        f[f"{prefix}.{cand}.second"] = fm.pct(x["second_vote"], 1)
+        if "yes_mean" in x:
+            f[f"{prefix}.{cand}.yes"] = fm.num(x["yes_mean"])
+            f[f"{prefix}.{cand}.yes80"] = f"{x['yes_lo80']}–{x['yes_hi80']}"
+    f[f"{prefix}.blocked"] = fm.pct(g["blocked"], 1)
+    f[f"{prefix}.second"] = fm.pct(g["second_vote"], 1)
+    f[f"{prefix}.both"] = fm.pct(g["both_possible"], 2)
+
+
 def build(s: dict, lang: str = "en") -> dict[str, str]:
     fm = Fmt(lang)
     f: dict[str, str] = {}
@@ -176,8 +191,10 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     f["window"] = fm.period(start_iso, polls["cutoff"])
     f["window_between"] = fm.between(start_iso, polls["cutoff"])
     f["ratio_gse"] = f"{s['context']['gse_2012_one_in'] / nat['majority_any']['one_in']:.0f}"
+    if "government" in nat:
+        f["ratio_gse_gov"] = f"{s['context']['gse_2012_one_in'] / nat['government']['one_in']:.0f}"
     prov = vote["provinces"]
-    for ev in ("seat", "majority_any"):
+    for ev in [e for e in ("seat", "majority_any", "government") if f"p_{e}" in prov[0]]:
         ranked = sorted(prov, key=lambda r: r[f"p_{ev}"], reverse=True)
         for k, r in enumerate(ranked[:3], start=1):
             f[f"{ev}.top{k}"] = r["name"]
@@ -190,6 +207,8 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
         key = r["name"]
         f[f"prov.{key}.seat"] = fm.sig(r["one_in_seat"])
         f[f"prov.{key}.majority"] = fm.sig(r["one_in_majority_any"])
+        if r.get("one_in_government"):
+            f[f"prov.{key}.government"] = fm.sig(r["one_in_government"])
         f[f"prov.{key}.eps"] = fm.sig(r["electors_per_seat"])
         f[f"prov.{key}.seats"] = str(r["seats"])
         for b in ("F", "S", "S_no_JUNTS"):
@@ -213,6 +232,14 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
         f[f"bloc.{b}.p"] = fm.pct(x["p_majority"])
         f[f"bloc.{b}.p1"] = fm.pct(x["p_majority"], 1)
         f[f"bloc.{b}.p_edge"] = fm.pct(x["p_exactly_175_or_176"], 1)
+    gv = s.get("government")
+    if gv:
+        _government_facts(f, fm, "gov", gv)
+        for name, g in gv.get("variants", {}).items():
+            _government_facts(f, fm, f"gov.{name}", g)
+        for lab, k in gv["keys"].items():
+            for cand in ("PP", "PSOE", "any"):
+                f[f"key.{lab}.{cand}"] = fm.pct(k[cand], 1 if k[cand] < 0.1 else 0)
     cal = s["calibration"]
     f["sigma_nat"] = fm.num(cal["sigma_national_logit"], 2)
     f["tau_ccaa"] = fm.num(cal["tau_ccaa"], 2)
@@ -269,7 +296,7 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     f["population"] = fm.sig(th["population"], 3)
     f["population_exact"] = fm.num(th["population"])
     f["population_date"] = s["context"]["population"]["date"]
-    for k in ("seat", "majority"):
+    for k in [k for k in ("seat", "majority", "government") if k in th]:
         x = th[k]
         f[f"th.{k}.B"] = fm.euros(x["break_even_benefit"])
         f[f"th.{k}.pN"] = (fm.num(x["p_times_n"], 1) if x["p_times_n"] < 100

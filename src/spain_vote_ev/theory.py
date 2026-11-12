@@ -43,11 +43,11 @@ def influence(p: float, votes_per_hour: float, value_of_time: float = VALUE_OF_T
             "break_even_benefit": value_of_time / (votes_per_hour * p)}
 
 
-def summary(p_seat: float, p_majority: float, n_people: int) -> dict:
-    """The break-even figures for the national average voter."""
+def summary(probabilities: dict[str, float], n_people: int) -> dict:
+    """The break-even figures for the national average voter, for each event (name -> p)."""
     out = {"value_of_time": VALUE_OF_TIME, "minutes": MINUTES, "cost": COST,
            "votes_per_hour": list(VOTES_PER_HOUR), "population": n_people}
-    for name, p in (("seat", p_seat), ("majority", p_majority)):
+    for name, p in probabilities.items():
         b_star = break_even_benefit(p)
         out[name] = {
             "p": p,
