@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.ruff_cache/
+# raw downloads are refetched by `voteev download`; only their manifest is kept
+data/raw/*
+!data/raw/MANIFEST.tsv
+# carousel build intermediates
+carousel/*.typ
+carousel/fig-*.svg
