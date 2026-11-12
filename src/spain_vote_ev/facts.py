@@ -1,19 +1,29 @@
 """Every number the README, the carousel and the post may quote, formatted once from
-results/summary.json, and a checker that flags any number in a text that is not one of them.
+results/summary.json, in English or in Spanish, and a checker that flags any number in a text
+that is not one of them.
+
+English: 76,000 · 10.8 million · 94.2% · 5 € · 29 November 2026.
+Spanish (Spain): 76.000 · 10,8 millones · 94,2 % · 5 € · 29 de noviembre de 2026, with a
+no-break space before % and €, a period for thousands from 1.000 up (never in years) and a
+decimal comma.
 
 The carousel takes its numbers from here directly; prose written by hand is checked with
-`voteev check FILE...`.
+`voteev check`. A text can switch language midway with a line `<!-- lang: en -->` or
+`<!-- lang: es -->`.
 """
 
 from __future__ import annotations
 
 import re
 from datetime import date
-from math import comb
+from math import comb, floor, log10
 from pathlib import Path
 
 from . import theory
 from .parties import DISPLAY
+
+LANGS = ("en", "es")
+NBSP = " "
 
 # Numbers that are not results: the law (176 of 350 seats, 52 constituencies, a 3%
 # threshold, LOREG articles 69, 69.7 and 163, Constitution article 99.3 and its 48 hours), the
@@ -22,7 +32,7 @@ from .parties import DISPLAY
 # cited, the days of the investiture votes (27 Sep and 16 Nov 2023, 7 Jan 2020) and of the
 # election (29 Nov), the 7 January 2020 vote (167 yes, 165 no, 18 abstentions; Diario de
 # Sesiones 14-PL-4), which is not in summary.json, and the +8.1 points of the "Neighbors"
-# mailing in Gerber, Green and Larimer (2008).
+# mailing in Gerber, Green and Larimer (2008). Written in English form; compared canonically.
 CONSTANTS = {
     "176", "350", "52", "175", "69", "69.7", "163", "99", "99.3", "48",
     "14", "15", "0.01", "0.02", "0.05", "20,000", "75", "90", "80", "95",
@@ -34,191 +44,253 @@ CONSTANTS = {
     "8.1",
 }
 
-MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
-          "September", "October", "November", "December"]
-LOTTERY = comb(49, 6)  # six numbers out of 49
+MONTHS = {
+    "en": ["January", "February", "March", "April", "May", "June", "July", "August",
+           "September", "October", "November", "December"],
+    "es": ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+           "septiembre", "octubre", "noviembre", "diciembre"],
+}
+LOTTERY = comb(49, 6)  # six numbers out of 49 (La Primitiva)
+
+
+class Fmt:
+    """Number and date formatting for one language."""
+
+    def __init__(self, lang: str = "en"):
+        if lang not in LANGS:
+            raise ValueError(f"unknown language {lang!r}")
+        self.lang = lang
+        self.es = lang == "es"
+
+    def _local(self, s: str) -> str:
+        """English separators to Spanish ones: 1,234.5 -> 1.234,5."""
+        if not self.es:
+            return s
+        return s.replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+
+    def num(self, x: float, digits: int = 0) -> str:
+        """Fixed decimals with thousands separators: 76,000 / 76.000; 4.6 / 4,6."""
+        return self._local(f"{x:,.{digits}f}")
+
+    def g(self, x: float) -> str:
+        """Shortest form, no thousands separator: 26.15 / 26,15."""
+        return self._local(f"{x:g}")
+
+    def sig(self, x: float, digits: int = 2) -> str:
+        """76,434 -> 76,000 / 76.000; 10,765,236 -> 10.8 million / 10,8 millones."""
+        if x >= 1e9:
+            if not self.es:
+                return f"{x / 1e9:.1f} billion"
+            m = x / 1e6  # Spanish counts thousands of millions: 1.100 millones
+            k = digits - 1 - floor(log10(m))
+            return f"{self.num(round(m, k))} millones"
+        if x >= 1e6:
+            m = round(x / 1e6, 1)
+            text = f"{m:.0f}" if m == int(m) and m >= 10 else f"{m:.1f}"
+            return f"{self._local(text)} {'millones' if self.es else 'million'}"
+        k = digits - 1 - floor(log10(abs(x)))
+        return self.num(round(x, k), max(k, 0))
+
+    def pct(self, x: float, digits: int = 0) -> str:
+        return f"{self.num(100 * x, digits)}{NBSP}%" if self.es else f"{100 * x:.{digits}f}%"
+
+    def signed(self, x: float, digits: int = 1) -> str:
+        return self._local(f"{x:+.{digits}f}").replace("-", "−")
+
+    def euros(self, x: float) -> str:
+        if self.es:
+            return f"{self.sig(x)} de euros" if x >= 1e6 else f"{self.sig(x)}{NBSP}€"
+        return f"{self.sig(x)} €"
+
+    def date(self, iso: str) -> str:
+        d = date.fromisoformat(iso)
+        month = MONTHS[self.lang][d.month - 1]
+        return f"{d.day} de {month} de {d.year}" if self.es else f"{d.day} {month} {d.year}"
+
+    def period(self, start: str, end: str) -> str:
+        """27 October – 10 November 2026 / del 27 de octubre al 10 de noviembre de 2026."""
+        a, b = date.fromisoformat(start), date.fromisoformat(end)
+        if self.es:
+            first = (f"{a.day} de {MONTHS['es'][a.month - 1]}" if a.year == b.year
+                     else self.date(start))
+            return f"del {first} al {self.date(end)}"
+        first = f"{a.day} {MONTHS['en'][a.month - 1]}" if a.year == b.year else self.date(start)
+        return f"{first} – {self.date(end)}"
+
+    def of(self, a: int, b: int) -> str:
+        return f"{a} {'de' if self.es else 'of'} {b}"
+
+    def word(self, en: str, es: str) -> str:
+        return es if self.es else en
 
 
 def long_date(iso: str) -> str:
-    d = date.fromisoformat(iso)
-    return f"{d.day} {MONTHS[d.month - 1]} {d.year}"
+    return Fmt("en").date(iso)
 
 
 def sig(x: float, digits: int = 2) -> str:
-    """76,434 -> '76,000'; 10,765,236 -> '10.8 million'."""
-    if x >= 1e9:
-        return f"{x / 1e9:.1f} billion"
-    if x >= 1e6:
-        m = round(x / 1e6, 1)
-        return f"{m:.0f} million" if m == int(m) and m >= 10 else f"{m:.1f} million"
-    from math import floor, log10
-    k = digits - 1 - floor(log10(abs(x)))
-    return f"{round(x, k):,.0f}" if k <= 0 else f"{round(x, k):,.{k}f}"
+    return Fmt("en").sig(x, digits)
 
 
 def pct(x: float, digits: int = 0) -> str:
-    return f"{100 * x:.{digits}f}%"
+    return Fmt("en").pct(x, digits)
 
 
-def signed(x: float, digits: int = 1) -> str:
-    return f"{x:+.{digits}f}".replace("-", "−")
-
-
-def euros(x: float) -> str:
-    return f"{sig(x)} €"
-
-
-def build(s: dict) -> dict[str, str]:
+def build(s: dict, lang: str = "en") -> dict[str, str]:
+    fm = Fmt(lang)
     f: dict[str, str] = {}
     meta, polls, vote = s["meta"], s["polls"], s["vote"]
-    f["n"] = f"{meta['n']:,}"
+    f["n"] = fm.num(meta["n"])
     f["seed"] = str(meta["seed"])
-    f["cutoff"] = long_date(polls["cutoff"])
+    f["cutoff"] = fm.date(polls["cutoff"])
     f["firms"] = str(polls["firms"])
     f["lead"] = str(polls["lead_days"])
-    f["party_released"] = ", ".join(polls["party_released"]) or "none"
+    f["party_released"] = ", ".join(polls["party_released"]) or fm.word("none", "ninguna")
     for k, v in polls["medians"].items():
-        f[f"poll.{k}"] = f"{v['median']:g}"
-        f[f"poll.{k}.range"] = f"{v['min']:g}–{v['max']:g}"
+        f[f"poll.{k}"] = fm.g(v["median"])
+        f[f"poll.{k}.range"] = f"{fm.g(v['min'])}–{fm.g(v['max'])}"
         f[f"poll.{k}.firms"] = str(v["firms"])
     nat = vote["national"]
     for ev, v in nat.items():
-        f[f"{ev}.one_in"] = sig(v["one_in"])
-        f[f"{ev}.p"] = f"{v['p']:.1e}"
-        f[f"{ev}.events"] = f"{v['events_counted']:,}"
-        f[f"{ev}.rse"] = pct(v["mc_se"] / v["p"], 1)
+        f[f"{ev}.one_in"] = fm.sig(v["one_in"])
+        f[f"{ev}.p"] = fm._local(f"{v['p']:.1e}")
+        f[f"{ev}.events"] = fm.num(v["events_counted"])
+        f[f"{ev}.rse"] = fm.pct(v["mc_se"] / v["p"], 1)
         lo, hi = v["p"] - 1.96 * v["mc_se"], v["p"] + 1.96 * v["mc_se"]
-        f[f"{ev}.ci"] = f"{sig(1 / hi)} – {sig(1 / lo)}"
+        f[f"{ev}.ci"] = f"{fm.sig(1 / hi)} – {fm.sig(1 / lo)}"
         vals = list(v["by_bandwidth"].values())
-        f[f"{ev}.bw_spread"] = pct(max(vals) / min(vals) - 1, 1)
-    f["gse"] = sig(s["context"]["gse_2012_one_in"])
-    f["lottery"] = sig(LOTTERY)
-    f["lottery_exact"] = f"{LOTTERY:,}"
-    f["lottery_def"] = "6 of 49"
+        f[f"{ev}.bw_spread"] = fm.pct(max(vals) / min(vals) - 1, 1)
+    f["gse"] = fm.sig(s["context"]["gse_2012_one_in"])
+    f["lottery"] = fm.sig(LOTTERY)
+    f["lottery_exact"] = fm.num(LOTTERY)
+    f["lottery_def"] = fm.of(6, 49)
     start = date.fromisoformat(polls["cutoff"]).toordinal() - polls["window_days"]
-    f["window_start"] = long_date(date.fromordinal(start).isoformat())
-    f["window"] = (f["window_start"].rsplit(" ", 1)[0] + " – " + f["cutoff"]
-                   if f["window_start"][-4:] == f["cutoff"][-4:] else
-                   f["window_start"] + " – " + f["cutoff"])
+    start_iso = date.fromordinal(start).isoformat()
+    f["window_start"] = fm.date(start_iso)
+    f["window"] = fm.period(start_iso, polls["cutoff"])
     f["ratio_gse"] = f"{s['context']['gse_2012_one_in'] / nat['majority_any']['one_in']:.0f}"
     prov = vote["provinces"]
     for ev in ("seat", "majority_any"):
         ranked = sorted(prov, key=lambda r: r[f"p_{ev}"], reverse=True)
         for k, r in enumerate(ranked[:3], start=1):
             f[f"{ev}.top{k}"] = r["name"]
-            f[f"{ev}.top{k}.one_in"] = sig(r[f"one_in_{ev}"])
+            f[f"{ev}.top{k}.one_in"] = fm.sig(r[f"one_in_{ev}"])
         for k, r in enumerate(ranked[::-1][:3], start=1):
             f[f"{ev}.bottom{k}"] = r["name"]
-            f[f"{ev}.bottom{k}.one_in"] = sig(r[f"one_in_{ev}"])
-        f[f"{ev}.spread"] = sig(ranked[-1][f"one_in_{ev}"] / ranked[0][f"one_in_{ev}"])
+            f[f"{ev}.bottom{k}.one_in"] = fm.sig(r[f"one_in_{ev}"])
+        f[f"{ev}.spread"] = fm.sig(ranked[-1][f"one_in_{ev}"] / ranked[0][f"one_in_{ev}"])
     for r in prov:
         key = r["name"]
-        f[f"prov.{key}.seat"] = sig(r["one_in_seat"])
-        f[f"prov.{key}.majority"] = sig(r["one_in_majority_any"])
-        f[f"prov.{key}.eps"] = sig(r["electors_per_seat"])
+        f[f"prov.{key}.seat"] = fm.sig(r["one_in_seat"])
+        f[f"prov.{key}.majority"] = fm.sig(r["one_in_majority_any"])
+        f[f"prov.{key}.eps"] = fm.sig(r["electors_per_seat"])
         f[f"prov.{key}.seats"] = str(r["seats"])
         for b in ("F", "S", "S_no_JUNTS"):
             x = r[f"one_in_majority_{b}"]
-            f[f"prov.{key}.{b}"] = sig(x) if x else "—"
+            f[f"prov.{key}.{b}"] = fm.sig(x) if x else "—"
     eps = sorted(prov, key=lambda r: r["electors_per_seat"])
-    f["eps.min"], f["eps.min.name"] = sig(eps[0]["electors_per_seat"]), eps[0]["name"]
-    f["eps.max"], f["eps.max.name"] = sig(eps[-1]["electors_per_seat"]), eps[-1]["name"]
-    f["eps.ratio"] = f"{eps[-1]['electors_per_seat'] / eps[0]['electors_per_seat']:.1f}"
+    f["eps.min"], f["eps.min.name"] = fm.sig(eps[0]["electors_per_seat"]), eps[0]["name"]
+    f["eps.max"], f["eps.max.name"] = fm.sig(eps[-1]["electors_per_seat"]), eps[-1]["name"]
+    f["eps.ratio"] = fm.num(eps[-1]["electors_per_seat"] / eps[0]["electors_per_seat"], 1)
     for code, x in s["lists"].items():
-        f[f"{code}.share"] = pct(x["share"], 1 if x["share"] >= 0.01 else 2)
-        f[f"{code}.seats"] = f"{x['mean']:.0f}"
+        f[f"{code}.share"] = fm.pct(x["share"], 1 if x["share"] >= 0.01 else 2)
+        f[f"{code}.seats"] = fm.num(x["mean"])
         f[f"{code}.i80"] = f"{x['lo80']}–{x['hi80']}"
         f[f"{code}.i95"] = f"{x['lo95']}–{x['hi95']}"
-        f[f"{code}.p_seat"] = pct(x["p_any_seat"], 0 if x["p_any_seat"] >= 0.01 else 2)
+        f[f"{code}.p_seat"] = fm.pct(x["p_any_seat"], 0 if x["p_any_seat"] >= 0.01 else 2)
         f[f"{code}.name"] = x["name"]
     for b, x in s["blocs"].items():
-        f[f"bloc.{b}.mean"] = f"{x['mean']:.0f}"
+        f[f"bloc.{b}.mean"] = fm.num(x["mean"])
         f[f"bloc.{b}.i80"] = f"{x['lo80']}–{x['hi80']}"
         f[f"bloc.{b}.i95"] = f"{x['lo95']}–{x['hi95']}"
-        f[f"bloc.{b}.p"] = pct(x["p_majority"])
-        f[f"bloc.{b}.p1"] = pct(x["p_majority"], 1)
-        f[f"bloc.{b}.p_edge"] = pct(x["p_exactly_175_or_176"], 1)
+        f[f"bloc.{b}.p"] = fm.pct(x["p_majority"])
+        f[f"bloc.{b}.p1"] = fm.pct(x["p_majority"], 1)
+        f[f"bloc.{b}.p_edge"] = fm.pct(x["p_exactly_175_or_176"], 1)
     cal = s["calibration"]
-    f["sigma_nat"] = f"{cal['sigma_national_logit']:.2f}"
-    f["tau_ccaa"] = f"{cal['tau_ccaa']:.2f}"
-    f["tau_prov"] = f"{cal['tau_province']:.2f}"
-    f["sigma_tn"] = f"{cal['sigma_turnout_national_logit']:.2f}"
-    f["sigma_tp"] = f"{cal['sigma_turnout_province_logit']:.2f}"
+    f["sigma_nat"] = fm.num(cal["sigma_national_logit"], 2)
+    f["tau_ccaa"] = fm.num(cal["tau_ccaa"], 2)
+    f["tau_prov"] = fm.num(cal["tau_province"], 2)
+    f["sigma_tn"] = fm.num(cal["sigma_turnout_national_logit"], 2)
+    f["sigma_tp"] = fm.num(cal["sigma_turnout_province_logit"], 2)
     f["n_poll_errors"] = str(cal["n_poll_errors"])
-    f["n_residuals"] = f"{cal['n_provincial_residuals']:,}"
+    f["n_residuals"] = fm.num(cal["n_provincial_residuals"])
     pe = s["poll_errors"]
     big = [e for e in pe if e["actual"] >= 10]
-    f["big_err_rms_pp"] = f"{(sum(e['error_pp'] ** 2 for e in big) / len(big)) ** 0.5:.1f}"
-    f["big_err_max_pp"] = f"{max(abs(e['error_pp']) for e in big):.1f}"
+    f["big_err_rms_pp"] = fm.num((sum(e["error_pp"] ** 2 for e in big) / len(big)) ** 0.5, 1)
+    f["big_err_max_pp"] = fm.num(max(abs(e["error_pp"]) for e in big), 1)
     bt = s["backtest"]
     tried = next(t for t in bt["tried"] if t["factor"] == bt["chosen_factor"])
     f["bt.lists"] = str(tried["lists"])
-    f["bt.in80"] = f"{tried['in80']} of {tried['lists']}"
-    f["bt.in95"] = f"{tried['in95']} of {tried['lists']}"
-    f["bt.cov80"] = pct(tried["cov80"])
-    f["bt.cov95"] = pct(tried["cov95"])
-    f["bt.factor"] = f"{bt['chosen_factor']:.2f}"
+    f["bt.in80"] = fm.of(tried["in80"], tried["lists"])
+    f["bt.in95"] = fm.of(tried["in95"], tried["lists"])
+    f["bt.cov80"] = fm.pct(tried["cov80"])
+    f["bt.cov95"] = fm.pct(tried["cov95"])
+    f["bt.factor"] = fm.num(bt["chosen_factor"], 2)
     lead = bt["at_2026_lead"]
-    f["bt_lead.in80"] = f"{lead['in80']} of {lead['lists']}"
-    f["bt_lead.in95"] = f"{lead['in95']} of {lead['lists']}"
+    f["bt_lead.in80"] = fm.of(lead["in80"], lead["lists"])
+    f["bt_lead.in95"] = fm.of(lead["in95"], lead["lists"])
+    vs = fm.word("vs", "frente a")
     for run in bt["runs"]:
         e = run["election"]
-        f[f"bt.{e}.cutoff"] = long_date(run["cutoff"])
+        f[f"bt.{e}.cutoff"] = fm.date(run["cutoff"])
         f[f"bt.{e}.firms"] = str(run["firms"])
         for x in run["lists"]:
-            f[f"bt.{e}.{x['list']}"] = f"{x['actual']} in {x['lo80']}–{x['hi80']}"
+            f[f"bt.{e}.{x['list']}"] = (f"{x['actual']} {fm.word('in', 'en')} "
+                                        f"{x['lo80']}–{x['hi80']}")
             f[f"bt.{e}.{x['list']}.i95"] = f"{x['lo95']}–{x['hi95']}"
         misses = [x for x in run["lists"] if x["counted"] and not x["in80"]]
         f[f"bt.{e}.misses80"] = ", ".join(
-            f"{DISPLAY.get(x['list'], x['list'])} ({x['actual']} vs {x['lo80']}–{x['hi80']})"
-            for x in misses) or "none"
+            f"{DISPLAY.get(x['list'], x['list'])} ({x['actual']} {vs} {x['lo80']}–{x['hi80']})"
+            for x in misses) or fm.word("none", "ninguno")
         for b in run["blocs"]:
-            f[f"bt.{e}.{b['bloc']}.p"] = pct(b["p_majority"])
+            f[f"bt.{e}.{b['bloc']}.p"] = fm.pct(b["p_majority"])
             f[f"bt.{e}.{b['bloc']}.actual"] = str(b["actual"])
-            f[f"bt.{e}.{b['bloc']}.pctile"] = pct(b["actual_percentile"])
+            f[f"bt.{e}.{b['bloc']}.pctile"] = fm.pct(b["actual_percentile"])
             f[f"bt.{e}.{b['bloc']}.i80"] = f"{b['lo80']}–{b['hi80']}"
     pw = s["power"]
     for p, x in pw["congress_2023"].items():
-        f[f"pw23.{p}.seats"] = pct(x["seat_share"], 1)
-        f[f"pw23.{p}.ss"] = pct(x["shapley_shubik"], 1)
-        f[f"pw23.{p}.bz"] = pct(x["banzhaf"], 1)
+        f[f"pw23.{p}.seats"] = fm.pct(x["seat_share"], 1)
+        f[f"pw23.{p}.ss"] = fm.pct(x["shapley_shubik"], 1)
+        f[f"pw23.{p}.bz"] = fm.pct(x["banzhaf"], 1)
     for p, x in pw["simulated"].items():
-        f[f"pw.{p}.seats"] = pct(x["seat_share"], 1)
-        f[f"pw.{p}.ss"] = pct(x["shapley_shubik"], 1)
-        f[f"pw.{p}.bz"] = pct(x["banzhaf"], 1)
-    f["pw.sample"] = f"{pw['sample']:,}"
+        f[f"pw.{p}.seats"] = fm.pct(x["seat_share"], 1)
+        f[f"pw.{p}.ss"] = fm.pct(x["shapley_shubik"], 1)
+        f[f"pw.{p}.bz"] = fm.pct(x["banzhaf"], 1)
+    f["pw.sample"] = fm.num(pw["sample"])
     th = s["theory"]
-    f["cost"] = f"{th['cost']:.0f} €"
-    f["population"] = sig(th["population"], 3)
-    f["population_exact"] = f"{th['population']:,}"
+    f["cost"] = f"{fm.num(th['cost'])}{NBSP if fm.es else ' '}€"
+    f["population"] = fm.sig(th["population"], 3)
+    f["population_exact"] = fm.num(th["population"])
     f["population_date"] = s["context"]["population"]["date"]
     for k in ("seat", "majority"):
         x = th[k]
-        f[f"th.{k}.B"] = euros(x["break_even_benefit"])
-        f[f"th.{k}.pN"] = f"{x['p_times_n']:.1f}" if x["p_times_n"] < 100 else sig(x["p_times_n"])
-        f[f"th.{k}.alpha100"] = pct(x["alpha_for_b_100"], 1 if x["alpha_for_b_100"] > 0.001
-                                    else 3)
-        f[f"th.{k}.alpha1000"] = pct(x["alpha_for_b_1000"], 2 if x["alpha_for_b_1000"] > 1e-4
-                                     else 4)
-        f[f"th.{k}.inv_alpha100"] = f"{1 / x['alpha_for_b_100']:,.0f}"
+        f[f"th.{k}.B"] = fm.euros(x["break_even_benefit"])
+        f[f"th.{k}.pN"] = (fm.num(x["p_times_n"], 1) if x["p_times_n"] < 100
+                           else fm.sig(x["p_times_n"]))
+        f[f"th.{k}.alpha100"] = fm.pct(x["alpha_for_b_100"],
+                                       1 if x["alpha_for_b_100"] > 0.001 else 3)
+        f[f"th.{k}.alpha1000"] = fm.pct(x["alpha_for_b_1000"],
+                                        2 if x["alpha_for_b_1000"] > 1e-4 else 4)
+        f[f"th.{k}.inv_alpha100"] = fm.num(1 / x["alpha_for_b_100"])
         for inf in x["influence"]:
-            f[f"th.{k}.infl{inf['votes_per_hour']}"] = euros(inf["break_even_benefit"])
-    f["vph_lo"], f["vph_hi"] = (str(v) for v in th["votes_per_hour"])
+            f[f"th.{k}.infl{inf['votes_per_hour']}"] = fm.euros(inf["break_even_benefit"])
+    f["vph_lo"], f["vph_hi"] = (fm.g(v) if fm.es else str(v) for v in th["votes_per_hour"])
     cis = s.get("cis")
     if cis:
-        f["cis.end"] = long_date(cis["end"])
+        f["cis.end"] = fm.date(cis["end"])
         f["cis.others"] = str(cis["others"])
         for p, x in cis["lists"].items():
-            f[f"cis.{p}"] = f"{x['cis']:.1f}"
-            f[f"cis.{p}.others"] = f"{x['others_median']:.1f}"
-            f[f"cis.{p}.diff"] = signed(x["difference"])
+            f[f"cis.{p}"] = fm.num(x["cis"], 1)
+            f[f"cis.{p}.others"] = fm.num(x["others_median"], 1)
+            f[f"cis.{p}.diff"] = fm.signed(x["difference"])
     sens = s.get("sensitivity_party_polls")
     if sens:
         f["sens.excluded"] = ", ".join(sens["excluded"])
         for b, p in sens["blocs"].items():
-            f[f"sens.{b}.p"] = pct(p, 1)
+            f[f"sens.{b}.p"] = fm.pct(p, 1)
     f["minutes"] = str(theory.MINUTES)
-    f["value_of_time"] = f"{theory.VALUE_OF_TIME:.0f} €/h"
+    f["value_of_time"] = (f"{fm.num(theory.VALUE_OF_TIME)}{NBSP}€/h" if fm.es
+                          else f"{theory.VALUE_OF_TIME:.0f} €/h")
     ctx = s["context"]
     for who, inv in ctx["investitures"].items():
         f[f"inv.{who}.yes"], f[f"inv.{who}.no"] = str(inv["yes"]), str(inv["no"])
@@ -226,47 +298,110 @@ def build(s: dict) -> dict[str, str]:
             f[f"inv.{who}.{p}"] = str(k)
     for p, k in ctx["seats_2023"].items():
         f[f"seats23.{p}"] = str(k)
-    f["n_backtest"] = f"{s['backtest']['rule']['n']:,}"
+    f["n_backtest"] = fm.num(s["backtest"]["rule"]["n"])
     return f
 
 
-NUMBER = re.compile(r"(?<![\w.])[+\-−]?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?%?")
+# --- reading numbers back ---------------------------------------------------------------------
+
+RUN = re.compile(r"(?<![\w.,])\d(?:[\d.,]*\d)?")
+VALID = {
+    "en": re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?"),
+    "es": re.compile(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?"),
+}
+LANG_MARK = re.compile(r"^<!-- lang: (en|es) -->\s*$", re.M)
 
 
-def numbers_in(text: str) -> list[str]:
-    """Numeric tokens, without sign, percent or thousands separators. Code spans and blocks,
-    links, ISO dates, versions, table-of-contents digits and a trailing References section
-    are not claims."""
-    text = re.split(r"^#+ References\s*$", text, flags=re.M)[0]
+def _clean(text: str) -> str:
+    """Drop what is not a numeric claim: a trailing References section, code, links, ISO
+    dates, document identifiers, versions and article numbers (art. 69.7, art. 99.3)."""
+    text = re.split(r"^#+ (?:References|Referencias)\s*$", text, flags=re.M)[0]
     text = re.sub(r"^```.*?^```", " ", text, flags=re.S | re.M)
     text = re.sub(r"`[^`\n]*`", " ", text)
-    text = re.sub(r"(?<![\d,.])(\d+),(\d{1,2})(?!\d)", r"\1.\2", text)  # 84,2 (Spanish)
     text = re.sub(r"\(https?://[^)]*\)|https?://\S+|github\.com/\S+", " ", text)
     text = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", " ", text)
     text = re.sub(r"BOE-A-\d{4}-\d+|DSCD-[\w-]+|SHA-256", " ", text)
     text = re.sub(r"\b\d+\.\d+\.\d+\b", " ", text)
-    return [(m.group(1) + (m.group(2) or "")).replace(",", "") for m in NUMBER.finditer(text)]
+    return re.sub(r"\b(?:art\.|article|artículo)\s*\d+(?:\.\d+)?", " ", text, flags=re.I)
 
 
-def allowed(facts: dict[str, str]) -> set[str]:
-    ok = {n for v in facts.values() for n in numbers_in(v)}
+def _canonical(run: str, lang: str) -> str:
+    """76.000 (es) or 76,000 (en) -> '76000'; 10,8 (es) or 10.8 (en) -> '10.8'."""
+    if lang == "es":
+        return run.replace(".", "").replace(",", ".")
+    return run.replace(",", "")
+
+
+def _scan(text: str, lang: str) -> tuple[list[str], list[str]]:
+    """Canonical numbers and formatting problems in a text written in one language."""
+    text = _clean(text)
+    nums, bad = [], []
+    for m in RUN.finditer(text):
+        run = m.group()
+        if not VALID[lang].fullmatch(run):
+            bad.append(f"{run} (not {lang} number format)")
+            continue
+        nums.append(_canonical(run, lang))
+        plain_long = run.isdigit() and len(run) >= (4 if lang == "es" else 5)
+        if plain_long and not (lang == "es" and 1900 <= int(run) <= 2099):
+            bad.append(f"{run} (needs a thousands separator)")
+    if lang == "es":
+        for m in re.finditer(r"\d(?:[\d.,]*\d)? ?([%€])", text):
+            bad.append(f"{m.group()} (no-break space before {m.group(1)})")
+    return nums, bad
+
+
+def segments(text: str, lang: str) -> list[tuple[str, str]]:
+    """Split a text at `<!-- lang: xx -->` lines: (language, part) pairs."""
+    out, pos = [], 0
+    for m in LANG_MARK.finditer(text):
+        out.append((lang, text[pos:m.start()]))
+        lang, pos = m.group(1), m.end()
+    out.append((lang, text[pos:]))
+    return [(lg, part) for lg, part in out if part.strip()]
+
+
+def numbers_in(text: str, lang: str = "en") -> list[str]:
+    """Numeric tokens, canonical (no thousands separator, '.' for decimals)."""
+    return _scan(text, lang)[0]
+
+
+def allowed(facts: dict[str, str], lang: str = "en") -> set[str]:
+    ok = {n for v in facts.values() for n in numbers_in(v, lang)}
     ok |= {c.replace(",", "") for c in CONSTANTS}
     ok |= {str(i) for i in range(11)}
     return ok
 
 
-def check(text: str, facts: dict[str, str]) -> list[str]:
-    ok = allowed(facts)
-    return sorted({n for n in numbers_in(text) if n not in ok}, key=float)
+def check(text: str, facts: dict[str, str], lang: str = "en") -> list[str]:
+    """Numbers in a one-language text that are not in the facts (sorted), then formatting
+    problems."""
+    nums, bad = _scan(text, lang)
+    ok = allowed(facts, lang)
+    return sorted({n for n in nums if n not in ok}, key=float) + bad
 
 
-def check_files(paths: list[Path], summary: dict) -> int:
-    facts = build(summary)
+def check_text(text: str, summary: dict, lang: str = "en",
+               cache: dict[str, dict] | None = None) -> tuple[int, list[str]]:
+    cache = {} if cache is None else cache
+    count, problems = 0, []
+    for lg, part in segments(text, lang):
+        if lg not in cache:
+            cache[lg] = build(summary, lg)
+        count += len(numbers_in(part, lg))
+        problems += [f"[{lg}] {p}" for p in check(part, cache[lg], lg)]
+    return count, problems
+
+
+def check_files(paths: list[Path] | list[tuple[Path, str]], summary: dict) -> int:
+    """Each path, or (path, language); English by default. Prints one line per file and
+    returns the number of problems."""
+    cache: dict[str, dict] = {}
     bad = 0
-    for path in paths:
-        text = Path(path).read_text()
-        missing = check(text, facts)
-        status = "ok" if not missing else "NOT IN RESULTS: " + ", ".join(missing)
-        print(f"{path}: {len(numbers_in(text))} numbers; {status}")
-        bad += len(missing)
+    for item in paths:
+        path, lang = item if isinstance(item, tuple) else (item, "en")
+        count, problems = check_text(Path(path).read_text(), summary, lang, cache)
+        status = "ok" if not problems else "PROBLEMS: " + "; ".join(problems)
+        print(f"{path} ({lang}): {count} numbers; {status}")
+        bad += len(problems)
     return bad

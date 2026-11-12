@@ -6,7 +6,7 @@ two blocs come only from how deputies voted in 2023, and nothing here advises an
 whether, to vote.
 
 Polls with fieldwork ending 27 October – 10 November 2026 (16 firms, 19 days before the
-election); 100,000 simulated elections (seed 20261129).
+election); 100,000 simulated elections (seed `20261129`).
 
 | One more vote, for the average voter | Probability | 95% Monte Carlo interval |
 |---|---:|---:|

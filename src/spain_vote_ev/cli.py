@@ -8,8 +8,8 @@
     voteev figures     the four figures, as PNG (and SVG) in figures/
     voteev carousel    the nine-page carousel: carousel/carousel.pdf, slide-NN.png, slides.txt
     voteev tables      rewrite the README's generated tables from summary.json
-    voteev check       flag numbers in README.md, POST.md, carousel/slides.txt that are not in
-                       results/summary.json
+    voteev check       flag numbers in the published texts that are not in results/summary.json,
+                       or not written in their language's format
 """
 
 from __future__ import annotations
@@ -21,7 +21,9 @@ from pathlib import Path
 
 from .sources import RESULTS, ROOT
 
-CHECKED = ["README.md", "POST.md", "carousel/slides.txt"]
+# The published texts and their language; a file can switch midway with a line
+# `<!-- lang: en -->` (see facts.py).
+CHECKED = [("README.md", "en"), ("POST.md", "en"), ("carousel/slides.txt", "en")]
 
 
 def _download(a: argparse.Namespace) -> int:
@@ -101,11 +103,12 @@ def _tables(a: argparse.Namespace) -> int:
 
 def _check(a: argparse.Namespace) -> int:
     from . import facts, style
-    paths = [Path(p) for p in (a.files or [ROOT / f for f in CHECKED])]
-    missing = [p for p in paths if not Path(p).exists()]
+    pairs = ([(Path(p), a.lang) for p in a.files] if a.files
+             else [(ROOT / p, lang) for p, lang in CHECKED])
+    missing = [p for p, _ in pairs if not p.exists()]
     for p in missing:
         print(f"{p}: missing")
-    bad = facts.check_files([p for p in paths if Path(p).exists()],
+    bad = facts.check_files([(p, lang) for p, lang in pairs if p.exists()],
                             style.load_summary(RESULTS))
     return 1 if bad or missing else 0
 
@@ -146,7 +149,9 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("tables", help="rewrite the README's generated tables").set_defaults(
         fn=_tables)
     p = sub.add_parser("check", help="numbers in the texts that are not in summary.json")
-    p.add_argument("files", nargs="*")
+    p.add_argument("files", nargs="*", help="default: the published texts, each in its language")
+    p.add_argument("--lang", choices=["en", "es"], default="en",
+                   help="language of the files given (default en)")
     p.set_defaults(fn=_check)
     a = ap.parse_args(argv)
     return a.fn(a)
