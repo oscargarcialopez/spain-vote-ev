@@ -74,7 +74,7 @@ So is voting worth it? For a purely selfish voter, at 30 minutes and 10 €/h, t
 
 This is arithmetic, not advice. The blocs come from the 2023 investiture votes, every list is treated alike, and nothing here says how, or whether, anyone should vote.
 
-The nine-page write-up is in the carousel; code and data are in the first comment.
+The write-up is in the carousel; code and data are in the first comment.
 
 ---
 

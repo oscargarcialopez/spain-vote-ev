@@ -6,11 +6,12 @@
     voteev backtest    the pre-declared backtests (Nov 2019, 2023) and their coverage
     voteev analyze     everything: writes results/summary.json, the only source of numbers
     voteev figures     the five figures, as PNG (and SVG) in figures/
-    voteev carousel    the nine-page carousel: carousel/carousel.pdf, slide-NN.png, slides.txt
-                       in Spanish (the one published); --lang en writes carousel/en/
+    voteev carousel    the carousel: carousel/carousel.pdf, slide-NN.png, slides.txt in Spanish
+                       (the one published); --lang en writes carousel/en/
     voteev tables      rewrite the README's generated tables from summary.json
     voteev check       flag numbers in the published texts that are not in results/summary.json,
-                       or not written in their language's format
+                       or not written in their language's format; and any glyph of either
+                       carousel, or text in its figures, below the type floor (legibility.py)
 """
 
 from __future__ import annotations
@@ -26,6 +27,8 @@ from .sources import RESULTS, ROOT
 # `<!-- lang: en -->` (see facts.py).
 CHECKED = [("README.md", "en"), ("POST.md", "es"), ("carousel/slides.txt", "es"),
            ("carousel/en/slides.txt", "en")]
+# The carousels, whose type must not go below the floor.
+CAROUSELS = [("carousel/carousel.pdf", "es"), ("carousel/en/carousel.pdf", "en")]
 
 
 def _download(a: argparse.Namespace) -> int:
@@ -113,9 +116,31 @@ def _check(a: argparse.Namespace) -> int:
     missing = [p for p, _ in pairs if not p.exists()]
     for p in missing:
         print(f"{p}: missing")
-    bad = facts.check_files([(p, lang) for p, lang in pairs if p.exists()],
-                            style.load_summary(RESULTS))
+    summary = style.load_summary(RESULTS)
+    bad = facts.check_files([(p, lang) for p, lang in pairs if p.exists()], summary)
+    if not a.files:
+        bad += _check_type(summary)
     return 1 if bad or missing else 0
+
+
+def _check_type(summary: dict) -> int:
+    """Every glyph of both carousels and every text of their figures against the floor."""
+    from . import carousel, legibility
+    bad = 0
+    for path, lang in CAROUSELS:
+        pdf = ROOT / path
+        if not pdf.exists():
+            print(f"{path}: missing")
+            bad += 1
+            continue
+        problems = legibility.pdf_violations(pdf) + carousel.figure_violations(summary, lang)
+        smallest = legibility.pdf_minimum_by_style(pdf)
+        sizes = ", ".join(f"{k} {v:.2f}" for k, v in sorted(smallest.items()))
+        status = "ok" if not problems else "PROBLEMS: " + "; ".join(problems[:20])
+        print(f"{path} ({lang}): smallest glyph per style (pt): {sizes}; figures redrawn and "
+              f"checked; type floor {status}")
+        bad += len(problems)
+    return bad
 
 
 def main(argv: list[str] | None = None) -> int:
