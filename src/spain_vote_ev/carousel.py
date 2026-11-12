@@ -212,8 +212,7 @@ def save(fig, svg: Path, png: Path | None) -> list[str]:
     return labels
 
 
-ODDS_TICKS = [(1e3, "1,000"), (1e4, "10,000"), (1e5, "100,000"), (1e6, "1 million"),
-              (1e7, "10 million"), (1e8, "100 million")]
+ODDS_TICKS = [(1e3, "1,000"), (1e5, "100,000"), (1e7, "10 million"), (1e9, "1 billion")]
 
 
 def fig_odds(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
@@ -224,21 +223,52 @@ def fig_odds(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
             ("picking all six numbers of 49", fx.LOTTERY, f["lottery"], False),
             ("one vote decides the 2008 US presidency", s["context"]["gse_2012_one_in"],
              f["gse"], False)]
-    fig, ax = plt.subplots(figsize=(TEXT_W, 2.05))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 2.15))
     for k, (label, val, txt, ours) in enumerate(rows):
         y = -k
-        ax.barh(y, val - 300, left=300, height=0.42, color=INK if ours else "white",
+        ax.barh(y, val - 300, left=300, height=0.36, color=INK if ours else "white",
                 edgecolor=INK, hatch=None if ours else "////", lw=0.6)
-        ax.text(330, y + 0.36, label, fontsize=10.5, va="bottom")
-        ax.text(val * 1.35, y, f"1 in {txt}", fontsize=10.5, va="center")
+        ax.text(360, y + 0.25, label, fontsize=10.5, va="bottom")
+        ax.text(val * 1.45, y, f"1 in {txt}", fontsize=10.5, va="center")
     ax.set_xscale("log")
-    ax.set_xlim(300, 2e9)
-    ax.set_ylim(-len(rows) + 0.45, 0.95)
+    ax.set_xlim(300, 1e10)
+    ax.set_ylim(-len(rows) + 0.55, 0.9)
     ax.set_yticks([])
-    ax.set_xticks([t for t, _ in ODDS_TICKS], [lab for _, lab in ODDS_TICKS], fontsize=9.5)
+    ax.set_xticks([t for t, _ in ODDS_TICKS], [lab for _, lab in ODDS_TICKS], fontsize=10)
     ax.minorticks_off()
     ax.set_xlabel("odds, 1 in N (log scale)", fontsize=11)
     return save(fig, svg, png)
+
+
+def fig_backtests(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
+    runs = s["backtest"]["runs"]
+    fig, axes = plt.subplots(1, len(runs), figsize=(TEXT_W, 2.05))
+    top = max(x["hi95"] for run in runs for x in run["lists"])
+    for ax, run in zip(axes, runs, strict=True):
+        rows = sorted((x for x in run["lists"] if x["counted"]), key=lambda x: x["actual"])
+        for y, x in enumerate(rows):
+            ax.plot([x["lo95"], x["hi95"]], [y, y], color=INK, lw=0.7, solid_capstyle="butt",
+                    clip_on=False)
+            ax.plot([x["lo80"], x["hi80"]], [y, y], color=INK, lw=2.6,
+                    solid_capstyle="projecting", clip_on=False)
+            ax.plot([x["actual"]], [y], "D", ms=3.6, mec=ACCENT, mew=0.9,
+                    mfc="white" if x["in80"] else ACCENT, clip_on=False, zorder=4)
+        ax.set_xscale("function", functions=(lambda v: np.sqrt(np.clip(v, 0, None)), np.square))
+        ax.set_xlim(0, top * 1.08)
+        ax.set_xticks([0, 1, 5, 20, 50, 100, 150], ["0", "1", "5", "20", "50", "100", "150"],
+                      fontsize=8.5)
+        ax.minorticks_off()
+        ax.set_yticks(range(len(rows)), [DISPLAY.get(x["list"], x["list"]) for x in rows],
+                      fontsize=8.5)
+        ax.tick_params(axis="y", length=0)
+        ax.set_ylim(-0.7, len(rows) - 0.3)
+        ax.set_title(ELECTION_NAME[run["election"]], fontsize=9.5, pad=3)
+        ax.set_xlabel("seats (square-root scale)", fontsize=9.5)
+    fig.subplots_adjust(wspace=0.55)
+    return save(fig, svg, png)
+
+
+ELECTION_NAME = {"2019N": "November 2019", "2023": "July 2023"}
 
 
 def fig_seats(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
@@ -257,6 +287,10 @@ def fig_seats(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
     return save(fig, svg, png)
 
 
+LABEL_AT = {"seat.top1": (6, -3, "left"), "seat.bottom1": (-6, 6, "right"),
+            "majority_any.bottom1": (6, 2, "left"), "majority_any.top2": (16, -16, "left")}
+
+
 def fig_constituencies(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
     prov = s["vote"]["provinces"]
     seats = np.array([r["seats"] for r in prov], float)
@@ -268,20 +302,22 @@ def fig_constituencies(s: dict, f: dict, svg: Path, png: Path | None) -> list[st
             mfc="white", mec=ACCENT, mew=0.9, label="changes whether a bloc has 176")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlim(0.8, 50)
-    ax.set_ylim(4e3, 2e8)
-    ax.set_xticks([1, 2, 5, 10, 20, 37], ["1", "2", "5", "10", "20", "37"])
+    top = int(seats.max())
+    ax.set_xlim(0.8, top * 1.35)
+    ax.set_ylim(2e3, 2e8)
+    ax.set_xticks([1, 2, 5, 10, 20, top], ["1", "2", "5", "10", "20", str(top)])
     ax.minorticks_off()
     ax.set_yticks([1e4, 1e5, 1e6, 1e7, 1e8],
                   ["10,000", "100,000", "1 million", "10 million", "100 million"], fontsize=9.5)
     ax.set_xlabel("seats in the constituency (log scale)", fontsize=11)
     ax.set_ylabel("odds, 1 in N", fontsize=11)
-    for key in ("seat.top1", "seat.bottom1", "majority_any.bottom1", "majority_any.top2"):
+    for key, (dx, dy, ha) in LABEL_AT.items():
         r = next(x for x in prov if x["name"] == f[key])
         ev = "seat" if key.startswith("seat") else "majority_any"
-        ax.annotate(r["name"], (r["seats"], r[f"one_in_{ev}"]), xytext=(5, 2),
-                    textcoords="offset points", fontsize=9.5, color=GREY)
-    ax.legend(loc="lower left", fontsize=9.5, handletextpad=0.3, borderpad=0.4)
+        arrow = {"arrowstyle": "-", "lw": 0.5, "color": GREY} if abs(dy) > 10 else None
+        ax.annotate(r["name"], (r["seats"], r[f"one_in_{ev}"]), xytext=(dx, dy), ha=ha,
+                    textcoords="offset points", fontsize=9.5, color=GREY, arrowprops=arrow)
+    ax.legend(loc="lower right", fontsize=9.5, handletextpad=0.3, borderpad=0.4)
     return save(fig, svg, png)
 
 
@@ -306,10 +342,18 @@ def fig_break_even(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
                                                  "100,000"])
     ax.set_yticks([1e-6, 1e-4, 1e-2, 1], ["0.0001%", "0.01%", "1%", "100%"])
     ax.minorticks_off()
-    ax.text(2.0, 0.08, "voting pays", fontsize=11)
+    ax.text(20, 0.15, "voting pays (majority)", fontsize=10.5)
     ax.set_xlabel("$b$, gain per person from the outcome (€)", fontsize=11)
     ax.set_ylabel("$\\alpha$, weight on others", fontsize=11)
-    ax.legend(loc="lower left", fontsize=9.5, handlelength=1.6)
+    for p, at, up, text in ((th["majority"]["p"], 300, 2.4, "majority: $p$ = 1 in " +
+                             f["majority_any.one_in"]),
+                            (th["seat"]["p"], 2.2, 1 / 3.2, "a seat: $p$ = 1 in " +
+                             f["seat.one_in"])):
+        y = theory.break_even_alpha(p, th["population"], np.array([at]))[0]
+        a, b2 = ax.transData.transform((at, y)), ax.transData.transform((at * 10, y / 10))
+        angle = float(np.degrees(np.arctan2(b2[1] - a[1], b2[0] - a[0])))
+        ax.text(at, y * up, text, fontsize=9.5, rotation=angle, rotation_mode="anchor",
+                color=INK if up > 1 else GREY)
     return save(fig, svg, png)
 
 
@@ -334,12 +378,12 @@ def page_title(s: dict, f: dict, out: Path, png: Path | None) -> Page:
     pg.raw("#v(4pt)\n#align(center, text(12.5pt, weight: \"bold\")[Abstract])\n#v(-3pt)\n"
            f"#pad(x: 1.0em)[#set text(12pt)\n#set par(leading: 0.45em)\n{T(abstract)}]",
            ["Abstract", P(abstract)])
-    labels = fig_odds(s, f, out / "fig-1.svg", png and png / "fig-1-odds.png")
+    labels = fig_odds(s, f, out / "fig-odds.svg", png and png / "fig-odds.png")
     pg.raw("#v(2pt)")
-    pg.figure("fig-1.svg", 1, "How likely one vote is to decide. Black: this model, average "
+    pg.figure("fig-odds.svg", 1, "How likely one vote is to decide. Black: this model, average "
               "Spanish voter. Hatched: references (Gelman, Silver and Edlin, 2012).", labels)
     note = "Code, data and method: linked in the first comment."
-    pg.raw("#v(1fr)\n#block(width: 100%, {\n  line(length: 30%, stroke: 0.4pt)\n  v(-4pt)\n"
+    pg.raw("#v(1fr)\n#block(width: 100%, {\n  line(length: 30%, stroke: 0.4pt)\n  v(-2pt)\n"
            f"  text(10.5pt)[{T(note)}]\n}})", P(note))
     return pg
 
@@ -406,10 +450,11 @@ def page_backtest(s: dict, f: dict, out: Path, png: Path | None) -> Page:
     pg.p("I ran the same code seven days before the elections of November 2019 and July "
          "2023, calibrated only on earlier elections. The rule for widening the errors was "
          "committed before the first run: widen if fewer than 75% of the actual seat counts "
-         "fall in the 80% intervals, or fewer than 90% in the 95% ones.")
-    pg.p(f"Result: {f['bt.in80']} lists inside their 80% intervals, {f['bt.in95']} inside the "
-         "95% ones, so no widening. The 80% misses: "
-         f"{f['bt.2019N.misses80']} in 2019; {f['bt.2023.misses80']} in 2023.")
+         f"fall in the 80% intervals, or fewer than 90% in the 95% ones. Result: {f['bt.in80']} "
+         f"and {f['bt.in95']}, so no widening.")
+    labels = fig_backtests(s, f, out / "fig-backtests.svg", png and png / "fig-backtests.png")
+    pg.figure("fig-backtests.svg", 2, "Simulated 80% (thick) and 95% (thin) intervals and the "
+              "actual seats (diamonds, filled when outside the 80% interval).", labels)
     pg.table("(auto, auto, auto, auto)", "(left, center, center, center)",
              ["Election, bloc", "Forecast\nP(≥ 176)", "Actual\nseats",
               "Percentile of\nthe actual"],
@@ -417,19 +462,18 @@ def page_backtest(s: dict, f: dict, out: Path, png: Path | None) -> Page:
               ["2023, S", f["bt.2023.S.p"], f["bt.2023.S.actual"], f["bt.2023.S.pctile"]],
               ["Nov 2019, investiture bloc", f["bt.2019N.S.p"], f["bt.2019N.S.actual"],
                f["bt.2019N.S.pctile"]]],
-             caption="Where the actual bloc total fell in the simulated distribution. The "
-                     "2019 bloc is PSOE, Unidas Podemos, PNV, Más País and BNG.", n=1)
-    pg.p(f"Run {f['lead']} days out, as for 2026, coverage is {f['bt_lead.in80']} and "
-         f"{f['bt_lead.in95']}: a little short at 95%, so the 2026 intervals may be slightly "
-         "narrow.")
+             caption="Where the actual bloc total fell among the simulated ones. 2019 bloc: "
+                     "PSOE, Unidas Podemos, PNV, Más País, BNG.", n=1)
+    pg.p(f"Run {f['lead']} days out, as for 2026: {f['bt_lead.in80']} and "
+         f"{f['bt_lead.in95']}, one short at 95%, so the 2026 intervals may be a little narrow.")
     return pg
 
 
 def page_seats(s: dict, f: dict, out: Path, png: Path | None) -> Page:
     pg = Page()
     pg.h("The 2026 parliament")
-    labels = fig_seats(s, f, out / "fig-2.svg", png and png / "fig-2-seats.png")
-    pg.figure("fig-2.svg", 2, f"Seats per list in {f['n']} simulated elections: mean (circle), "
+    labels = fig_seats(s, f, out / "fig-seats.svg", png and png / "fig-seats.png")
+    pg.figure("fig-seats.svg", 3, f"Seats per list in {f['n']} simulated elections: mean (circle), "
               "80% (thick) and 95% (thin) intervals.", labels)
     rows = []
     for b, name in (("F", "F"), ("S", "S"), ("S_no_JUNTS", "S without Junts")):
@@ -447,8 +491,10 @@ def page_vote(s: dict, f: dict, out: Path, png: Path | None) -> Page:
          f"{f['seat.one_in']}, and changes whether F or S reaches 176 with probability 1 in "
          f"{f['majority_any.one_in']} (F alone 1 in {f['majority_F.one_in']}, S alone 1 in "
          f"{f['majority_S.one_in']}).")
-    labels = fig_constituencies(s, f, out / "fig-3.svg", png and png / "fig-3-constituencies.png")
-    pg.figure("fig-3.svg", 3, "The average voter of each of the 52 constituencies.", labels)
+    labels = fig_constituencies(s, f, out / "fig-constituencies.svg",
+                                png and png / "fig-constituencies.png")
+    pg.figure("fig-constituencies.svg", 4, "The average voter of each of the 52 constituencies.",
+              labels)
     pg.p(f"Small constituencies weigh more: {f['eps.min']} electors per seat in "
          f"{f['eps.min.name']}, {f['eps.max']} in {f['eps.max.name']}. "
          f"{f['seat.top1']}, a one-seat race, is the most decisive (1 in "
@@ -500,8 +546,9 @@ def page_why(s: dict, f: dict, out: Path, png: Path | None) -> Page:
          f"weight you give a stranger. Here $p N$ = {f['th.majority.pN']}: with $b$ = 100 €, "
          f"voting pays once $alpha$ passes {f['th.majority.alpha100']}, about 1 in "
          f"{f['th.majority.inv_alpha100']}.")
-    labels = fig_break_even(s, f, out / "fig-4.svg", png and png / "fig-4-break-even.png")
-    pg.figure("fig-4.svg", 4, "Above each line, $p N b alpha$ exceeds the 5 € cost.", labels)
+    labels = fig_break_even(s, f, out / "fig-break-even.svg", png and png / "fig-break-even.png")
+    pg.figure("fig-break-even.svg", 5, "Above each line, $p N b alpha$ exceeds the 5 € cost.",
+              labels)
     return pg
 
 
@@ -536,8 +583,8 @@ def page_limits(s: dict, f: dict, out: Path, png: Path | None) -> Page:
     return pg
 
 
-FIGURES = [("fig-1-odds", fig_odds), ("fig-2-seats", fig_seats),
-           ("fig-3-constituencies", fig_constituencies), ("fig-4-break-even", fig_break_even)]
+FIGURES = [("fig-odds", fig_odds), ("fig-backtests", fig_backtests), ("fig-seats", fig_seats),
+           ("fig-constituencies", fig_constituencies), ("fig-break-even", fig_break_even)]
 
 
 def make_figures(results_dir: Path, figures_dir: Path) -> None:

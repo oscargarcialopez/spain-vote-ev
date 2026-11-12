@@ -32,11 +32,9 @@ one vote decides the 2008 US presidency
 
 odds, 1 in N (log scale)
 
-1 million
-
 10 million
 
-100 million
+1 billion
 
 Code, data and method: linked in the first comment.
 
@@ -84,11 +82,67 @@ where Nh counts the n = 100,000 runs with 0 < Δ ≤ h, and h is 2% of the const
 
 Does it work? Backtests
 
-I ran the same code seven days before the elections of November 2019 and July 2023, calibrated only on earlier elections. The rule for widening the errors was committed before the first run: widen if fewer than 75% of the actual seat counts fall in the 80% intervals, or fewer than 90% in the 95% ones.
+I ran the same code seven days before the elections of November 2019 and July 2023, calibrated only on earlier elections. The rule for widening the errors was committed before the first run: widen if fewer than 75% of the actual seat counts fall in the 80% intervals, or fewer than 90% in the 95% ones. Result: 22 of 26 and 24 of 26, so no widening.
 
-Result: 22 of 26 lists inside their 80% intervals, 24 of 26 inside the 95% ones, so no widening. The 80% misses: Cs (10 vs 12–30), BNG (1 vs 0–0) in 2019; CUP (0 vs 1–1), Teruel Existe (0 vs 1–1) in 2023.
+Figure 2. Simulated 80% (thick) and 95% (thin) intervals and the actual seats (diamonds, filled when outside the 80% interval).
 
-Table 1. Where the actual bloc total fell in the simulated distribution. The 2019 bloc is PSOE, Unidas Podemos, PNV, Más País and BNG.
+seats (square-root scale)
+
+BNG
+
+PRC
+
+CC
+
+CUP
+
+Más País
+
+EH Bildu
+
+PNV
+
+Junts
+
+Cs
+
+ERC
+
+Unidas Podemos
+
+Vox
+
+PP
+
+PSOE
+
+seats (square-root scale)
+
+CUP
+
+Teruel Existe
+
+BNG
+
+CC
+
+PNV
+
+EH Bildu
+
+ERC
+
+Junts
+
+Sumar
+
+Vox
+
+PSOE
+
+PP
+
+Table 1. Where the actual bloc total fell among the simulated ones. 2019 bloc: PSOE, Unidas Podemos, PNV, Más País, BNG.
 
 Election, bloc | Forecast P(≥ 176) | Actual seats | Percentile of the actual
 
@@ -98,13 +152,13 @@ Election, bloc | Forecast P(≥ 176) | Actual seats | Percentile of the actual
 
 Nov 2019, investiture bloc | 17% | 165 | 61%
 
-Run 19 days out, as for 2026, coverage is 20 of 26 and 23 of 26: a little short at 95%, so the 2026 intervals may be slightly narrow.
+Run 19 days out, as for 2026: 20 of 26 and 23 of 26, one short at 95%, so the 2026 intervals may be a little narrow.
 
 ## Slide 5
 
 The 2026 parliament
 
-Figure 2. Seats per list in 100,000 simulated elections: mean (circle), 80% (thick) and 95% (thin) intervals.
+Figure 3. Seats per list in 100,000 simulated elections: mean (circle), 80% (thick) and 95% (thin) intervals.
 
 seats
 
@@ -148,7 +202,7 @@ What one vote is worth
 
 For the average voter, one more vote changes a seat with probability 1 in 76,000, and changes whether F or S reaches 176 with probability 1 in 10.8 million (F alone 1 in 18 million, S alone 1 in 22.8 million).
 
-Figure 3. The average voter of each of the 52 constituencies.
+Figure 4. The average voter of each of the 52 constituencies.
 
 Ceuta
 
@@ -184,21 +238,21 @@ Table 3. Seat share and Shapley–Shubik power of the lists with 5 or more seats
 
 List | Seats 2023 | Power 2023 | Seats 2026 runs | Power 2026 runs
 
-PP | 39% | 41% | 38% | 38%
+PP | 39.1% | 40.6% | 38.0% | 38.4%
 
-PSOE | 35% | 20% | 30% | 27%
+PSOE | 34.6% | 20.1% | 29.7% | 27.0%
 
-Vox | 9% | 15% | 20% | 27%
+Vox | 9.4% | 15.0% | 19.5% | 26.5%
 
-Sumar / Frente Amplio | 9% | 12% | 4% | 2%
+Sumar / Frente Amplio | 8.9% | 12.3% | 3.6% | 2.4%
 
-ERC | 2% | 3% | 3% | 2%
+ERC | 2.0% | 3.1% | 2.7% | 1.7%
 
-Junts | 2% | 3% | 1% | 1%
+Junts | 2.0% | 3.1% | 1.4% | 0.9%
 
-EH Bildu | 2% | 2% | 2% | 1%
+EH Bildu | 1.7% | 2.5% | 2.0% | 1.2%
 
-PNV | 1% | 2% | 1% | 1%
+PNV | 1.4% | 1.6% | 1.1% | 0.7%
 
 The players
 
@@ -222,17 +276,17 @@ B = N b α (3)
 
 with N = 49.9 million residents, b the gain per person, α the weight you give a stranger. Here p N = 4.6: with b = 100 €, voting pays once α passes 1.1%, about 1 in 93.
 
-Figure 4. Above each line, p N b α exceeds the 5 € cost.
+Figure 5. Above each line, p N b α exceeds the 5 € cost.
 
-voting pays
-
-$b$, gain per person from the outcome (€)
-
-$\alpha$, weight on others
+voting pays (majority)
 
 majority: $p$ = 1 in 10.8 million
 
 a seat: $p$ = 1 in 76,000
+
+$b$, gain per person from the outcome (€)
+
+$\alpha$, weight on others
 
 ## Slide 9
 

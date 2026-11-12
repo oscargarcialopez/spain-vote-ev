@@ -119,17 +119,17 @@ def build(s: dict) -> dict[str, str]:
         f[f"prov.{key}.seats"] = str(r["seats"])
         for b in ("F", "S", "S_no_JUNTS"):
             x = r[f"one_in_majority_{b}"]
-            f[f"prov.{key}.{b}"] = sig(x) if x else "never"
+            f[f"prov.{key}.{b}"] = sig(x) if x else "—"
     eps = sorted(prov, key=lambda r: r["electors_per_seat"])
     f["eps.min"], f["eps.min.name"] = sig(eps[0]["electors_per_seat"]), eps[0]["name"]
     f["eps.max"], f["eps.max.name"] = sig(eps[-1]["electors_per_seat"]), eps[-1]["name"]
     f["eps.ratio"] = f"{eps[-1]['electors_per_seat'] / eps[0]['electors_per_seat']:.1f}"
     for code, x in s["lists"].items():
-        f[f"{code}.share"] = f"{100 * x['share']:.1f}%"
+        f[f"{code}.share"] = pct(x["share"], 1 if x["share"] >= 0.01 else 2)
         f[f"{code}.seats"] = f"{x['mean']:.0f}"
         f[f"{code}.i80"] = f"{x['lo80']}–{x['hi80']}"
         f[f"{code}.i95"] = f"{x['lo95']}–{x['hi95']}"
-        f[f"{code}.p_seat"] = pct(x["p_any_seat"])
+        f[f"{code}.p_seat"] = pct(x["p_any_seat"], 0 if x["p_any_seat"] >= 0.01 else 2)
         f[f"{code}.name"] = x["name"]
     for b, x in s["blocs"].items():
         f[f"bloc.{b}.mean"] = f"{x['mean']:.0f}"
@@ -179,13 +179,13 @@ def build(s: dict) -> dict[str, str]:
             f[f"bt.{e}.{b['bloc']}.i80"] = f"{b['lo80']}–{b['hi80']}"
     pw = s["power"]
     for p, x in pw["congress_2023"].items():
-        f[f"pw23.{p}.seats"] = pct(x["seat_share"])
-        f[f"pw23.{p}.ss"] = pct(x["shapley_shubik"])
-        f[f"pw23.{p}.bz"] = pct(x["banzhaf"])
+        f[f"pw23.{p}.seats"] = pct(x["seat_share"], 1)
+        f[f"pw23.{p}.ss"] = pct(x["shapley_shubik"], 1)
+        f[f"pw23.{p}.bz"] = pct(x["banzhaf"], 1)
     for p, x in pw["simulated"].items():
-        f[f"pw.{p}.seats"] = pct(x["seat_share"])
-        f[f"pw.{p}.ss"] = pct(x["shapley_shubik"])
-        f[f"pw.{p}.bz"] = pct(x["banzhaf"])
+        f[f"pw.{p}.seats"] = pct(x["seat_share"], 1)
+        f[f"pw.{p}.ss"] = pct(x["shapley_shubik"], 1)
+        f[f"pw.{p}.bz"] = pct(x["banzhaf"], 1)
     f["pw.sample"] = f"{pw['sample']:,}"
     th = s["theory"]
     f["cost"] = f"{th['cost']:.0f} €"
