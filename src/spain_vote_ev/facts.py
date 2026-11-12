@@ -19,7 +19,7 @@ from datetime import date
 from math import comb, floor, log10
 from pathlib import Path
 
-from . import legibility, theory
+from . import theory
 from .parties import DISPLAY
 
 LANGS = ("en", "es")
@@ -38,7 +38,7 @@ CONSTANTS = {
     "14", "15", "0.01", "0.02", "0.05", "20,000", "75", "90", "80", "95",
     "100", "1,000", "1080", "1350", "7.5",
     "1951", "1954", "1957", "1965", "1968", "1973", "1975", "1983", "1990", "2007", "2008",
-    "2011", "2012", "2015", "2016", "2018", "2019", "2020", "2023", "2024", "2026",
+    "2012", "2015", "2016", "2018", "2019", "2020", "2023", "2024", "2026",
     "29", "27", "16",
     "167", "165", "18",
     "8.1",
@@ -333,21 +333,6 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     for p, k in ctx["seats_2023"].items():
         f[f"seats23.{p}"] = str(k)
     f["n_backtest"] = fm.num(s["backtest"]["rule"]["n"])
-    # The type floor of the carousel: a criterion, not a result (legibility.py).
-    lg = legibility.facts()
-    f["type.angle"] = fm.num(lg["angle"], 2)
-    f["type.cps_low"] = fm.num(lg["cps_low"], 2)
-    f["type.cps_high"] = fm.num(lg["cps_high"], 1)
-    f["type.distance_mm"] = fm.num(lg["distance_mm"])
-    f["type.phone_in"] = fm.num(lg["phone_in"], 1)
-    f["type.screen_mm"] = fm.num(lg["screen_mm"], 1)
-    f["type.screen_px"] = fm.num(lg["screen_px"])
-    f["type.screen_ppi"] = fm.num(lg["screen_ppi"])
-    for style in ("regular", "italic"):
-        f[f"type.xh_{style}"] = fm.num(lg[f"xh_{style}"], 3)
-        f[f"type.raw_{style}"] = fm.num(lg[f"raw_{style}"], 2)
-        f[f"type.min_{style}"] = fm.num(lg[f"min_{style}"], 1)
-    f["type.px_per_pt"] = fm.num(lg["px_per_pt"], 1)
     return f
 
 

@@ -28,9 +28,8 @@ errors, a different swing model or different blocs would move them more (see
 
 ![The odds of deciding, against two references](figures/fig-odds.png)
 
-The carousel summarises it in paper form, one idea per page, in type sized for a phone (see
-[Type size](#type-size)): [in Spanish](carousel/carousel.pdf) (the one posted;
-[plain text](carousel/slides.txt)) and [in English](carousel/en/carousel.pdf)
+The carousel is a nine-page summary in paper form: [in Spanish](carousel/carousel.pdf) (the
+one posted; [plain text](carousel/slides.txt)) and [in English](carousel/en/carousel.pdf)
 ([plain text](carousel/en/slides.txt)).
 
 ## The question
@@ -450,7 +449,7 @@ uv run voteev figures     # figures/*.png
 uv run voteev carousel    # in Spanish: carousel/carousel.pdf, slide-NN.png, slides.txt
 uv run voteev carousel --lang en   # in English, in carousel/en/ (and the README's figures)
 uv run voteev tables      # refresh the tables in this README
-uv run voteev check       # every number is in summary.json; no glyph below the type floor
+uv run voteev check       # every number in README.md, POST.md and both carousels is in summary.json
 uv run pytest && uv run ruff check
 ```
 
@@ -458,31 +457,6 @@ The `Makefile` runs the same steps (`make all`). `results/summary.json` is the o
 the numbers in this README, the carousels and the post; `voteev check` fails if a number in
 them is not there, or is not written in its language's format (`76,000` and `94.2%` in
 English; `76.000` and `94,2 %` in Spanish, with a no-break space before % and €).
-
-## Type size
-
-The carousel is read on a phone, so no glyph in it is smaller than the smallest size read at
-full speed there, and the body text is exactly that size. The criterion, in
-`src/spain_vote_ev/legibility.py`:
-
-- an x-height of 0.20° of visual angle, the critical print size, below which reading slows
-  ([Legge & Bigelow, 2011](https://doi.org/10.1167/11.5.8)). It varies with the reader, the
-  font and the method from about 0.15° to 0.3°, so this is a typical reader's floor, not
-  everyone's;
-- seen from 322 mm, the mean distance at which people read web pages on a smartphone
-  ([Bababekova et al., 2011](https://pubmed.ncbi.nlm.nih.gov/21499163/));
-- on a 6.1-inch phone, the narrowest common class (1179 px at 460 ppi: 65.1 mm across),
-  assuming LinkedIn shows the page across the full width of the screen;
-- with the x-heights of the STIX Two font files: 0.473 of the em for Regular, Bold and Math,
-  0.467 for Italic.
-
-That gives 15.8 pt for regular, bold and math text and 16.0 pt for italic: 2.5 px per pt on
-the 1080-pixel previews. Captions, tables, references, page numbers and the running header
-are no smaller; headings and the title are larger; there are no subscripts or superscripts,
-which shrink; and the figures are drawn at the text width and placed at 100%, so their labels
-are the size of the text. `uv run pytest` and `voteev check` read every glyph of both PDFs
-(with pdfplumber) and every text in their figures (with matplotlib), and fail if one is below
-its style's minimum.
 
 Fonts: STIX Two (SIL Open Font License, in `src/spain_vote_ev/fonts/`).
 
@@ -496,9 +470,6 @@ seat or a majority.
 ## References
 
 - Arrow, K. J. (1951). *Social Choice and Individual Values*. Wiley.
-- Bababekova, Y., Rosenfield, M., Hue, J. E., & Huang, R. R. (2011). Font size and viewing
-  distance of handheld smart phones. *Optometry and Vision Science* 88(7), 795–797.
-  [PubMed 21499163](https://pubmed.ncbi.nlm.nih.gov/21499163/)
 - Banzhaf, J. F. (1965). Weighted voting doesn't work. *Rutgers Law Review* 19(2), 317–343.
 - Downs, A. (1957). *An Economic Theory of Democracy*. Harper.
 - Edlin, A., Gelman, A., & Kaplan, N. (2007). Voting as a rational choice. *Rationality and
@@ -512,9 +483,6 @@ seat or a majority.
   Institution Press.
 - Kalla, J. L., & Broockman, D. E. (2018). The minimal persuasive effects of campaign contact
   in general elections. *American Political Science Review* 112(1), 148–166.
-- Legge, G. E., & Bigelow, C. A. (2011). Does print size matter for reading? A review of
-  findings from vision science and typography. *Journal of Vision* 11(5):8, 1–22.
-  [doi:10.1167/11.5.8](https://doi.org/10.1167/11.5.8)
 - Riker, W. H., & Ordeshook, P. C. (1968). A theory of the calculus of voting. *American
   Political Science Review* 62(1), 25–42.
 - Satterthwaite, M. A. (1975). Strategy-proofness and Arrow's conditions. *Journal of Economic

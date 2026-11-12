@@ -2,97 +2,91 @@
 
 ¿Cuánto vale un voto?
 
-Elecciones generales del 29 de noviembre de 2026
+Las elecciones generales del 29 de noviembre de 2026
 
-Óscar García López · noviembre de 2026
+Óscar García López
 
-Resumen. Simulo 100.000 veces las generales con las encuestas hasta el 10 de noviembre de 2026. Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 76.000, y decide si uno de los bloques de las investiduras de 2023 llega a 176 escaños con una de 1 entre 10,8 millones. Todas las listas siguen las mismas reglas, y no aconsejo nada a nadie.
+Noviembre de 2026
 
-Figura 1. Escala logarítmica. Rayado: referencias (la de 2008, de Gelman, Silver y Edlin, 2012).
+Resumen
 
-Un voto cambia un escaño
+Simulo 100.000 veces las elecciones, circunscripción a circunscripción, con la mediana de las encuestas hasta el 10 de noviembre de 2026 y los errores que tuvo en elecciones pasadas. Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 76.000 y decide si uno de los bloques de las investiduras de 2023 llega a 176 escaños con una de 1 entre 10,8 millones, unas 6 veces mayor que la de decidir las presidenciales de EE. UU. de 2008 y parecida a la de acertar los seis números de la Primitiva. El cálculo trata igual a todas las listas y no aconseja nada a nadie.
+
+Figura 1. Probabilidad de que un voto decida. Barras negras: este modelo, votante medio de España. Rayadas: referencias (Gelman, Silver y Edlin, 2012).
+
+un voto cambia un escaño
 
 1 entre 76.000
 
-Un voto decide si un bloque llega a 176
+un voto decide si un bloque llega a 176 escaños
 
 1 entre 10,8 millones
 
-Acertar los seis números de la Primitiva
+acertar los seis números de la Primitiva
 
 1 entre 14 millones
 
-Un voto decide las presidenciales de EE. UU. de 2008
+un voto decide las presidenciales de EE. UU. de 2008
 
 1 entre 60 millones
 
-Código y datos: enlace en el primer comentario.
+probabilidad, 1 entre N (escala logarítmica)
+
+10 millones
+
+1.000 millones
+
+Código, datos y método: enlace en el primer comentario.
 
 ## Diapositiva 2
 
 La pregunta
 
-España elige 350 diputados en 52 circunscripciones por D'Hondt, con un umbral del 3 % en cada una. Un voto más puede pasar un escaño de una lista a otra, o mover el escaño que decide la mayoría absoluta: 176.
+Un voto importa cuando cambia algo. España elige 350 diputados en 52 circunscripciones con la ley D'Hondt y un umbral del 3 % en cada una; Ceuta y Melilla eligen uno cada una. Un voto más puede pasar un escaño de una lista a otra, o mover el escaño que decide una mayoría absoluta de 176.
 
-Para la mayoría uso los bloques de las dos investiduras de 2023; así nadie coloca a ningún partido a mano:
+Para la mayoría uso los bloques de las dos votaciones de investidura de 2023; así nadie decide a mano dónde va cada partido:
 
-Bloque | Votos a favor
+Bloque | Votación | Votos a favor
 
-F | Feijóo, 27 de septiembre de 2023: 172 PP 137, Vox 33, UPN 1, CC 1
+F | Feijóo, 27 de septiembre de 2023: 172 | PP 137, Vox 33, UPN 1, CC 1
 
-S | Sánchez, 16 de noviembre de 2023: 179 PSOE 121, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1
+S | Sánchez, 16 de noviembre de 2023: 179 | PSOE 121, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1
 
-Frente Amplio y Podemos, del grupo de Sumar en 2023, cuentan en S; las listas sin escaño en 2023, en ninguno; Coalición Canaria votó sí las dos veces y está en los dos. También doy S sin Junts.
+Frente Amplio y Podemos, que en 2023 estaban en el grupo de Sumar, cuentan en S; las listas sin escaño en 2023 no cuentan en ninguno; Coalición Canaria votó sí las dos veces, así que está en los dos. También doy S sin Junts.
+
+Si votar compensa o no es el cálculo del voto (Riker y Ordeshook, 1968):
+
+R = pB − C + D (1)
+
+donde p es la probabilidad de que tu voto decida, B lo que vale para ti el resultado, C el coste de votar y D lo que vale votar en sí. Este estudio estima p.
 
 ## Diapositiva 3
 
 El modelo
 
-Encuestas: de cada empresa, la última con el trabajo de campo acabado entre el 27 de octubre y el 10 de noviembre de 2026; 16 empresas, ninguna excluida. Tomo la mediana de cada lista.
+Encuestas: de cada empresa, la última con el trabajo de campo acabado entre el 27 de octubre y el 10 de noviembre de 2026; son 16 empresas, y tomo la mediana de cada lista. No se excluye ninguna. Una de las encuestas del periodo la publicó un partido (Vox); sin ella, P(F ≥ 176) es 94,8 % en vez de 94,2 %, y P(S ≥ 176), 3,7 % en vez de 4,2 %.
 
-Error nacional: cada lista se mueve en escala logit con σ = 0,22, lo que falló esa misma mediana a 19 días en 2015–2023 (43 casos), centrado en cero.
+Error nacional: el porcentaje de cada lista se mueve en escala logit con σ = 0,22, el tamaño de los errores de la misma mediana a 19 días de las elecciones de 2015–2023 (43 casos). Los errores están centrados en cero.
 
-Circunscripciones: cambio proporcional desde 2023, con desviaciones autonómicas y provinciales (σ = 0,11 y 0,07) medidas en cambios pasados; la participación también varía. SALF y el reparto del voto de Sumar parten de las europeas de 2024.
+Circunscripciones: el cambio desde 2023 se aplica en proporción (con las europeas de 2024 para SALF y para repartir el voto de Sumar), con desviaciones autonómicas y provinciales (σ = 0,11 y 0,07) estimadas con cambios pasados; la participación también varía.
 
-Escaños: D'Hondt con el umbral del 3 %; para cada lista, Δ son los votos que le faltan para un escaño más.
+Escaños: D'Hondt con el umbral del 3 %, y para cada lista Δ, los votos que le faltan para un escaño más.
 
-Una encuesta la publicó un partido (Vox); sin ella, P(F ≥ 176) es 94,8 % en vez de 94,2 %, y P(S ≥ 176), 3,7 % en vez de 4,2 %.
+La probabilidad de que un voto sea decisivo es la densidad de Δ en cero:
+
+p ≈ N_h / (n h) (2)
+
+donde Nh cuenta las simulaciones, de n = 100.000, con 0 < Δ ≤ h, y h es el 2 % de los votos por escaño de la circunscripción. Con h entre el 1 % y el 5 %, los resultados nacionales se mueven un 0,2 % (escaño) y un 3,2 % (mayoría). Para la mayoría solo cuentan las simulaciones en que ese escaño cambia si un bloque llega a 176.
 
 ## Diapositiva 4
 
-La probabilidad de decidir
+¿Funciona? Contraste con elecciones pasadas
 
-Un voto decide un escaño cuando a una lista le falta un solo voto para ganarlo. Esa probabilidad es la densidad de Δ en cero:
+Ejecuté el mismo código siete días antes de las generales de noviembre de 2019 y de julio de 2023, calibrado solo con las anteriores. La regla para ensanchar los errores se fijó antes de empezar: si menos del 75 % de las listas queda dentro de su horquilla del 80 %, o menos del 90 % dentro de la del 95 %. Resultado: 22 de 26 y 24 de 26; no se ensanchan.
 
-p ≈ k / (n · h) (1)
+Figura 2. Horquillas simuladas del 80 % (trazo grueso) y del 95 % (fino) y escaños reales (rombos, rellenos si quedan fuera de la horquilla del 80 %).
 
-donde k cuenta las simulaciones, de n = 100.000, con 0 < Δ ≤ h, y h es el 2 % de los votos por escaño de la circunscripción. Con h entre el 1 % y el 5 %, los resultados nacionales se mueven un 0,2 % (escaño) y un 3,2 % (mayoría).
-
-Para la mayoría solo cuentan las simulaciones en que ese escaño cambia si un bloque llega a 176.
-
-El votante medio pondera cada circunscripción y cada lista por sus votos esperados: es la probabilidad para un voto tomado al azar.
-
-## Diapositiva 5
-
-¿Funciona? Contraste con el pasado
-
-Ejecuté el mismo código siete días antes de las generales de noviembre de 2019 y de julio de 2023, calibrado solo con las anteriores. La regla para ensanchar los errores se fijó antes de empezar: si menos del 75 % de las listas cae en su horquilla del 80 %, o menos del 90 % en la del 95 %. Resultado: 22 de 26 y 24 de 26; no se ensanchan (figura 2).
-
-Tabla 1. P(≥ 176) prevista y percentil del total real del bloque entre los simulados. S en 2019: PSOE, Unidas Podemos, PNV, Más País y BNG.
-
-Elección, bloque | P(≥ 176) | Escaños reales | Percentil
-
-2023, F | 62 % | 172 | 30 %
-
-2023, S | 31 % | 179 | 76 %
-
-Noviembre de 2019, S | 17 % | 165 | 61 %
-
-A 19 días de la votación, como para 2026: 20 de 26 y 23 de 26, por debajo del objetivo del 95 %; las horquillas de 2026 pueden quedarse algo estrechas.
-
-## Diapositiva 6
-
-Figura 2. Contraste: horquillas simuladas del 80 % (trazo grueso) y del 95 % (fino) y escaños reales (rombos, rellenos si quedan fuera de la del 80 %).
+escaños (escala de raíz cuadrada)
 
 BNG
 
@@ -122,7 +116,7 @@ PP
 
 PSOE
 
-Noviembre de 2019
+escaños (escala de raíz cuadrada)
 
 CUP
 
@@ -148,15 +142,25 @@ PSOE
 
 PP
 
-Julio de 2023
+Tabla 1. P(≥ 176) prevista y dónde quedó el total real del bloque entre los simulados. S en 2019: PSOE, Unidas Podemos, PNV, Más País y BNG.
 
-escaños (escala de raíz cuadrada)
+Elección, bloque | P(≥ 176) | Escaños reales | Percentil del real
 
-## Diapositiva 7
+2023, F | 62 % | 172 | 30 %
+
+2023, S | 31 % | 179 | 76 %
+
+Noviembre de 2019, S | 17 % | 165 | 61 %
+
+A 19 días de la votación, como para 2026: 20 de 26 y 23 de 26, por debajo del objetivo del 95 %; las horquillas de 2026 pueden quedarse algo estrechas.
+
+## Diapositiva 5
 
 El Congreso de 2026
 
-Figura 3. Escaños por lista en 100.000 elecciones simuladas: media (círculo) y horquillas del 80 % (grueso) y del 95 % (fino).
+Figura 3. Escaños por lista en 100.000 elecciones simuladas: media (círculo) y horquillas del 80 % (trazo grueso) y del 95 % (fino).
+
+escaños
 
 CC
 
@@ -184,7 +188,7 @@ PP
 
 Tabla 2. Los dos bloques de las investiduras de 2023.
 
-Bloque | Media | Horquilla 80 % | P(≥ 176)
+Bloque | Escaños (media) | Horquilla del 80 % | P(≥ 176)
 
 F | 202 | 181–224 | 94 %
 
@@ -192,15 +196,13 @@ S | 146 | 125–168 | 4 %
 
 S sin Junts | 141 | 120–163 | 2 %
 
-## Diapositiva 8
+## Diapositiva 6
 
 Cuánto vale un voto
 
-Figura 4. Probabilidad de que un voto decida, para el votante medio de cada circunscripción. Escalas logarítmicas.
+Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 76.000, y decide si F o S llega a 176 con una de 1 entre 10,8 millones (solo F, 1 entre 18 millones; solo S, 1 entre 22,8 millones).
 
-la mayoría
-
-un escaño
+Figura 4. El votante medio de cada una de las 52 circunscripciones.
 
 Ceuta
 
@@ -210,25 +212,31 @@ Soria
 
 Palencia
 
-escaños de la circunscripción
+escaños de la circunscripción (escala logarítmica)
 
-1 entre N
+probabilidad, 1 entre N
 
 1 millón
 
+10 millones
+
 100 millones
 
-Las circunscripciones pequeñas pesan más: 35.000 electores por escaño en Teruel y 150.000 en Madrid. Ceuta, que elige un solo diputado, es la más decisiva: 1 entre 10.000 para su escaño y 1 entre 740.000 para la mayoría. Para la mayoría, la que menos es Soria, con 1 entre 41,4 millones.
+cambia un escaño
 
-## Diapositiva 9
+decide si un bloque llega a 176
+
+Las circunscripciones pequeñas pesan más: 35.000 electores por escaño en Teruel y 150.000 en Madrid. Ceuta, que elige un solo diputado, es la más decisiva (1 entre 10.000 para su escaño y 1 entre 740.000 para la mayoría); para la mayoría, la que menos es Soria, con 1 entre 41,4 millones.
+
+## Diapositiva 7
 
 Quién tiene el poder
 
-Tener escaños no es tener poder. El índice de Shapley–Shubik es la fracción de los órdenes de formar una coalición en los que los escaños de una lista la llevan a 176: peso aritmético, no quién va a gobernar.
+Tener escaños no es lo mismo que tener poder. El índice de Shapley–Shubik es la fracción de los órdenes posibles de formar una coalición en los que los escaños de una lista son los que la llevan a 176. Supone que cualquier coalición puede formarse: mide peso aritmético, no quién va a gobernar.
 
-Tabla 3. Escaños y poder de Shapley–Shubik; 2026, media de las simulaciones. El de Banzhaf da casi lo mismo (README).
+Tabla 3. Porcentaje de escaños y poder de Shapley–Shubik de las listas con 5 escaños o más en 2023 (el índice de Banzhaf da casi lo mismo; ver el README).
 
-Lista | Escaños 2023 | Poder 2023 | Escaños 2026 | Poder 2026
+Lista | Escaños 2023 | Poder 2023 | Escaños 2026 (sim.) | Poder 2026 (sim.)
 
 PP | 39,1 % | 40,6 % | 38,0 % | 38,4 %
 
@@ -246,55 +254,45 @@ EH Bildu | 1,7 % | 2,5 % | 2,0 % | 1,2 %
 
 PNV | 1,4 % | 1,6 % | 1,1 % | 0,7 %
 
-## Diapositiva 10
-
-¿Compensa votar?
-
-Según el cálculo del voto (Riker y Ordeshook, 1968), votar compensa si
-
-R = p B - C + D > 0 (2)
-
-con p la probabilidad de decidir, B lo que vale para ti el resultado, C el coste (30 minutos a 10 €/h: 5 €) y D lo que vale votar en sí.
-
-Con p = 1 entre 10,8 millones, a un votante egoísta solo le compensa si para él la mayoría vale 53,8 millones de euros (Downs, 1957).
-
 Los jugadores
 
-Votantes: el resultado (B) y votar en sí (D).
+Votantes: el resultado (B) y el propio acto de votar (D).
 
-Partidos: votos, cargos y políticas (Strøm, 1990); su peso, en la tabla 3.
+Partidos: votos, cargos y políticas (Strøm, 1990); su peso es el de la tabla.
 
-Encuestadoras y medios: forman lo que cada uno espera de los demás; no se publican encuestas los cinco días previos (LOREG, art. 69.7).
+Encuestadoras y medios: forman lo que cada jugador espera que hagan los demás; el art. 69.7 de la LOREG prohíbe publicar encuestas los cinco días anteriores a la votación.
 
-Límites externos, como las reglas fiscales de la UE, acotan cualquier mayoría.
+Límites externos, como las reglas fiscales de la UE, acotan lo que puede hacer cualquier mayoría.
 
-## Diapositiva 11
+## Diapositiva 8
 
-Contando a los demás
+¿Por qué votar?
 
-Si B cuenta a todos (Edlin, Gelman y Kaplan, 2007),
+Con tres opciones o más, ninguna regla de ordenación cumple todas las condiciones de Arrow (1951), y toda regla no dictatorial puede premiar votar en contra de las propias preferencias (Gibbard, 1973; Satterthwaite, 1975). La regla española es la que es; ¿compensa un voto lo que cuesta?
+
+Con 30 minutos a 10 €/h, C = 5 €. Con p = 1 entre 10,8 millones, a un votante egoísta solo le sale a cuenta si para él la mayoría vale 53,8 millones de euros (Downs, 1957). Si B cuenta a todos (Edlin, Gelman y Kaplan, 2007):
 
 B = N b α (3)
 
-con N = 49,9 millones de residentes, b lo que gana cada persona y α el peso que das a un desconocido. Aquí p N = 4,6: con b = 100 €, votar compensa cuando α pasa del 1,1 %, más o menos 1 entre 93.
+con N = 49,9 millones de residentes, b el beneficio por persona y α el peso que das a un desconocido. Aquí p N = 4,6: con b = 100 €, votar compensa cuando α pasa del 1,1 %, más o menos 1 entre 93.
 
-Figura 5. Por encima de cada línea, p N b α supera el coste de 5 €; el círculo es b = 100 €.
+Figura 5. Por encima de cada línea, p N b α supera el coste de 5 €.
 
-votar compensa
+votar compensa (mayoría)
 
-mayoría
+mayoría: p = 1 entre 10,8 millones
 
-un escaño
+un escaño: p = 1 entre 76.000
 
-lo que gana cada persona, b (€)
+b, lo que gana cada persona con el resultado (€)
 
-peso de los demás, α
+α, peso de los demás
 
-## Diapositiva 12
+## Diapositiva 9
 
 Movilizar, límites y conclusiones
 
-Movilizar. Convencer apenas mueve votos en unas generales (Kalla y Broockman, 2018); movilizar sí, en experimentos en EE. UU. (Gerber, Green y Larimer, 2008). Suponiendo de 0,1 a 1 votantes más por hora, una hora movilizando vale más que 10 €/h solo si la mayoría vale para ti entre 107,7 millones de euros y 1.100 millones de euros, o con la cuenta social de (3).
+Convencer apenas mueve votos en unas generales (Kalla y Broockman, 2018); movilizar sí, en experimentos en EE. UU. (Gerber, Green y Larimer, 2008). Suponiendo de 0,1 a 1 votantes más por hora, una hora movilizando vale más que 10 €/h solo si la mayoría vale para ti entre 107,7 millones de euros y 1.100 millones de euros, o con la cuenta social de (3).
 
 Límites. Encuestas a 19 días. Cambio proporcional; SALF y Adelante Andalucía se apoyan en las europeas de 2024 o en un porcentaje fijo. Las listas locales pueden sorprender. Bloques fijados por las votaciones de 2023.
 
@@ -304,12 +302,15 @@ github.com/oscargarcialopez/spain-vote-ev
 
 ## Referencias
 
-Banzhaf (1965). Weighted voting doesn't work. Rutgers Law Review.
-Downs (1957). An Economic Theory of Democracy. Harper.
-Edlin, Gelman & Kaplan (2007). Voting as a rational choice. Rationality and Society.
-Gelman, Silver & Edlin (2012). What is the probability your vote will make a difference? Economic Inquiry.
-Gerber, Green & Larimer (2008). Social pressure and voter turnout. American Political Science Review.
-Kalla & Broockman (2018). The minimal persuasive effects of campaign contact in general elections. American Political Science Review.
-Riker & Ordeshook (1968). A theory of the calculus of voting. American Political Science Review.
-Shapley & Shubik (1954). A method for evaluating the distribution of power in a committee system. American Political Science Review.
-Strøm (1990). A behavioral theory of competitive political parties. American Journal of Political Science.
+Arrow, K. J. (1951). Social Choice and Individual Values. Wiley.
+Banzhaf, J. F. (1965). Weighted voting doesn't work. Rutgers Law Review 19(2), 317–343.
+Downs, A. (1957). An Economic Theory of Democracy. Harper.
+Edlin, A., Gelman, A., & Kaplan, N. (2007). Voting as a rational choice. Rationality and Society 19(3), 293–314.
+Gelman, A., Silver, N., & Edlin, A. (2012). What is the probability your vote will make a difference? Economic Inquiry 50(2), 321–326.
+Gerber, A. S., Green, D. P., & Larimer, C. W. (2008). Social pressure and voter turnout. American Political Science Review 102(1), 33–48.
+Gibbard, A. (1973). Manipulation of voting schemes. Econometrica 41(4), 587–601.
+Kalla, J. L., & Broockman, D. E. (2018). The minimal persuasive effects of campaign contact in general elections. American Political Science Review 112(1), 148–166.
+Riker, W. H., & Ordeshook, P. C. (1968). A theory of the calculus of voting. American Political Science Review 62(1), 25–42.
+Satterthwaite, M. A. (1975). Strategy-proofness and Arrow's conditions. Journal of Economic Theory 10(2), 187–217.
+Shapley, L. S., & Shubik, M. (1954). A method for evaluating the distribution of power in a committee system. American Political Science Review 48(3), 787–792.
+Strøm, K. (1990). A behavioral theory of competitive political parties. American Journal of Political Science 34(2), 565–598.
