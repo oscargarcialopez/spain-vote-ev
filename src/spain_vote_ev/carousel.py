@@ -365,6 +365,19 @@ def fig_break_even(s: dict, f: dict, svg: Path, png: Path | None) -> list[str]:
 # --- the pages ------------------------------------------------------------------------------
 
 
+def compare(ratio: float, times: str | None, what: str) -> str:
+    """How a probability compares with a reference, in words that stay true on a rerun."""
+    if 2 / 3 < ratio < 3 / 2:
+        return f"close to the odds of {what}"
+    if ratio >= 3 / 2:
+        return f"about {times} times likelier than {what}" if times else f"likelier than {what}"
+    return f"less likely than {what}"
+
+
+def race(seats: str) -> str:
+    return "a one-seat race" if seats == "1" else f"with {seats} seats"
+
+
 def page_title(s: dict, f: dict, out: Path, png: Path | None) -> Page:
     pg = Page()
     pg.raw("#align(center)[\n  #v(2pt)\n"
@@ -372,14 +385,17 @@ def page_title(s: dict, f: dict, out: Path, png: Path | None) -> Page:
            f"  #text(14.5pt, style: \"italic\")[{T(SUBTITLE)}]\n  #v(8pt)\n"
            f"  #text(13pt)[{T(AUTHOR)}]\n  #v(-2pt)\n  #text(11.5pt)[{T(DATE)}]\n]",
            [TITLE, SUBTITLE, AUTHOR, DATE])
+    maj = s["vote"]["national"]["majority_any"]["one_in"]
     abstract = (
         f"I simulate Spain's election {f['n']} times from the polls to {f['cutoff']}, "
         "constituency by constituency, with errors measured on the same poll summary in "
         "past elections. For the average voter, one more vote changes a seat with probability "
         f"1 in {f['seat.one_in']}, and changes whether either 2023 investiture bloc reaches 176 "
-        f"seats with probability 1 in {f['majority_any.one_in']}: about {f['ratio_gse']} times "
-        "likelier than deciding the 2008 US presidency, and close to the odds of picking all "
-        "six numbers of 49. The numbers treat every list alike and advise no one.")
+        f"seats with probability 1 in {f['majority_any.one_in']}: "
+        + compare(s["context"]["gse_2012_one_in"] / maj, f["ratio_gse"],
+                  "deciding the 2008 US presidency") + ", and "
+        + compare(fx.LOTTERY / maj, None, "picking all six numbers of 49")
+        + ". The numbers treat every list alike and advise no one.")
     pg.raw("#v(4pt)\n#align(center, text(12.5pt, weight: \"bold\")[Abstract])\n#v(-3pt)\n"
            f"#pad(x: 1.0em)[#set text(12pt)\n#set par(leading: 0.45em)\n{T(abstract)}]",
            ["Abstract", P(abstract)])
@@ -470,8 +486,13 @@ def page_backtest(s: dict, f: dict, out: Path, png: Path | None) -> Page:
                f["bt.2019N.S.pctile"]]],
              caption="Where the actual bloc total fell among the simulated ones. 2019 bloc: "
                      "PSOE, Unidas Podemos, PNV, Más País, BNG.", n=1)
+    lead, rule = s["backtest"]["at_2026_lead"], s["backtest"]["rule"]["targets"]
+    short = [lvl for lvl, k in (("80%", "cov80"), ("95%", "cov95")) if lead[k] < rule[k]]
+    verdict = ("both targets met" if not short else
+               f"short of the {' and '.join(short)} target, so the 2026 intervals may be a "
+               "little narrow")
     pg.p(f"Run {f['lead']} days out, as for 2026: {f['bt_lead.in80']} and "
-         f"{f['bt_lead.in95']}, one short at 95%, so the 2026 intervals may be a little narrow.")
+         f"{f['bt_lead.in95']}, {verdict}.")
     return pg
 
 
@@ -503,10 +524,11 @@ def page_vote(s: dict, f: dict, out: Path, png: Path | None) -> Page:
               labels)
     pg.p(f"Small constituencies weigh more: {f['eps.min']} electors per seat in "
          f"{f['eps.min.name']}, {f['eps.max']} in {f['eps.max.name']}. "
-         f"{f['seat.top1']}, a one-seat race, is the most decisive (1 in "
-         f"{f['seat.top1.one_in']} for its seat, 1 in {f['majority_any.top1.one_in']} for "
-         f"the majority); for the majority, {f['majority_any.bottom1']} is the least, at "
-         f"1 in {f['majority_any.bottom1.one_in']}.")
+         f"{f['seat.top1']}, {race(f[f'prov.{f['seat.top1']}.seats'])}, is the most decisive "
+         f"(1 in {f['seat.top1.one_in']} for its seat, 1 in "
+         f"{f[f'prov.{f['seat.top1']}.majority']} for the majority); for the majority, "
+         f"{f['majority_any.bottom1']} is the least, at 1 in "
+         f"{f['majority_any.bottom1.one_in']}.")
     return pg
 
 

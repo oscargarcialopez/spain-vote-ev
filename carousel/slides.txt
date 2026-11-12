@@ -152,7 +152,7 @@ Election, bloc | Forecast P(≥ 176) | Actual seats | Percentile of the actual
 
 Nov 2019, investiture bloc | 17% | 165 | 61%
 
-Run 19 days out, as for 2026: 20 of 26 and 23 of 26, one short at 95%, so the 2026 intervals may be a little narrow.
+Run 19 days out, as for 2026: 20 of 26 and 23 of 26, short of the 95% target, so the 2026 intervals may be a little narrow.
 
 ## Slide 5
 
