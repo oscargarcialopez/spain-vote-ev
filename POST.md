@@ -14,36 +14,21 @@ through `voteev texts`, and `voteev check` verifies it.
 
 Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 entre 77.000.
 
-Y cambia quién es investido presidente con una de 1 entre 11,3 millones: parecida a la de acertar los seis números de la Primitiva (1 entre 14 millones) y unas 5 veces mayor que la de decidir las presidenciales de EE. UU. de 2008 (1 entre 60 millones, según Gelman, Silver y Edlin).
+Y cambia quién es investido presidente con una de 1 entre 11,3 millones: parecida a la de acertar los seis números de la Primitiva.
 
-En la investidura, cada lista vota como su grupo en 2023: al candidato del PP, como a Feijóo, y al del PSOE, como a Sánchez. Con esa regla, el candidato del PP sale investido en el 93,8 % de las simulaciones, el del PSOE en el 4,6 % y ninguno en el 1,6 %.
+¿Entonces no compensa votar? Depende de cuánto valga el resultado para ti y para los demás.
 
-La circunscripción importa: para cambiar un escaño, en Ceuta es 1 entre 10.000; en Madrid, 1 entre 130.000. Para la investidura, la diferencia entre circunscripciones llega a 330 veces.
+En el carrusel, cómo está hecho, si funciona y qué pasa si cambian los supuestos.
 
-Cómo funciona:
-1. La mediana de las últimas encuestas de 16 empresas, sin excluir ninguna.
-2. Errores del tamaño de los fallos de esa mediana en 2015–2023.
-3. D'Hondt con el umbral del 3 % en las 52 circunscripciones.
-4. La investidura del artículo 99 de la Constitución, con los votos de 2023.
-5. Contar cuántas veces a una lista le faltan pocos votos para el escaño que cambia quién es investido.
+Es aritmética, no un consejo: todas las listas siguen las mismas reglas y nada aquí dice a quién votar ni si hacerlo.
 
-¿Funciona? Siete días antes de las generales de noviembre de 2019 y julio de 2023, 22 de 26 resultados por lista cayeron en las horquillas del 80 % y 24 de 26 en las del 95 %, con la regla para ensanchar errores escrita de antemano.
-
-¿Y si cambian los supuestos? He repetido el cálculo con 6 variantes. La que más lo mueve (cada empresa corregida por su error de 2023) deja al candidato del PP en el 80,9 % y al del PSOE en el 16,1 %. Supone que cada empresa repite su error de 2023.
-
-¿Compensa votar? A un votante egoísta, con 30 minutos a 10 €/h, solo le compensa si para él quién es investido vale 56,5 millones de euros. Contando a los 49,9 millones de residentes, con 100 € por persona en juego, basta con que cada desconocido te importe un 1,1 % de lo que te importas tú (Edlin, Gelman y Kaplan, 2007).
-
-Es aritmética, no un consejo: los votos de investidura salen de 2023, todas las listas siguen las mismas reglas y nada aquí dice a quién votar ni si hacerlo.
-
-El análisis, en el carrusel; el código y los datos, en el primer comentario.
+El código y los datos, en el primer comentario.
 
 ---
 
 ## First comment
 
-Código, datos y método, en abierto (cada cifra se reproduce desde fuentes públicas): github.com/oscargarcialopez/spain-vote-ev
-
-Encuestas hasta el 10 de noviembre de 2026. En el repositorio están las 52 circunscripciones, los contrastes con elecciones pasadas, las variantes, los límites y una versión en inglés del carrusel.
+Código y datos para rehacerlo con tus propios supuestos: https://github.com/oscargarcialopez/spain-vote-ev
 
 ## Chuleta para responder (neutral)
 
@@ -95,6 +80,4 @@ The write-up is in the carousel; code and data are in the first comment.
 
 ### First comment
 
-Code, data and method (open source, every number reproducible from public sources): github.com/oscargarcialopez/spain-vote-ev
-
-Polls to 10 November 2026. The README has all 52 constituencies, the backtests, the variants and the limits.
+Code and data to redo it with your own assumptions: https://github.com/oscargarcialopez/spain-vote-ev
