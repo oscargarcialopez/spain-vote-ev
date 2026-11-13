@@ -1,9 +1,13 @@
-# The pipeline, one target per step: `make all` refreshes the polls and rebuilds everything.
-# Each target is one `voteev` command (see `uv run voteev --help`).
+# The pipeline, one target per step: `make all` refreshes the polls and rebuilds everything,
+# as `uv run voteev all` does without make. Each target is one `voteev` command (see
+# `uv run voteev --help`). CUTOFF=YYYY-MM-DD sets the last fieldwork day of the polls
+# (default: the latest poll), e.g. to see how the texts read with other numbers:
+# `make analyze outputs check CUTOFF=2026-11-05`.
 
 RUN := uv run voteev
+CUTOFF ?=
 
-.PHONY: all data download prepare analyze simulate backtest outputs figures carousel tables check test lint
+.PHONY: all data download prepare analyze simulate backtest outputs figures carousel texts check test lint
 
 all: data analyze outputs check
 
@@ -16,7 +20,7 @@ prepare:
 	$(RUN) prepare
 
 analyze:
-	$(RUN) analyze
+	$(RUN) analyze $(if $(CUTOFF),--cutoff $(CUTOFF))
 
 simulate:
 	$(RUN) simulate
@@ -24,7 +28,7 @@ simulate:
 backtest:
 	$(RUN) backtest
 
-outputs: figures carousel tables
+outputs: figures carousel texts
 
 figures:
 	$(RUN) figures
@@ -33,8 +37,8 @@ carousel:
 	$(RUN) carousel --lang es
 	$(RUN) carousel --lang en
 
-tables:
-	$(RUN) tables
+texts:
+	$(RUN) texts
 
 check:
 	$(RUN) check

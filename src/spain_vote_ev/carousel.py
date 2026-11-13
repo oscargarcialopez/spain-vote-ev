@@ -1,4 +1,4 @@
-"""The LinkedIn carousel: nine 4:5 pages (6 x 7.5 in, previews at 1080 x 1350 px) set like a
+"""The LinkedIn carousel: 4:5 pages (6 x 7.5 in, previews at 1080 x 1350 px) set like a
 paper, in Spanish (carousel/, the one published) or English (carousel/en/). STIX Two type
 (vendored in fonts/), numbered sections and equations, captioned figures, ruled tables and the
 references; black and greys and one brown accent that is no party's colour. Typst sets the
@@ -19,7 +19,7 @@ import numpy as np
 import typst
 
 from . import facts as fx
-from . import style, theory
+from . import layout, style, theory
 from .parties import DISPLAY
 from .style import ACCENT, FILL, GREY, INK, plt
 
@@ -49,24 +49,25 @@ REFERENCES = [
     ("Arrow, K. J. (1951).", "Social Choice and Individual Values.", "Wiley."),
     ("Banzhaf, J. F. (1965). Weighted voting doesn't work.", "Rutgers Law Review",
      "19(2), 317–343."),
+    ("Bhatti, Y., Dahlgaard, J. O., Hansen, J. H., & Hansen, K. M. (2019). Is door-to-door "
+     "canvassing effective in Europe? Evidence from a meta-study across six European countries.",
+     "British Journal of Political Science", "49(1), 279–290."),
     ("Downs, A. (1957).", "An Economic Theory of Democracy.", "Harper."),
     ("Edlin, A., Gelman, A., & Kaplan, N. (2007). Voting as a rational choice.",
      "Rationality and Society", "19(3), 293–314."),
     ("Gelman, A., Silver, N., & Edlin, A. (2012). What is the probability your vote will make "
      "a difference?", "Economic Inquiry", "50(2), 321–326."),
-    ("Gerber, A. S., Green, D. P., & Larimer, C. W. (2008). Social pressure and voter turnout.",
-     "American Political Science Review", "102(1), 33–48."),
     ("Gibbard, A. (1973). Manipulation of voting schemes.", "Econometrica", "41(4), 587–601."),
     ("Kalla, J. L., & Broockman, D. E. (2018). The minimal persuasive effects of campaign "
      "contact in general elections.", "American Political Science Review", "112(1), 148–166."),
+    ("Pons, V. (2018). Will a five-minute discussion change your mind? A countrywide experiment "
+     "on voter choice in France.", "American Economic Review", "108(6), 1322–1363."),
     ("Riker, W. H., & Ordeshook, P. C. (1968). A theory of the calculus of voting.",
      "American Political Science Review", "62(1), 25–42."),
     ("Satterthwaite, M. A. (1975). Strategy-proofness and Arrow's conditions.",
      "Journal of Economic Theory", "10(2), 187–217."),
     ("Shapley, L. S., & Shubik, M. (1954). A method for evaluating the distribution of power "
      "in a committee system.", "American Political Science Review", "48(3), 787–792."),
-    ("Strøm, K. (1990). A behavioral theory of competitive political parties.",
-     "American Journal of Political Science", "34(2), 565–598."),
 ]
 
 PREAMBLE = r"""
@@ -98,7 +99,7 @@ PREAMBLE = r"""
 #show enum: set par(justify: false)
 #let cap(kind, n, body, above: 0.5em) = block(above: above, below: 0.8em, {
   set text(11pt)
-  set par(justify: true, leading: 0.42em)
+  set par(leading: 0.42em)
   [#strong[#kind #n.] #body]
 })
 #let ruled(cols, aligns, header, ..rows) = align(center, {
@@ -164,10 +165,15 @@ def _keep(markup: str) -> str:
     return UNBREAKABLE.sub(lambda m: f"#text(hyphenate: false)[{m.group()}]", markup)
 
 
+def _units(markup: str) -> str:
+    """'10 €/h' on one line: no break before the unit or after its slash."""
+    return markup.replace(" €/h", f"{NB}€/h").replace("€/h", "#box[€/h]")
+
+
 def T(src: str) -> str:
     """Typst markup from text with $inline math$ (Typst math syntax)."""
     parts = MATH_DOLLAR.split(src)
-    return "".join(_keep(_esc(p)) if i % 2 == 0 else f"#box[${p}$]"
+    return "".join(_units(_keep(_esc(p))) if i % 2 == 0 else f"#box[${p}$]"
                    for i, p in enumerate(parts))
 
 
@@ -283,15 +289,14 @@ def fig_odds(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> list[str
     nat = s["vote"]["national"]
     rows = [(L("one vote changes a seat", "un voto cambia un escaño"),
              nat["seat"]["one_in"], f["seat.one_in"], True),
-            (L("one vote changes whether a bloc has 176 seats",
-               "un voto decide si un bloque llega a 176 escaños"),
-             nat["majority_any"]["one_in"], f["majority_any.one_in"], True),
+            (L("one vote changes who is invested", "un voto cambia quién es investido"),
+             nat["government"]["one_in"], f["government.one_in"], True),
             (L("picking all six numbers of 49", "acertar los seis números de la Primitiva"),
              fx.LOTTERY, f["lottery"], False),
             (L("one vote decides the 2008 US presidency",
                f"un voto decide las presidenciales de {USA} de 2008"),
              s["context"]["gse_2012_one_in"], f["gse"], False)]
-    fig, ax = plt.subplots(figsize=(TEXT_W, 2.15))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 1.95))
     for k, (label, val, txt, ours) in enumerate(rows):
         y = -k
         ax.barh(y, val - 300, left=300, height=0.36, color=INK if ours else "white",
@@ -316,7 +321,7 @@ ELECTION_NAME = {"en": {"2019N": "November 2019", "2023": "July 2023"},
 
 def fig_backtests(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> list[str]:
     runs = s["backtest"]["runs"]
-    fig, axes = plt.subplots(1, len(runs), figsize=(TEXT_W, 2.05))
+    fig, axes = plt.subplots(1, len(runs), figsize=(TEXT_W, 1.9))
     top = max(x["hi95"] for run in runs for x in run["lists"])
     for ax, run in zip(axes, runs, strict=True):
         rows = sorted((x for x in run["lists"] if x["counted"]), key=lambda x: x["actual"])
@@ -463,14 +468,14 @@ def fig_break_even(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> li
     th = s["theory"]
     b = theory.B_GRID
     fig, ax = plt.subplots(figsize=(TEXT_W, 2.55))
-    a_maj = theory.break_even_alpha(th["majority"]["p"], th["population"], b)
+    a_maj = theory.break_even_alpha(th["government"]["p"], th["population"], b)
     a_seat = theory.break_even_alpha(th["seat"]["p"], th["population"], b)
-    maj = L("majority: $p$ = 1 in ", "mayoría: $p$ = 1 entre ") + f["majority_any.one_in"]
+    maj = L("investiture: $p$ = 1 in ", "investidura: $p$ = 1 entre ") + f["government.one_in"]
     seat = L("a seat: $p$ = 1 in ", "un escaño: $p$ = 1 entre ") + f["seat.one_in"]
     ax.fill_between(b, a_maj, 1, color=FILL, lw=0)
     ax.plot(b, a_maj, color=INK, lw=1.1, label=maj)
     ax.plot(b, a_seat, color=GREY, lw=1.0, ls="--", label=seat)
-    ax.plot([100], [th["majority"]["alpha_for_b_100"]], "o", ms=4.5, mfc="white", mec=ACCENT,
+    ax.plot([100], [th["government"]["alpha_for_b_100"]], "o", ms=4.5, mfc="white", mec=ACCENT,
             mew=1.0)
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -483,11 +488,12 @@ def fig_break_even(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> li
                                           [f"0,0001{NB}%", f"0,01{NB}%", f"1{NB}%",
                                            f"100{NB}%"]))
     ax.minorticks_off()
-    ax.text(20, 0.15, L("voting pays (majority)", "votar compensa (mayoría)"), fontsize=10.5)
+    ax.text(20, 0.15, L("voting pays (investiture)", "votar compensa (investidura)"),
+            fontsize=10.5)
     ax.set_xlabel(L("$b$, gain per person from the outcome (€)",
                     "$b$, lo que gana cada persona con el resultado (€)"), fontsize=11)
     ax.set_ylabel(L("$\\alpha$, weight on others", "$\\alpha$, peso de los demás"), fontsize=11)
-    for p, at, up, text in ((th["majority"]["p"], 300, 2.4, maj),
+    for p, at, up, text in ((th["government"]["p"], 300, 2.4, maj),
                             (th["seat"]["p"], 2.2, 1 / 3.2, seat)):
         y = theory.break_even_alpha(p, th["population"], np.array([at]))[0]
         a, b2 = ax.transData.transform((at, y)), ax.transData.transform((at * 10, y / 10))
@@ -501,21 +507,30 @@ def fig_break_even(s: dict, f: dict, L: Lang, svg: Path, png: Path | None) -> li
 
 
 def compare(L: Lang, ratio: float, times: str | None, what: str) -> str:
-    """How a probability compares with a reference, in words that stay true on a rerun."""
-    if 2 / 3 < ratio < 3 / 2:
-        return L(f"close to the odds of {what}", f"parecida a la de {what}")
-    if ratio >= 3 / 2:
-        if times:
-            return L(f"about {times} times likelier than {what}",
-                     f"unas {times} veces mayor que la de {what}")
-        return L(f"likelier than {what}", f"mayor que la de {what}")
-    return L(f"less likely than {what}", f"menor que la de {what}")
+    return fx.compare(fx.Fmt(L.code), ratio, times, what)
 
 
 def race(L: Lang, seats: str) -> str:
     if seats == "1":
         return L("a one-seat race", "que elige un solo diputado")
     return L(f"with {seats} seats", f"que elige {seats} diputados")
+
+
+SENATE_LIMIT = {"en": " The Senate is left out.", "es": " El Senado queda fuera."}
+
+
+def history(f: dict, L: Lang) -> str:
+    """What the investiture record says about the rule (facts rec.*), or nothing."""
+    if not f.get("rec.decided"):
+        return ""
+    out = L(f"In {f['rec.decided']}, abstentions let a candidate through the second vote "
+            "with fewer than 176 yes votes",
+            f"En {f['rec.decided']}, las abstenciones dieron la investidura en la segunda "
+            "votación con menos de 176 síes")
+    if f["rec.last.abstain"] == "0":
+        out += L(f"; in {f['rec.last']} nobody abstained", f"; en {f['rec.last']} nadie se "
+                                                           "abstuvo")
+    return out + "."
 
 
 def page_title(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
@@ -525,25 +540,27 @@ def page_title(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
            f"  #text(14.5pt, style: \"italic\")[{T(m['subtitle'])}]\n  #v(8pt)\n"
            f"  #text(13pt)[{T(AUTHOR)}]\n  #v(-2pt)\n  #text(11.5pt)[{T(m['date'])}]\n]",
            [m["title"], m["subtitle"], AUTHOR, m["date"]])
-    maj = s["vote"]["national"]["majority_any"]["one_in"]
-    gse, lottery = s["context"]["gse_2012_one_in"] / maj, fx.LOTTERY / maj
+    gov = s["vote"]["national"]["government"]["one_in"]
+    lottery = fx.LOTTERY / gov
     abstract = L(
-        f"I simulate Spain's election {f['n']} times from the polls to {nb(f['cutoff'])}, "
-        "constituency by constituency, with errors measured on the same poll summary in "
-        "past elections. For the average voter, one more vote changes a seat with probability "
-        f"1 in {f['seat.one_in']}, and changes whether either 2023 investiture bloc reaches 176 "
-        f"seats with probability 1 in {f['majority_any.one_in']}: "
-        + compare(L, gse, f["ratio_gse"], "deciding the 2008 US presidency") + ", and "
+        f"I simulate Spain's election {f['n']} times, constituency by constituency, from the "
+        f"polls to {nb(f['cutoff'])}, with the errors that the same poll summary made in past "
+        "elections. If each list votes in the investiture as its group did in 2023, the PP's "
+        f"candidate is invested in {f['gov.PP.p1']} of the runs, the PSOE's in "
+        f"{f['gov.PSOE.p1']} and nobody in {f['gov.blocked']}. For the average voter, one more "
+        f"vote changes a seat with probability 1 in {f['seat.one_in']}, and who is invested "
+        f"with probability 1 in {f['government.one_in']}, "
         + compare(L, lottery, None, "picking all six numbers of 49")
         + ". The numbers treat every list alike and advise no one.",
         f"Simulo {f['n']} veces las elecciones, circunscripción a circunscripción, con la "
         f"mediana de las encuestas hasta el {f['cutoff']} y los errores que tuvo en "
-        "elecciones pasadas. Para el votante medio, un voto más cambia un escaño con una "
-        f"probabilidad de 1 entre {f['seat.one_in']} y decide si uno de los bloques de las "
-        "investiduras de 2023 llega a 176 escaños con una de 1 entre "
-        f"{f['majority_any.one_in']}, "
-        + compare(L, gse, f["ratio_gse"], f"decidir las presidenciales de {USA} de 2008")
-        + " y " + compare(L, lottery, None, "acertar los seis números de la Primitiva")
+        "elecciones pasadas. Si cada lista vota en la investidura como su grupo en 2023, el "
+        f"candidato del PP sale investido en el {f['gov.PP.p1']} de las simulaciones, el del "
+        f"PSOE en el {f['gov.PSOE.p1']} y ninguno en el {f['gov.blocked']}. Para el votante "
+        "medio, un voto más cambia un escaño con una probabilidad de 1 entre "
+        f"{f['seat.one_in']}, y quién es investido con una de 1 entre "
+        f"{f['government.one_in']}, "
+        + compare(L, lottery, None, "acertar los seis números de la Primitiva")
         + ". El cálculo trata igual a todas las listas y no aconseja nada a nadie.")
     pg.raw("#v(4pt)\n"
            f"#align(center, text(12.5pt, weight: \"bold\")[{m['abstract']}])\n#v(-3pt)\n"
@@ -571,36 +588,39 @@ def yes(f: dict, who: str, parties: list[tuple[str, str]]) -> str:
 def page_question(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("The question", "La pregunta"))
-    pg.p(L("A vote matters when it changes something. Spain elects 350 deputies in 52 "
-           "constituencies by D'Hondt, with a 3% threshold in each; Ceuta and Melilla elect "
-           "one each. One more vote can move a seat from one list to another, or move the seat "
-           "that decides a majority of 176.",
-           "Un voto importa cuando cambia algo. España elige 350 diputados en 52 "
-           "circunscripciones con la ley D'Hondt y un umbral del 3 % en cada una; Ceuta y "
-           "Melilla eligen uno cada una. Un voto más puede pasar un escaño de una lista a "
-           "otra, o mover el escaño que decide una mayoría absoluta de 176."))
-    pg.p(L("For the majority I use the coalitions of the two 2023 investiture votes, so no "
-           "party is placed by anyone's judgement:",
-           "Para la mayoría uso los bloques de las dos votaciones de investidura de 2023; así "
-           "nadie decide a mano dónde va cada partido:"))
+    pg.p(L("A vote matters when it changes something: a seat, and with it who governs. "
+           "Spain elects 350 deputies in 52 constituencies by D'Hondt, with a 3% threshold "
+           "in each.",
+           "Un voto importa cuando cambia algo: un escaño, y con él quién gobierna. España "
+           "elige 350 diputados en 52 circunscripciones con la ley D'Hondt y un umbral del "
+           "3 % en cada una."))
+    pg.p(L("Congress invests the prime minister (Constitution, art. 99): the candidate the King "
+           "proposes needs 176 yes votes in a first vote, or more yes than no votes in a second "
+           "one 48 hours later; if nobody is invested within two months, the election is "
+           "repeated. My rule: each list votes as its group did in 2023, on the PP's candidate "
+           "as on Feijóo and on the PSOE's candidate as on Sánchez:",
+           "Al presidente lo inviste el Congreso (art. 99 de la Constitución): el candidato "
+           "que propone el Rey necesita 176 síes en una primera votación, o más síes que noes "
+           "en otra 48 horas después; si en dos meses no hay investidura, se repiten las "
+           "elecciones. Mi regla: cada lista vota como su grupo en 2023, al candidato del PP "
+           "como a Feijóo y al del PSOE como a Sánchez:"))
     fe, sa = "inv.feijoo", "inv.sanchez"
     pg.table("(auto, auto, 1fr)", "(left, left, left)",
-             [L("Bloc", "Bloque"), L("Vote", "Votación"), L("Yes votes", "Votos a favor")], [
-        ["F", L(f"Feijóo, 27 Sep 2023: {f[fe + '.yes']}",
-                f"Feijóo,\n27 de septiembre de 2023: {f[fe + '.yes']}"),
+             [L("Candidate", "Candidato"), L("2023 vote", "Votación de 2023"),
+              L("Yes votes", "Votos a favor")], [
+        [L("The PP's", "Del PP"), L(f"Feijóo,\n27 Sep: {f[fe + '.yes']}",
+                                    f"Feijóo,\n27 de septiembre: {f[fe + '.yes']}"),
          yes(f, fe, [("PP", "PP"), ("Vox", "VOX"), ("UPN", "UPN"), ("CC", "CC")])],
-        ["S", L(f"Sánchez, 16 Nov 2023: {f[sa + '.yes']}",
-                f"Sánchez,\n16 de noviembre de 2023: {f[sa + '.yes']}"),
+        [L("The PSOE's", "Del PSOE"), L(f"Sánchez,\n16 Nov: {f[sa + '.yes']}",
+                                        f"Sánchez,\n16 de noviembre: {f[sa + '.yes']}"),
          yes(f, sa, [("PSOE", "PSOE"), ("Sumar", "SUMAR"), ("ERC", "ERC"), ("Junts", "JUNTS"),
                      ("EH Bildu", "BILDU"), ("PNV", "PNV"), ("BNG", "BNG"), ("CC", "CC")])]])
-    pg.p(L("Frente Amplio and Podemos, both in Sumar's group in 2023, count in S; lists with "
-           "no seat in 2023 count in neither; Coalición Canaria voted yes twice, so it is in "
-           "both. I also report S without Junts.",
-           "Frente Amplio y Podemos, que en 2023 estaban en el grupo de Sumar, cuentan en S; "
-           "las listas sin escaño en 2023 no cuentan en ninguno; Coalición Canaria votó sí las "
-           "dos veces, así que está en los dos. También doy S sin Junts."))
-    pg.p(L("Whether voting pays is the calculus of voting (Riker and Ordeshook, 1968):",
-           "Si votar compensa o no es el cálculo del voto (Riker y Ordeshook, 1968):"))
+    pg.p(L("Frente Amplio and Podemos, in Sumar's group in 2023, vote as it did; lists with no "
+           "seat in 2023 vote no (in a variant, they abstain). " + history(f, L),
+           "Frente Amplio y Podemos, del grupo de Sumar en 2023, votan como él; las listas "
+           "sin escaño en 2023 votan no (en una variante, se abstienen). " + history(f, L)))
+    pg.p(L("When voting pays (Riker and Ordeshook, 1968):",
+           "Cuándo compensa votar (Riker y Ordeshook, 1968):"))
     pg.eq("R = p B - C + D", "R = pB − C + D (1)")
     pg.p(L("where $p$ is the chance of being decisive, $B$ what the outcome is worth to you, "
            "$C$ the cost of voting and $D$ what voting is worth in itself. This study "
@@ -614,26 +634,24 @@ def page_question(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Pag
 def page_model(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("The model", "El modelo"))
-    party = "" if f["party_released"] in ("none", "ninguna") else L(
-        f" One poll in the window was released by a party ({f['party_released']}); without "
-        f"it, $P(F >= 176)$ is {f['sens.F.p']} instead of {f['bloc.F.p1']} and $P(S >= 176)$ "
-        f"{f['sens.S.p']} instead of {f['bloc.S.p1']}.",
-        f" Una de las encuestas del periodo la publicó un partido ({f['party_released']}); "
-        f"sin ella, $P(F >= 176)$ es {f['sens.F.p']} en vez de {f['bloc.F.p1']}, y "
-        f"$P(S >= 176)$, {f['sens.S.p']} en vez de {f['bloc.S.p1']}.")
+    t = s["meta"].get("student_t")
+    own = L(f" As $sigma$ is itself estimated, each run draws its own (a Student-t with "
+            f"{f['sigma_df']} degrees of freedom).",
+            " Como $sigma$ también se estima, cada simulación saca el suyo (una $t$ de Student "
+            f"con {f['sigma_df']} grados de libertad).") if t else ""
     pg.bullets([
         L(f"Polls: each firm's latest poll with fieldwork ending {nb(f['window'])}, "
           f"{f['firms']} firms; the median of each list. No firm is excluded.",
           "Encuestas: de cada empresa, la última con el trabajo de campo acabado "
           f"{f['window_between']}; son {f['firms']} empresas, y tomo la mediana de cada "
-          "lista. No se excluye ninguna.") + party,
+          "lista. No se excluye ninguna."),
         L(f"National error: each share moves on the logit scale with "
           f"$sigma = {f['sigma_nat']}$, the size of the same median's errors {f['lead']} days "
-          f"out in 2015–2023 ({f['n_poll_errors']} cases). Errors are centred on zero.",
+          f"out in 2015–2023 ({f['n_poll_errors']} cases), centred on zero." + own,
           "Error nacional: el porcentaje de cada lista se mueve en escala logit con "
           f"$sigma = {mnum(f['sigma_nat'])}$, el tamaño de los errores de la misma mediana a "
-          f"{f['lead']} días de las elecciones de 2015–2023 ({f['n_poll_errors']} casos). Los "
-          "errores están centrados en cero."),
+          f"{f['lead']} días de las elecciones de 2015–2023 ({f['n_poll_errors']} casos), "
+          "centrados en cero." + own),
         L("Constituencies: proportional swing from 2023 (the 2024 European vote for SALF and "
           "to split Sumar's vote), with regional and provincial deviations "
           f"($sigma = {f['tau_ccaa']}$ and {f['tau_prov']}) estimated from past swings; "
@@ -651,29 +669,29 @@ def page_model(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg.eq("p approx N_h / (n h)", "p ≈ N_h / (n h) (2)")
     pg.p(L(f"where $N_h$ counts the $n$ = {f['n']} runs with $0 < Delta <= h$, and $h$ is 2% "
            "of the constituency's votes per seat. With $h$ from 1% to 5% the national answers "
-           f"move by {f['seat.bw_spread']} (seat) and {f['majority_any.bw_spread']} (majority). "
-           "For a majority, only the runs where that seat moves a bloc across 176 count.",
+           f"move by {f['seat.bw_spread']} (seat) and {f['government.bw_spread']} "
+           "(investiture). For the investiture, only the runs where that seat changes who is "
+           "invested count.",
            f"donde $N_h$ cuenta las simulaciones, de $n$ = {f['n']}, con $0 < Delta <= h$, y "
            "$h$ es el 2 % de los votos por escaño de la circunscripción. Con $h$ entre el 1 % y "
            f"el 5 %, los resultados nacionales se mueven un {f['seat.bw_spread']} (escaño) y un "
-           f"{f['majority_any.bw_spread']} (mayoría). Para la mayoría solo cuentan las "
-           "simulaciones en que ese escaño cambia si un bloque llega a 176."))
+           f"{f['government.bw_spread']} (investidura). Para la investidura solo cuentan las "
+           "simulaciones en que ese escaño cambia quién es investido."))
     return pg
 
 
 def page_backtest(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("Does it work? Backtests", "¿Funciona? Contraste con elecciones pasadas"))
-    pg.p(L("I ran the same code seven days before the elections of November 2019 and July "
-           "2023, calibrated only on earlier elections. The rule for widening the errors was "
-           "committed before the first run: widen if fewer than 75% of the actual seat counts "
-           "fall in the 80% intervals, or fewer than 90% in the 95% ones. Result: "
-           f"{f['bt.in80']} and {f['bt.in95']}, so no widening.",
+    pg.p(L("I ran the same code seven days before the November 2019 and July 2023 elections, "
+           "calibrated on earlier ones only, with a rule fixed before the first run: widen the "
+           "errors if under 75% of the actual seat counts fall in the 80% intervals, or under "
+           f"90% in the 95% ones. Result: {f['bt.in80']} and {f['bt.in95']}; {f['bt.widen']}.",
            "Ejecuté el mismo código siete días antes de las generales de noviembre de 2019 y "
-           "de julio de 2023, calibrado solo con las anteriores. La regla para ensanchar los "
-           "errores se fijó antes de empezar: si menos del 75 % de las listas queda dentro de "
-           "su horquilla del 80 %, o menos del 90 % dentro de la del 95 %. "
-           f"Resultado: {f['bt.in80']} y {f['bt.in95']}; no se ensanchan."))
+           "julio de 2023, calibrado solo con las anteriores, con una regla fijada antes de "
+           "empezar: ensanchar los errores si menos del 75 % de las listas cae en su "
+           "horquilla del 80 %, o menos del 90 % en la del 95 %. "
+           f"Resultado: {f['bt.in80']} y {f['bt.in95']}; {f['bt.widen']}."))
     labels = fig_backtests(s, f, L, out / "fig-backtests.svg",
                            png and png / "fig-backtests.png")
     pg.figure("fig-backtests.svg", 2, L(
@@ -682,33 +700,38 @@ def page_backtest(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Pag
         "Horquillas simuladas del 80 % (trazo grueso) y del 95 % (fino) y escaños reales "
         "(rombos, rellenos si quedan fuera de la horquilla del 80 %)."), labels)
     pg.table("(auto, auto, auto, auto)", "(left, center, center, center)",
-             [L("Election, bloc", "Elección, bloque"), L("Forecast\nP(≥ 176)", "P(≥ 176)"),
-              L("Actual\nseats", "Escaños reales"),
-              L("Percentile of\nthe actual", "Percentil del real")],
-             [["2023, F", f["bt.2023.F.p"], f["bt.2023.F.actual"], f["bt.2023.F.pctile"]],
-              ["2023, S", f["bt.2023.S.p"], f["bt.2023.S.actual"], f["bt.2023.S.pctile"]],
-              [L("Nov 2019, investiture bloc", "Noviembre de 2019, S"),
+             [L("Election, coalition", "Elección, coalición"), "P(≥ 176)",
+              L("Actual\nseats", "Escaños\nreales"),
+              L("Percentile of\nthe actual", "Percentil\ndel real")],
+             [[L("2023, Feijóo's", "2023, la de Feijóo"), f["bt.2023.F.p"],
+               f["bt.2023.F.actual"], f["bt.2023.F.pctile"]],
+              [L("2023, Sánchez's", "2023, la de Sánchez"), f["bt.2023.S.p"],
+               f["bt.2023.S.actual"], f["bt.2023.S.pctile"]],
+              [L("Nov 2019, Sánchez's", "Noviembre de 2019, la de Sánchez"),
                f["bt.2019N.S.p"], f["bt.2019N.S.actual"], f["bt.2019N.S.pctile"]]],
-             caption=L("Where the actual bloc total fell among the simulated ones. 2019 bloc: "
-                       "PSOE, Unidas Podemos, PNV, Más País, BNG.",
-                       "P(≥ 176) prevista y dónde quedó el total real del bloque entre los "
-                       "simulados. S en 2019: PSOE, Unidas Podemos, PNV, Más País y BNG."), n=1)
-    lead, rule = s["backtest"]["at_2026_lead"], s["backtest"]["rule"]["targets"]
-    short = [lvl for lvl, k in (("80", "cov80"), ("95", "cov95")) if lead[k] < rule[k]]
-    if not short:
-        verdict = L("both targets met", "se cumplen los dos objetivos")
-    else:
-        verdict = L(
-            f"short of the {' and '.join(lvl + '%' for lvl in short)} target, so the 2026 "
-            "intervals may be a little narrow",
-            ("por debajo del objetivo del " if len(short) == 1 else
-             "por debajo de los objetivos del ") + " y del ".join(f"{lvl} %" for lvl in short)
-            + "; las horquillas de 2026 pueden quedarse algo estrechas")
-    pg.p(L(f"Run {f['lead']} days out, as for 2026: {f['bt_lead.in80']} and "
-           f"{f['bt_lead.in95']}, {verdict}.",
-           f"A {f['lead']} días de la votación, como para 2026: {f['bt_lead.in80']} y "
-           f"{f['bt_lead.in95']}, "
-           f"{verdict}."))
+             caption=L("Each yes coalition: forecast P(≥ 176) and the actual's percentile.",
+                       "Cada coalición del sí: P(≥ 176) prevista y percentil del real."),
+             n=1)
+    sr = s["backtest"].get("sigma_rule")
+    if sr:
+        # Kept to three lines whichever way the rule goes, or the page overflows.
+        same = (f["sr.t.in80"], f["sr.t.in95"]) == (f["sr.n.in80"], f["sr.n.in95"])
+        counts = L(
+            f"{f['sr.n.in80']} and {f['sr.n.in95']} with normal errors or a Student-t for "
+            "$sigma$" if same else
+            f"{f['sr.t.in80']} and {f['sr.t.in95']} with a Student-t for $sigma$, "
+            f"{f['sr.n.in80']} and {f['sr.n.in95']} with normal errors",
+            f"{f['sr.n.in80']} y {f['sr.n.in95']}, tanto con errores normales como con una $t$ "
+            "de Student para $sigma$" if same else
+            f"{f['sr.t.in80']} y {f['sr.t.in95']} con una $t$ de Student para $sigma$; "
+            f"{f['sr.n.in80']} y {f['sr.n.in95']} con errores normales")
+        took = sr["adopt_student_t"]
+        pg.p(L(f"Run {f['lead']} days out, as for 2026, in four elections from 2016 to 2023: "
+               f"{counts}. A rule fixed in advance "
+               + ("adopts the t." if took else "keeps normal errors."),
+               f"A {f['lead']} días, como para 2026, en cuatro elecciones de 2016 a 2023: "
+               f"{counts}. La regla fijada antes "
+               + ("adopta la $t$." if took else "deja los normales.")))
     return pg
 
 
@@ -721,14 +744,37 @@ def page_seats(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
         "(thin) intervals.",
         f"Escaños por lista en {f['n']} elecciones simuladas: media (círculo) y horquillas "
         "del 80 % (trazo grueso) y del 95 % (fino)."), labels)
-    rows = []
-    for b, name in (("F", "F"), ("S", "S"), ("S_no_JUNTS", L("S without Junts", "S sin Junts"))):
-        rows.append([name, f[f"bloc.{b}.mean"], f[f"bloc.{b}.i80"], f[f"bloc.{b}.p"]])
-    pg.table("(auto, auto, auto, auto)", "(left, center, center, center)",
-             [L("Bloc", "Bloque"), L("Mean\nseats", "Escaños\n(media)"),
-              L("80%\ninterval", "Horquilla\ndel 80 %"), "P(≥ 176)"], rows,
-             caption=L("The two 2023 investiture blocs.",
-                       "Los dos bloques de las investiduras de 2023."), n=2)
+    rows = [[L("The PP's", "El del PP"), f"{f['gov.PP.yes']} ({f['gov.PP.yes80']})",
+             f["gov.PP.p1"]],
+            [L("The PSOE's", "El del PSOE"), f"{f['gov.PSOE.yes']} ({f['gov.PSOE.yes80']})",
+             f["gov.PSOE.p1"]],
+            [L("Nobody", "Ninguno"), "", f["gov.blocked"]]]
+    pg.table("(auto, auto, auto)", "(left, center, center)",
+             [L("Candidate", "Candidato"), L("Yes votes: mean\n(80% interval)",
+                                             "Síes: media\n(horquilla del 80 %)"),
+              L("Invested", "Investido")], rows,
+             caption=L("Who is invested, with the 2023 votes.",
+                       "Quién es investido, con los votos de 2023."), n=2)
+    g = s["government"]
+    second = (L("so the second vote also needs 176 and nobody is invested only in it",
+                "así que la segunda votación también pide 176 y nadie sale investido solo en "
+                "ella")
+              if g["second_vote"] == 0 else
+              L(f"yet {f['gov.second']} of the runs end in the second vote",
+                f"y aun así el {f['gov.second']} de las simulaciones acaba en la segunda "
+                "votación"))
+    pg.p(L("Nobody abstained in 2023, " + second + ". If "
+           "the lists with no 2023 seat abstain, the PP's candidate is invested in "
+           f"{f['gov.no_record_abstain.PP.p1']} of the runs, the PSOE's in "
+           f"{f['gov.no_record_abstain.PSOE.p1']} and nobody in "
+           f"{f['gov.no_record_abstain.blocked']}; {f['gov.no_record_abstain.second']} only in "
+           "the second vote.",
+           "En 2023 nadie se abstuvo, " + second + ". Si las listas sin escaño en 2023 se "
+           "abstienen, el candidato del PP sale investido en el "
+           f"{f['gov.no_record_abstain.PP.p1']} de las simulaciones, el del "
+           f"PSOE en el {f['gov.no_record_abstain.PSOE.p1']} y ninguno en el "
+           f"{f['gov.no_record_abstain.blocked']}; el {f['gov.no_record_abstain.second']}, solo "
+           "en la segunda votación."))
     return pg
 
 
@@ -736,74 +782,88 @@ def page_vote(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("What one vote is worth", "Cuánto vale un voto"))
     pg.p(L(f"For the average voter, one more vote changes a seat with probability 1 in "
-           f"{f['seat.one_in']}, and changes whether F or S reaches 176 with probability 1 in "
-           f"{f['majority_any.one_in']} (F alone 1 in {f['majority_F.one_in']}, S alone 1 in "
-           f"{f['majority_S.one_in']}).",
+           f"{f['seat.one_in']}, and changes who is invested with probability 1 in "
+           f"{f['government.one_in']}.",
            "Para el votante medio, un voto más cambia un escaño con una probabilidad de 1 "
-           f"entre {f['seat.one_in']}, y decide si F o S llega a 176 con una de 1 entre "
-           f"{f['majority_any.one_in']} (solo F, 1 entre {f['majority_F.one_in']}; solo S, 1 "
-           f"entre {f['majority_S.one_in']})."))
+           f"entre {f['seat.one_in']}, y cambia quién es investido con una de 1 entre "
+           f"{f['government.one_in']}."))
     labels = fig_constituencies(s, f, L, out / "fig-constituencies.svg",
                                 png and png / "fig-constituencies.png")
     pg.figure("fig-constituencies.svg", 4, L(
         "The average voter of each of the 52 constituencies.",
         "El votante medio de cada una de las 52 circunscripciones."), labels)
-    top = f["seat.top1"]
-    pg.p(L(f"Small constituencies weigh more: {f['eps.min']} electors per seat in "
-           f"{f['eps.min.name']}, {f['eps.max']} in {f['eps.max.name']}. "
-           f"{top}, {race(L, f[f'prov.{top}.seats'])}, is the most decisive "
-           f"(1 in {f['seat.top1.one_in']} for its seat, 1 in {f[f'prov.{top}.majority']} for "
-           f"the majority); for the majority, {f['majority_any.bottom1']} is the least, at 1 in "
-           f"{f['majority_any.bottom1.one_in']}.",
+    top, gtop = f["seat.top1"], f["government.top1"]
+    if top == gtop:
+        most = L(f"{top}, {race(L, f[f'prov.{top}.seats'])}, is the most decisive (1 in "
+                 f"{f['seat.top1.one_in']} for its seat, 1 in {f['government.top1.one_in']} "
+                 "for the investiture)",
+                 f"{top}, {race(L, f[f'prov.{top}.seats'])}, es la más decisiva (1 entre "
+                 f"{f['seat.top1.one_in']} para su escaño y 1 entre "
+                 f"{f['government.top1.one_in']} para la investidura)")
+    else:
+        most = L(f"{top} is the most decisive for its seat (1 in {f['seat.top1.one_in']}) and "
+                 f"{gtop} for the investiture (1 in {f['government.top1.one_in']})",
+                 f"{top} es la más decisiva para su escaño (1 entre {f['seat.top1.one_in']}) "
+                 f"y {gtop} para la investidura (1 entre {f['government.top1.one_in']})")
+    pg.p(L(f"Small constituencies weigh more: a seat takes {f['eps.min']} electors in "
+           f"{f['eps.min.name']} and {f['eps.max']} in {f['eps.max.name']}. " + most + "; for the "
+           f"investiture, {f['government.bottom1']} is the least, at 1 in "
+           f"{f['government.bottom1.one_in']}.",
            f"Las circunscripciones pequeñas pesan más: {f['eps.min']} electores por escaño en "
-           f"{f['eps.min.name']} y {f['eps.max']} en {f['eps.max.name']}. "
-           f"{top}, {race(L, f[f'prov.{top}.seats'])}, es la más decisiva "
-           f"(1 entre {f['seat.top1.one_in']} para su escaño y 1 entre "
-           f"{f[f'prov.{top}.majority']} para la mayoría); para la mayoría, la que menos es "
-           f"{f['majority_any.bottom1']}, con 1 entre {f['majority_any.bottom1.one_in']}."))
+           f"{f['eps.min.name']} y {f['eps.max']} en {f['eps.max.name']}. " + most + "; para "
+           f"la investidura, la que menos es {f['government.bottom1']}, con 1 entre "
+           f"{f['government.bottom1.one_in']}."))
     return pg
+
+
+# The players and how each enters the model (the README has the full inventory).
+PLAYERS = [
+    (("Voters and abstainers", "Votantes y abstencionistas"),
+     ("polls, their errors, turnout", "encuestas, sus errores, participación")),
+    (("Parties and leaders", "Partidos y líderes"),
+     ("polls; the 2023 investitures", "encuestas; investiduras de 2023")),
+    (("The King and Congress", "El Rey y el Congreso"),
+     ("art. 99; the larger party's first", "art. 99; antes, el del partido mayor")),
+    (("Electoral boards, poll workers", "Juntas electorales y mesas"),
+     ("exact D'Hondt; no count errors", "D'Hondt exacto; recuento sin errores")),
+    (("Pollsters, CIS, media, platforms, disinformation",
+      "Encuestas, CIS, medios, redes, desinformación"),
+     ("in the polls' past errors", "en los errores de las encuestas")),
+    (("Unions, employers, regions, EU, markets",
+      "Sindicatos, patronal, autonomías, UE, mercados"),
+     ("only through the vote", "solo a través del voto")),
+]
+KEY_ROWS = 7  # rows of the key table on the page
 
 
 def page_power(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
-    pg.h(L("Who holds the power", "Quién tiene el poder"))
-    pg.p(L("Seats are not power. The Shapley–Shubik index is the share of the orders in which "
-           "lists could join a coalition where a list's seats carry it past 176. It assumes "
-           "any coalition can form: it measures arithmetic leverage, not who will govern.",
-           "Tener escaños no es lo mismo que tener poder. El índice de Shapley–Shubik es la "
-           "fracción de los órdenes posibles de formar una coalición en los que los escaños de "
-           "una lista son los que la llevan a 176. Supone que cualquier coalición puede "
-           "formarse: mide peso aritmético, no quién va a gobernar."))
-    rows = []
-    for p23, p26 in (("PP", "PP"), ("PSOE", "PSOE"), ("VOX", "VOX"), ("SUMAR", "FA"),
-                     ("ERC", "ERC"), ("JUNTS", "JUNTS"), ("BILDU", "BILDU"), ("PNV", "PNV")):
-        name = DISPLAY[p23] + (f" / {DISPLAY[p26]}" if p26 != p23 else "")
-        rows.append([name, f[f"pw23.{p23}.seats"], f[f"pw23.{p23}.ss"], f[f"pw.{p26}.seats"],
-                     f[f"pw.{p26}.ss"]])
-    pg.table("(auto, auto, auto, auto, auto)", "(left, center, center, center, center)",
-             [L("List", "Lista"), L("Seats\n2023", "Escaños\n2023"),
-              L("Power\n2023", "Poder\n2023"), L("Seats\n2026 runs", "Escaños\n2026 (sim.)"),
-              L("Power\n2026 runs", "Poder\n2026 (sim.)")],
-             rows, caption=L("Seat share and Shapley–Shubik power of the lists with 5 or more "
-                             "seats in 2023 (Banzhaf agrees closely; README).",
-                             "Porcentaje de escaños y poder de Shapley–Shubik de las listas con "
-                             "5 escaños o más en 2023 (el índice de Banzhaf da casi lo mismo; "
-                             "ver el README)."), n=3)
+    pg.h(L("Who holds the key", "Quién tiene la llave"))
+    pg.p(L("Seats are not power. A priori power (Shapley–Shubik) is the share of the orders of "
+           "forming a coalition, any coalition, in which a list's seats carry it to 176. The "
+           "key is the chance that, voting as in 2023, a list's votes are necessary for the "
+           "investiture that happens.",
+           "Tener escaños no es tener poder. El poder a priori (Shapley–Shubik) es la fracción "
+           "de los órdenes de formar una coalición, cualquiera, en que los escaños de una "
+           "lista la llevan a 176. La llave es la probabilidad de que, votando como en 2023, "
+           "los votos de una lista sean imprescindibles para la investidura que sale."))
+    keys, pw = s["government"]["keys"], s["power"]["simulated"]
+    shown = [k for k in s["lists"] if max(keys.get(k, {}).get("any", 0),
+                                          pw.get(k, {}).get("shapley_shubik", 0)) >= 0.01]
+    shown = sorted(shown, key=lambda k: -s["lists"][k]["mean"])[:KEY_ROWS]
+    rows = [[DISPLAY[k], f[f"{k}.seats"], f[f"pw.{k}.ss"], f[f"key.{k}.any"]] for k in shown]
+    pg.table("(auto, auto, auto, auto)", "(left, center, center, center)",
+             [L("List", "Lista"), L("Seats\n(mean)", "Escaños\n(media)"),
+              L("A priori\npower", "Poder\na priori"), L("The key", "La llave")],
+             rows, caption=L("The largest lists; all of them, and Banzhaf's index, in the "
+                             "README.",
+                             "Las listas mayores; todas, y el índice de Banzhaf, en el README."),
+             n=3)
     players = L("The players", "Los jugadores")
     pg.raw(f"#heading(level: 2, numbering: none)[{T(players)}]", players)
-    pg.bullets([
-        L("Voters: the outcome ($B$) and the act itself ($D$).",
-          "Votantes: el resultado ($B$) y el propio acto de votar ($D$)."),
-        L("Parties: votes, office and policy (Strøm, 1990); their leverage is the table above.",
-          "Partidos: votos, cargos y políticas (Strøm, 1990); su peso es el de la tabla."),
-        L("Pollsters and media: they shape what each player expects the others to do; "
-          "LOREG art. 69.7 bans publishing polls in the five days before the vote.",
-          "Encuestadoras y medios: forman lo que cada jugador espera que hagan los demás; el "
-          "art. 69.7 de la LOREG prohíbe publicar encuestas los cinco días anteriores a la "
-          "votación."),
-        L("Outside constraints, such as EU fiscal rules, narrow what any majority can do.",
-          "Límites externos, como las reglas fiscales de la UE, acotan lo que puede hacer "
-          "cualquier mayoría.")])
+    pg.table("(42%, 58%)", "(left, left)",
+             [L("Who", "Quién"), L("How they enter the model", "Cómo entran en el modelo")],
+             [[L(*a), L(*b)] for a, b in PLAYERS])
     return pg
 
 
@@ -811,30 +871,30 @@ def page_why(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("Why vote at all", "¿Por qué votar?"))
     pg.p(L("With three or more options, no ranking rule meets all of Arrow's (1951) "
-           "conditions, and every non-dictatorial rule can reward voting against one's true "
-           "ranking (Gibbard, 1973; Satterthwaite, 1975). Spain's rule is given; is one vote "
-           "worth its cost?",
+           "conditions, and every rule without a dictator can reward voting against one's "
+           "true ranking (Gibbard, 1973; Satterthwaite, 1975). Spain's rule is given: is one "
+           "vote worth its cost?",
            "Con tres opciones o más, ninguna regla de ordenación cumple todas las condiciones "
            "de Arrow (1951), y toda regla no dictatorial puede premiar votar en contra de las "
            "propias preferencias (Gibbard, 1973; Satterthwaite, 1975). La regla española es la "
            "que es; ¿compensa un voto lo que cuesta?"))
     pg.p(L(f"At {f['minutes']} minutes and {f['value_of_time']}, $C$ = {f['cost']}. With $p$ "
-           f"= 1 in {f['majority_any.one_in']}, a selfish voter breaks even only if the "
-           f"majority is worth {f['th.majority.B']} to them (Downs, 1957). If $B$ counts "
+           f"= 1 in {f['government.one_in']}, a selfish voter breaks even only if who is "
+           f"invested is worth {f['th.government.B']} to them (Downs, 1957). If $B$ counts "
            "everyone (Edlin, Gelman and Kaplan, 2007):",
            f"Con {f['minutes']} minutos a {f['value_of_time']}, $C$ = {f['cost']}. Con $p$ = 1 "
-           f"entre {f['majority_any.one_in']}, a un votante egoísta solo le sale a cuenta si "
-           f"para él la mayoría vale {f['th.majority.B']} (Downs, 1957). Si $B$ cuenta a todos "
-           "(Edlin, Gelman y Kaplan, 2007):"))
+           f"entre {f['government.one_in']}, a un votante egoísta solo le sale a cuenta si "
+           f"para él quién es investido vale {f['th.government.B']} (Downs, 1957). Si $B$ "
+           "cuenta a todos (Edlin, Gelman y Kaplan, 2007):"))
     pg.eq("B = N b alpha", "B = N b α (3)")
     pg.p(L(f"with $N$ = {f['population']} residents, $b$ the gain per person, $alpha$ the "
-           f"weight you give a stranger. Here $p N$ = {f['th.majority.pN']}: with $b$ = 100 €, "
-           f"voting pays once $alpha$ passes {f['th.majority.alpha100']}, about 1 in "
-           f"{f['th.majority.inv_alpha100']}.",
+           f"weight you give a stranger. Here $p N$ = {f['th.government.pN']}: with $b$ = 100 "
+           f"€, voting pays once $alpha$ passes {f['th.government.alpha100']}, about 1 in "
+           f"{f['th.government.inv_alpha100']}.",
            f"con $N$ = {f['population']} de residentes, $b$ el beneficio por persona y $alpha$ "
-           f"el peso que das a un desconocido. Aquí $p N$ = {f['th.majority.pN']}: con $b$ = "
-           f"100 €, votar compensa cuando $alpha$ pasa del {f['th.majority.alpha100']}, más o "
-           f"menos 1 entre {f['th.majority.inv_alpha100']}."))
+           f"el peso que das a un desconocido. Aquí $p N$ = {f['th.government.pN']}: con $b$ "
+           f"= 100 €, votar compensa cuando $alpha$ pasa del {f['th.government.alpha100']}, "
+           f"más o menos 1 entre {f['th.government.inv_alpha100']}."))
     labels = fig_break_even(s, f, L, out / "fig-break-even.svg",
                             png and png / "fig-break-even.png")
     pg.figure("fig-break-even.svg", 5, L(
@@ -843,39 +903,102 @@ def page_why(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     return pg
 
 
+def page_checks(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
+    pg = Page(L)
+    pg.h(L("Anything missing? What was checked", "¿Falta algo? Lo que se ha comprobado"))
+    comp = s.get("completeness", {})
+    if comp:
+        near = (L(f" (the closest, {f['comp.top.list']} in {f['comp.top.where']}: "
+                  f"{f['comp.top.share']} in {f['comp.top.year']}, against "
+                  f"{f['comp.top.min']})",
+                  f" (la que más se acerca, {f['comp.top.list']} en {f['comp.top.where']}: "
+                  f"{f['comp.top.share']} en {f['comp.top.year']}, frente al "
+                  f"{f['comp.top.min']})") if comp["with_a_past_result"] else "")
+        flagged = (L("none has ever reached, in its constituency, the smallest share that has "
+                     "won a seat there since 2015" + near,
+                     "ninguna ha llegado nunca en su circunscripción al porcentaje más bajo que "
+                     "ha dado un escaño allí desde 2015" + near)
+                   if not comp["flagged"] else
+                   L(f"{f['comp.flagged']} have reached it once, so a seat for them is "
+                     "possible and not modelled",
+                     f"{f['comp.flagged']} lo han alcanzado alguna vez: un escaño suyo es "
+                     "posible y no está en el modelo"))
+        pg.p(L("The seats per constituency come from the 2026 decree and the lists from the "
+               f"candidacies proclaimed in the BOE. Of the {f['comp.candidacies']} "
+               f"candidacies, {f['comp.others']} go into 'others', which win no seat; "
+               + flagged + ".",
+               "Los escaños de cada circunscripción salen del decreto de 2026, y las listas, de "
+               f"las candidaturas proclamadas en el BOE. De las {f['comp.candidacies']} "
+               f"candidaturas, {f['comp.others']} van en «otros», que no ganan escaños; "
+               + flagged + "."))
+    rows = [[f[f"rob.{r['key']}.name"], f[f"rob.{r['key']}.PP"], f[f"rob.{r['key']}.PSOE"],
+             f[f"rob.{r['key']}.gov"]]
+            for r in s["robustness"] if not r.get("same_as_base")]
+    cap = L(f"Who is invested, and the odds that one vote changes it, under each variant "
+            f"({f['rob.n']} runs each; the rest of the runs, nobody).",
+            f"Quién es investido, y la probabilidad de que un voto lo cambie, en cada variante "
+            f"({f['rob.n']} simulaciones cada una; en el resto, ninguno).")
+    if f["rob.no_cis"]:
+        cap += " " + f["rob.no_cis"]
+    pg.table("(1fr, auto, auto, auto)", "(left, center, center, center)",
+             [L("Variant", "Variante"), L("The PP's\ncandidate", "Candidato\ndel PP"),
+              L("The PSOE's\ncandidate", "Candidato\ndel PSOE"),
+              L("One vote\nchanges it:\n1 in", "Un voto\nlo cambia:\n1 entre")],
+             rows, caption=cap, n=4)
+    pg.p(L(f"The variant that moves it most, {f['rob.max.name']}, puts the PP's candidate at "
+           f"{f['rob.max.PP']} (against {f['rob.base.PP']}) and the PSOE's at "
+           f"{f['rob.max.PSOE']} (against {f['rob.base.PSOE']})." + f["rob.max.assumes"],
+           f"La variante que más lo cambia, {f['rob.max.name']}, deja al candidato del PP en "
+           f"el {f['rob.max.PP']} (frente al {f['rob.base.PP']}) y al del PSOE en el "
+           f"{f['rob.max.PSOE']} (frente al {f['rob.base.PSOE']})." + f["rob.max.assumes"]))
+    return pg
+
+
 def page_limits(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
     pg = Page(L)
     pg.h(L("Others' votes, limits, takeaways", "Movilizar, límites y conclusiones"))
-    pg.p(L("Persuading people barely moves votes in general elections (Kalla and Broockman, "
-           "2018); getting them out does, in US experiments (Gerber, Green and Larimer, 2008). "
-           f"At an assumed {f['vph_lo']} to {f['vph_hi']} extra voters per hour, an hour beats "
-           f"{f['value_of_time']} only if the majority is worth {f['th.majority.infl1.0']} to "
-           f"{f['th.majority.infl0.1']} to you, or on the social reckoning of (3).",
-           "Convencer apenas mueve votos en unas generales (Kalla y Broockman, 2018); movilizar "
-           f"sí, en experimentos en {USA} (Gerber, Green y Larimer, 2008). Suponiendo de "
-           f"{f['vph_lo']} a {f['vph_hi']} votantes más por hora, una hora movilizando vale más "
-           f"que {f['value_of_time']} solo si la mayoría vale para ti entre "
-           f"{f['th.majority.infl1.0']} y {f['th.majority.infl0.1']}, o con la cuenta social "
-           "de (3)."))
+    mid, high = (f"th.government.infl{v}" for v in s["theory"]["votes_per_hour"])
+    pg.p(L("Persuasion barely moves votes in US general elections (Kalla and Broockman, 2018); "
+           "in France, canvassing moved vote shares, not turnout (Pons, 2018). Getting people "
+           f"out: in European experiments an hour of canvassing yields 0 to {f['vph_hi']} extra "
+           f"voters, about {f['vph_lo']} on average (Bhatti et al., 2019). At {f['vph_lo']}, an "
+           f"hour beats {f['value_of_time']} only if who is invested is worth {f[mid]} to you; "
+           f"at {f['vph_hi']}, {f[high]}.",
+           f"En {USA}, convencer apenas mueve votos en unas generales (Kalla y Broockman, "
+           "2018); en Francia, el puerta a puerta movió el voto y no la participación (Pons, "
+           "2018). Movilizar: en experimentos europeos, una hora de puerta a puerta consigue "
+           f"de 0 a {f['vph_hi']} votantes más, unos {f['vph_lo']} de media (Bhatti et al., "
+           f"2019). Con {f['vph_lo']}, la hora vale más que {f['value_of_time']} solo si para "
+           f"ti quién es investido vale {f[mid]}; con {f['vph_hi']}, {f[high]}."))
     for word, text in (
             (L("Limits.", "Límites."), L(
-                f"Polls {f['lead']} days out. Proportional swing; SALF and Adelante Andalucía "
-                "rest on the 2024 European vote or a flat share. Local lists can surprise. "
-                "Blocs fixed by 2023 votes.",
-                f"Encuestas a {f['lead']} días. Cambio proporcional; SALF y Adelante Andalucía "
-                "se apoyan en las europeas de 2024 o en un porcentaje fijo. Las listas locales "
-                "pueden sorprender. Bloques fijados por las votaciones de 2023.")),
+                f"Polls {f['lead']} days out. Proportional swing; SALF starts from the 2024 "
+                "European vote, Adelante Andalucía from a flat share. Local lists can surprise. "
+                "The investiture repeats the 2023 votes: no new pacts, no abstentions like "
+                "those of 2016 and 2020." + SENATE_LIMIT["en"],
+                f"Encuestas a {f['lead']} días. Cambio proporcional; SALF parte de las europeas "
+                "de 2024, y Adelante Andalucía, de un porcentaje fijo. Las listas locales "
+                "pueden sorprender. La investidura repite los votos de 2023: ni pactos nuevos "
+                "ni abstenciones como las de 2016 y 2020." + SENATE_LIMIT["es"])),
             (L("Takeaways.", "Conclusiones."), L(
-                "A seat is a far likelier prize than the majority. Between constituencies the "
-                "odds of deciding the majority differ by a factor of up to "
-                f"{f['majority_any.spread']}. Selfishly, voting rarely pays; counting others, "
+                "A seat is a far likelier prize than deciding who governs. Between "
+                "constituencies the odds of deciding the investiture differ by a factor of up "
+                f"to {f['government.spread']}. Selfishly, voting rarely pays; counting others, "
                 "it can.",
-                "Un escaño es un premio mucho más probable que la mayoría. Entre "
-                "circunscripciones, la probabilidad de decidir la mayoría varía hasta "
-                f"{f['majority_any.spread']} veces. Por interés propio, votar rara vez "
+                "Un escaño es un premio mucho más probable que decidir quién gobierna. Entre "
+                "circunscripciones, la probabilidad de decidir la investidura varía hasta "
+                f"{f['government.spread']} veces. Por interés propio, votar rara vez "
                 "compensa; contando a los demás, puede compensar."))):
         pg.raw(f"#emph[{T(word)}] " + T(text), f"{word} " + P(text))
     pg.raw(f"#align(center, strong[{T(REPO)}])", REPO)
+    return pg
+
+
+def page_references(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
+    pg = Page(L)
+    # The heading only in the PDF: slides.txt lists the references under its own heading,
+    # which `voteev check` skips.
+    pg.raw(f"= {T(L('References', 'Referencias'))}")
     refs = [f"[{T(lead)} #emph[{T(journal)}] {T(tail)}]" for lead, journal, tail in REFERENCES]
     pg.raw("#block(above: 0.6em, {\n  set text(8.6pt)\n  set par(justify: false, "
            "hanging-indent: 1.0em, leading: 0.3em, spacing: 0.32em)\n  "
@@ -901,7 +1024,18 @@ def make_figures(results_dir: Path, figures_dir: Path, lang: str = "en") -> None
 
 
 PAGES = [page_title, page_question, page_model, page_backtest, page_seats, page_vote,
-         page_power, page_why, page_limits]
+         page_power, page_why, page_checks, page_limits, page_references]
+
+
+def source(pages: list[Page], m: dict, ragged: set[int] = frozenset()) -> str:
+    """The Typst document; the pages in `ragged` (numbered from 1) are not justified."""
+    head = (PREAMBLE.replace("@TITLE", m["title"]).replace("@AUTHOR", AUTHOR)
+            .replace("@SHORT", T(m["short"])).replace("@LANG", m["typst"])
+            .replace("@NAMES", r"\b(?:" + "|".join(NAMES) + r")\b"))
+    body = [pg.markup() if i not in ragged else
+            f"#set par(justify: false)\n{pg.markup()}\n#set par(justify: true)"
+            for i, pg in enumerate(pages, start=1)]
+    return head + "\n" + "\n\n#pagebreak()\n\n".join(body) + "\n"
 
 
 def make_carousel(results_dir: Path, carousel_dir: Path, figures_dir: Path | None = None,
@@ -920,15 +1054,24 @@ def make_carousel(results_dir: Path, carousel_dir: Path, figures_dir: Path | Non
         old.unlink()
     pages = [make(summary, f, L, out, figures_dir) for make in PAGES]
     m = L.meta
-    source = (PREAMBLE.replace("@TITLE", m["title"]).replace("@AUTHOR", AUTHOR)
-              .replace("@SHORT", T(m["short"])).replace("@LANG", m["typst"])
-              .replace("@NAMES", r"\b(?:" + "|".join(NAMES) + r")\b"))
-    source += "\n" + "\n\n#pagebreak()\n\n".join(pg.markup() for pg in pages) + "\n"
     typ = out / "carousel.typ"
-    typ.write_text(source)
     common = {"root": str(out), "font_paths": [str(style.FONTS)], "ignore_system_fonts": True}
     pdf_path = out / "carousel.pdf"
-    typst.compile(str(typ), output=str(pdf_path), **common)
+    # Justified, except a page where justifying leaves a gap wider than layout.LIMIT spaces:
+    # that page is set ragged-right, so a rerun with new numbers cannot leave holes.
+    ragged: set[int] = set()
+    while True:
+        typ.write_text(source(pages, m, ragged))
+        typst.compile(str(typ), output=str(pdf_path), **common)
+        gaps = layout.wide_gaps(pdf_path)
+        if layout.page_count(pdf_path) != len(pages):  # pages and slides do not match
+            break
+        wide = {g.page for g in gaps} - ragged
+        if not wide:
+            break
+        ragged |= wide
+    if ragged:
+        print(f"  ragged-right (wide gaps when justified): pages {sorted(ragged)}")
     typst.compile(str(typ), output=str(out / "slide-{p}.png"), format="png", ppi=180, **common)
     pngs = sorted(out.glob("slide-*.png"), key=lambda p: int(re.search(r"\d+", p.name)[0]))
     for i, png in enumerate(pngs, start=1):

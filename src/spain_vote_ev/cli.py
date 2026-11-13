@@ -1,16 +1,20 @@
-"""voteev: the pipeline, one step per command.
+"""voteev: the pipeline, one step per command, or all of them with `voteev all`.
 
+    voteev all         every step below in order, from download to check: the one command to
+                       run before publishing (--keep-polls skips refetching the polls;
+                       --cutoff sets the last fieldwork day)
     voteev download    fetch the sources into data/raw/ (polls are refetched every time)
     voteev prepare     parse them into data/processed/
     voteev simulate    a quick 2026 run: seats, blocs and pivot odds, nothing written
     voteev backtest    the pre-declared backtests (Nov 2019, 2023) and their coverage
     voteev analyze     everything: writes results/summary.json, the only source of numbers
     voteev figures     the five figures, as PNG (and SVG) in figures/
-    voteev carousel    the nine-page carousel: carousel/carousel.pdf, slide-NN.png, slides.txt
-                       in Spanish (the one published); --lang en writes carousel/en/
-    voteev tables      rewrite the README's generated tables from summary.json
+    voteev carousel    the carousel: carousel/carousel.pdf, slide-NN.png, slides.txt in Spanish
+                       (the one published); --lang en writes carousel/en/
+    voteev texts       README.md and POST.md from their templates and summary.json
     voteev check       flag numbers in the published texts that are not in results/summary.json,
-                       or not written in their language's format
+                       or not written in their language's format, and justified lines in the
+                       carousels with gaps wider than twice a space
 """
 
 from __future__ import annotations
@@ -99,10 +103,10 @@ def _carousel(a: argparse.Namespace) -> int:
     return 0
 
 
-def _tables(a: argparse.Namespace) -> int:
-    from . import style, tables
-    done = tables.update(ROOT / "README.md", style.load_summary(RESULTS))
-    print("README.md tables: " + (", ".join(done) or "no markers found"))
+def _texts(a: argparse.Namespace) -> int:
+    from . import style, texts
+    for path in texts.write(style.load_summary(RESULTS)):
+        print(f"-> {path}")
     return 0
 
 
@@ -115,7 +119,40 @@ def _check(a: argparse.Namespace) -> int:
         print(f"{p}: missing")
     bad = facts.check_files([(p, lang) for p, lang in pairs if p.exists()],
                             style.load_summary(RESULTS))
+    if not a.files:
+        from . import layout
+        from .carousel import PAGES
+        for pdf in (ROOT / "carousel" / "carousel.pdf", ROOT / "carousel" / "en" / "carousel.pdf"):
+            gaps = layout.wide_gaps(pdf)
+            print(f"{pdf}: " + ("no gap wider than "
+                                f"{layout.LIMIT:g} spaces" if not gaps else
+                                "WIDE GAPS: " + "; ".join(map(str, gaps))))
+            bad += len(gaps)
+            if (n := layout.page_count(pdf)) != len(PAGES):
+                print(f"{pdf}: OVERFLOW: {n} pages for {len(PAGES)} slides")
+                bad += 1
     return 1 if bad or missing else 0
+
+
+def _all(a: argparse.Namespace) -> int:
+    from . import backtest
+    from .analysis import N
+    steps = [(_download, {"only": None, "keep_polls": a.keep_polls, "force": False,
+                          "verify": False}),
+             (_prepare, {}),
+             (_analyze, {"n": N, "cutoff": a.cutoff, "backtest_n": backtest.N}),
+             (_figures, {}),
+             (_carousel, {"lang": "es"}),
+             (_carousel, {"lang": "en"}),
+             (_texts, {}),
+             (_check, {"files": [], "lang": "en"})]
+    for fn, kw in steps:
+        print(f"== voteev {fn.__name__.lstrip('_')}"
+              + (f" --lang {kw['lang']}" if "lang" in kw and fn is _carousel else ""))
+        code = fn(argparse.Namespace(**kw))
+        if code:
+            return code
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -124,6 +161,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="voteev", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("all", help="every step, from download to check")
+    p.add_argument("--keep-polls", action="store_true", help="do not refetch the poll pages")
+    p.add_argument("--cutoff", type=date.fromisoformat, default=None,
+                   help="last fieldwork day of the polls (default: the latest poll)")
+    p.set_defaults(fn=_all)
     p = sub.add_parser("download", help="fetch the sources into data/raw/")
     p.add_argument("--only", nargs="*", help="files whose name contains any of these")
     p.add_argument("--keep-polls", action="store_true", help="do not refetch the poll pages")
@@ -153,8 +195,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--lang", choices=["es", "en"], default="es",
                    help="es: carousel/ (default, the one published); en: carousel/en/")
     p.set_defaults(fn=_carousel)
-    sub.add_parser("tables", help="rewrite the README's generated tables").set_defaults(
-        fn=_tables)
+    sub.add_parser("texts", help="README.md and POST.md from their templates").set_defaults(
+        fn=_texts)
     p = sub.add_parser("check", help="numbers in the texts that are not in summary.json")
     p.add_argument("files", nargs="*", help="default: the published texts, each in its language")
     p.add_argument("--lang", choices=["en", "es"], default="en",

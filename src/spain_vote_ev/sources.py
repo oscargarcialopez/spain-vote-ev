@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
+CURATED = ROOT / "data" / "curated"  # transcribed by hand, with the source of each row
 RESULTS = ROOT / "results"
 
 USER_AGENT = "spain-vote-ev/0.1 (open research script)"

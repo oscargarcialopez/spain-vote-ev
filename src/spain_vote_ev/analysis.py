@@ -16,7 +16,7 @@ from .sources import ELECTION_DATE, RESULTS
 
 N = 100_000
 SENSITIVITY_N = 20_000
-ROBUSTNESS_N = 50_000  # each sensitivity of the robustness table, with one-vote odds
+ROBUSTNESS_N = N  # the same runs as the base (same seed): only the variant differs
 POWER_SAMPLE = 10_000
 GSE_2012_ONE_IN = 60_000_000  # Gelman, Silver and Edlin (2012), the 2008 US average
 PARTY_FIRMS = {"PP", "PSOE", "Vox", "Sumar", "Podemos", "SALF", "ERC", "Junts", "PNV",
@@ -185,11 +185,11 @@ def robustness(setup: model.Setup, calib: model.Calibration, factor: float, sigm
     rows = [{"key": "base", "group": "base", **base}]
     rule = investiture.behaviour(setup.labels)
 
-    def run_one(key, group, s=setup, b=rule, df=sigma_df, note=None):
+    def run_one(key, group, s=setup, b=rule, df=sigma_df, note=None, **extra):
         print(f"  {key} ...")
         sim = model.simulate(s, calib, n=n, widen=factor, track=True, behaviour=b, sigma_df=df)
         rows.append({"key": key, "group": group, "firms": len(s.window), "n": n,
-                     "note": note, **headline(s, sim, b)})
+                     "note": note, **extra, **headline(s, sim, b)})
 
     for agg in model.AGGREGATIONS[1:]:
         s2 = model.build("2026", cutoff=setup.cutoff, aggregation=agg)
@@ -197,7 +197,10 @@ def robustness(setup: model.Setup, calib: model.Calibration, factor: float, sigm
             rows.append({"key": agg, "group": "polls", "note": "no CIS poll in the window",
                          "same_as_base": True})
             continue
-        run_one(agg, "polls", s=s2)
+        extra = {}
+        if agg == "house2023":  # how many firms in the window had a 2023 poll to correct by
+            extra["adjusted"] = int(s2.window["firm"].isin(model.house_effects_2023()).sum())
+        run_one(agg, "polls", s=s2, **extra)
     party = tuple(sorted(set(setup.window["firm"]) & PARTY_FIRMS))
     if party:
         run_one("no_party_polls", "polls",

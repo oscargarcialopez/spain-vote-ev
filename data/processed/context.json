@@ -51,5 +51,2030 @@
     "BNG": 1,
     "CC": 1,
     "UPN": 1
+  },
+  "record": [
+    {
+      "event": "E1_sanchez_2016_03",
+      "round": 1,
+      "date": "2016-03-02",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "absolute",
+      "yes": 130,
+      "no": 219,
+      "abstain": 1,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 120,
+          "yes": 0,
+          "no": 120,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 89,
+          "yes": 89,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos",
+          "seats": 42,
+          "yes": 0,
+          "no": 42,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 40,
+          "yes": 40,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "DL (CDC)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos (Compromís-Podemos list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "IU-UP (Unidad Popular)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 0,
+          "no": 0,
+          "abstain": 1,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L11/CONG/DS/PL/DSCD-11-PL-3.PDF"
+    },
+    {
+      "event": "E1_sanchez_2016_03",
+      "round": 2,
+      "date": "2016-03-04",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "simple",
+      "yes": 131,
+      "no": 219,
+      "abstain": 0,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 120,
+          "yes": 0,
+          "no": 120,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 89,
+          "yes": 89,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos",
+          "seats": 42,
+          "yes": 0,
+          "no": 42,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 40,
+          "yes": 40,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "DL (CDC)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos (Compromís-Podemos list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "IU-UP (Unidad Popular)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L11/CONG/DS/PL/DSCD-11-PL-4.PDF"
+    },
+    {
+      "event": "E2_rajoy_2016_08",
+      "round": 1,
+      "date": "2016-08-31",
+      "kind": "investiture",
+      "candidate": "Mariano Rajoy",
+      "party": "PP",
+      "majority": "absolute",
+      "yes": 170,
+      "no": 180,
+      "abstain": 0,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 134,
+          "yes": 134,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 84,
+          "yes": 0,
+          "no": 84,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidos Podemos",
+          "seats": 45,
+          "yes": 0,
+          "no": 45,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 32,
+          "yes": 32,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CDC (PDeCAT)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos/EUPV (Compromís-Podemos-EUPV list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos-EUPV list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L12/CONG/DS/PL/DSCD-12-PL-4.PDF"
+    },
+    {
+      "event": "E2_rajoy_2016_08",
+      "round": 2,
+      "date": "2016-09-02",
+      "kind": "investiture",
+      "candidate": "Mariano Rajoy",
+      "party": "PP",
+      "majority": "simple",
+      "yes": 170,
+      "no": 180,
+      "abstain": 0,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 134,
+          "yes": 134,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 84,
+          "yes": 0,
+          "no": 84,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidos Podemos",
+          "seats": 45,
+          "yes": 0,
+          "no": 45,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 32,
+          "yes": 32,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CDC (PDeCAT)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos/EUPV (Compromís-Podemos-EUPV list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos-EUPV list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L12/CONG/DS/PL/DSCD-12-PL-5.PDF"
+    },
+    {
+      "event": "E3_rajoy_2016_10",
+      "round": 1,
+      "date": "2016-10-27",
+      "kind": "investiture",
+      "candidate": "Mariano Rajoy",
+      "party": "PP",
+      "majority": "absolute",
+      "yes": 170,
+      "no": 180,
+      "abstain": 0,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 134,
+          "yes": 134,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 84,
+          "yes": 0,
+          "no": 84,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidos Podemos",
+          "seats": 45,
+          "yes": 0,
+          "no": 45,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 32,
+          "yes": 32,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CDC (PDeCAT)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos/EUPV (Compromís-Podemos-EUPV list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos-EUPV list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L12/CONG/DS/PL/DSCD-12-PL-13.PDF"
+    },
+    {
+      "event": "E3_rajoy_2016_10",
+      "round": 2,
+      "date": "2016-10-29",
+      "kind": "investiture",
+      "candidate": "Mariano Rajoy",
+      "party": "PP",
+      "majority": "simple",
+      "yes": 170,
+      "no": 111,
+      "abstain": 68,
+      "absent": 1,
+      "passed": true,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 134,
+          "yes": 134,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 84,
+          "yes": 0,
+          "no": 15,
+          "abstain": 68,
+          "absent": 1
+        },
+        {
+          "party": "Unidos Podemos",
+          "seats": 45,
+          "yes": 0,
+          "no": 45,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 32,
+          "yes": 32,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 0,
+          "no": 12,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 0,
+          "no": 9,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CDC (PDeCAT)",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos/EUPV (Compromís-Podemos-EUPV list)",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos-EUPV list)",
+          "seats": 4,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L12/CONG/DS/PL/DSCD-12-PL-14.PDF"
+    },
+    {
+      "event": "E4_censure_2018_06",
+      "round": 1,
+      "date": "2018-06-01",
+      "kind": "censure",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "absolute",
+      "yes": 180,
+      "no": 169,
+      "abstain": 1,
+      "absent": 0,
+      "passed": true,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 134,
+          "yes": 0,
+          "no": 134,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 84,
+          "yes": 84,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidos Podemos",
+          "seats": 45,
+          "yes": 45,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 32,
+          "yes": 0,
+          "no": 32,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 12,
+          "yes": 12,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 9,
+          "yes": 9,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CDC (PDeCAT)",
+          "seats": 8,
+          "yes": 8,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Marea",
+          "seats": 5,
+          "yes": 5,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 5,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Podemos/EUPV (Compromís-Podemos-EUPV list)",
+          "seats": 5,
+          "yes": 5,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Compromís-Podemos-EUPV list)",
+          "seats": 4,
+          "yes": 4,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 0,
+          "no": 0,
+          "abstain": 1,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L12/CONG/DS/PL/DSCD-12-PL-127.PDF"
+    },
+    {
+      "event": "E5_sanchez_2019_07",
+      "round": 1,
+      "date": "2019-07-23",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "absolute",
+      "yes": 124,
+      "no": 170,
+      "abstain": 52,
+      "absent": 4,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PSOE",
+          "seats": 123,
+          "yes": 123,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PP",
+          "seats": 66,
+          "yes": 0,
+          "no": 66,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 57,
+          "yes": 0,
+          "no": 57,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidas Podemos",
+          "seats": 33,
+          "yes": 0,
+          "no": 1,
+          "abstain": 32,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 24,
+          "yes": 0,
+          "no": 24,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 15,
+          "yes": 0,
+          "no": 14,
+          "abstain": 0,
+          "absent": 1
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 7,
+          "yes": 0,
+          "no": 0,
+          "abstain": 7,
+          "absent": 0
+        },
+        {
+          "party": "JxCat",
+          "seats": 7,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 3
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 0,
+          "no": 0,
+          "abstain": 6,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 4,
+          "yes": 0,
+          "no": 0,
+          "abstain": 4,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Común-Unidas Podemos (Galicia)",
+          "seats": 2,
+          "yes": 0,
+          "no": 0,
+          "abstain": 2,
+          "absent": 0
+        },
+        {
+          "party": "Navarra Suma (NA+)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís",
+          "seats": 1,
+          "yes": 0,
+          "no": 0,
+          "abstain": 1,
+          "absent": 0
+        },
+        {
+          "party": "PRC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L13/CONG/DS/PL/DSCD-13-PL-3.PDF"
+    },
+    {
+      "event": "E5_sanchez_2019_07",
+      "round": 2,
+      "date": "2019-07-25",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "simple",
+      "yes": 124,
+      "no": 155,
+      "abstain": 67,
+      "absent": 4,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PSOE",
+          "seats": 123,
+          "yes": 123,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PP",
+          "seats": 66,
+          "yes": 0,
+          "no": 66,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 57,
+          "yes": 0,
+          "no": 57,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidas Podemos",
+          "seats": 33,
+          "yes": 0,
+          "no": 0,
+          "abstain": 33,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 24,
+          "yes": 0,
+          "no": 24,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 15,
+          "yes": 0,
+          "no": 0,
+          "abstain": 14,
+          "absent": 1
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 7,
+          "yes": 0,
+          "no": 0,
+          "abstain": 7,
+          "absent": 0
+        },
+        {
+          "party": "JxCat",
+          "seats": 7,
+          "yes": 0,
+          "no": 4,
+          "abstain": 0,
+          "absent": 3
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 0,
+          "no": 0,
+          "abstain": 6,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 4,
+          "yes": 0,
+          "no": 0,
+          "abstain": 4,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Común-Unidas Podemos (Galicia)",
+          "seats": 2,
+          "yes": 0,
+          "no": 0,
+          "abstain": 2,
+          "absent": 0
+        },
+        {
+          "party": "Navarra Suma (NA+)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís",
+          "seats": 1,
+          "yes": 0,
+          "no": 0,
+          "abstain": 1,
+          "absent": 0
+        },
+        {
+          "party": "PRC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L13/CONG/DS/PL/DSCD-13-PL-5.PDF"
+    },
+    {
+      "event": "E6_sanchez_2020_01",
+      "round": 1,
+      "date": "2020-01-05",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "absolute",
+      "yes": 166,
+      "no": 165,
+      "abstain": 18,
+      "absent": 1,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PSOE",
+          "seats": 120,
+          "yes": 120,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PP",
+          "seats": 88,
+          "yes": 0,
+          "no": 88,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 52,
+          "yes": 0,
+          "no": 52,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidas Podemos",
+          "seats": 26,
+          "yes": 26,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 13,
+          "yes": 0,
+          "no": 0,
+          "abstain": 13,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 10,
+          "yes": 0,
+          "no": 10,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "JxCat",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 7,
+          "yes": 6,
+          "no": 0,
+          "abstain": 0,
+          "absent": 1
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 6,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 5,
+          "yes": 0,
+          "no": 0,
+          "abstain": 5,
+          "absent": 0
+        },
+        {
+          "party": "CUP",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Común-Unidas Podemos (Galicia)",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Más País",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Navarra Suma (NA+)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "BNG",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Más Compromís list)",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PRC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Teruel Existe",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L14/CONG/DS/PL/DSCD-14-PL-3.PDF"
+    },
+    {
+      "event": "E6_sanchez_2020_01",
+      "round": 2,
+      "date": "2020-01-07",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "simple",
+      "yes": 167,
+      "no": 165,
+      "abstain": 18,
+      "absent": 0,
+      "passed": true,
+      "groups": [
+        {
+          "party": "PSOE",
+          "seats": 120,
+          "yes": 120,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PP",
+          "seats": 88,
+          "yes": 0,
+          "no": 88,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 52,
+          "yes": 0,
+          "no": 52,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Unidas Podemos",
+          "seats": 26,
+          "yes": 26,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 13,
+          "yes": 0,
+          "no": 0,
+          "abstain": 13,
+          "absent": 0
+        },
+        {
+          "party": "Cs",
+          "seats": 10,
+          "yes": 0,
+          "no": 10,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "JxCat",
+          "seats": 8,
+          "yes": 0,
+          "no": 8,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Comú Podem",
+          "seats": 7,
+          "yes": 7,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 6,
+          "yes": 6,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 5,
+          "yes": 0,
+          "no": 0,
+          "abstain": 5,
+          "absent": 0
+        },
+        {
+          "party": "CUP",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "En Común-Unidas Podemos (Galicia)",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Más País",
+          "seats": 2,
+          "yes": 2,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Navarra Suma (NA+)",
+          "seats": 2,
+          "yes": 0,
+          "no": 2,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "BNG",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Compromís (Más Compromís list)",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Foro",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "NC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PRC",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Teruel Existe",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L14/CONG/DS/PL/DSCD-14-PL-4.PDF"
+    },
+    {
+      "event": "E7_feijoo_2023_09",
+      "round": 1,
+      "date": "2023-09-27",
+      "kind": "investiture",
+      "candidate": "Alberto Núñez Feijóo",
+      "party": "PP",
+      "majority": "absolute",
+      "yes": 172,
+      "no": 178,
+      "abstain": 0,
+      "absent": 0,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 137,
+          "yes": 137,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 121,
+          "yes": 0,
+          "no": 121,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 33,
+          "yes": 33,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Sumar",
+          "seats": 31,
+          "yes": 0,
+          "no": 31,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 7,
+          "yes": 0,
+          "no": 7,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Junts",
+          "seats": 7,
+          "yes": 0,
+          "no": 7,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "BNG",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L15/CONG/DS/PL/DSCD-15-PL-5.PDF"
+    },
+    {
+      "event": "E7_feijoo_2023_09",
+      "round": 2,
+      "date": "2023-09-29",
+      "kind": "investiture",
+      "candidate": "Alberto Núñez Feijóo",
+      "party": "PP",
+      "majority": "simple",
+      "yes": 172,
+      "no": 177,
+      "abstain": 0,
+      "absent": 1,
+      "passed": false,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 137,
+          "yes": 137,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 121,
+          "yes": 0,
+          "no": 121,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 33,
+          "yes": 33,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Sumar",
+          "seats": 31,
+          "yes": 0,
+          "no": 31,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 7,
+          "yes": 0,
+          "no": 7,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Junts",
+          "seats": 7,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 1
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 6,
+          "yes": 0,
+          "no": 6,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 0,
+          "no": 5,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "BNG",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L15/CONG/DS/PL/DSCD-15-PL-6.PDF"
+    },
+    {
+      "event": "E8_sanchez_2023_11",
+      "round": 1,
+      "date": "2023-11-16",
+      "kind": "investiture",
+      "candidate": "Pedro Sánchez",
+      "party": "PSOE",
+      "majority": "absolute",
+      "yes": 179,
+      "no": 171,
+      "abstain": 0,
+      "absent": 0,
+      "passed": true,
+      "groups": [
+        {
+          "party": "PP",
+          "seats": 137,
+          "yes": 0,
+          "no": 137,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PSOE",
+          "seats": 121,
+          "yes": 121,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Vox",
+          "seats": 33,
+          "yes": 0,
+          "no": 33,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Sumar",
+          "seats": 31,
+          "yes": 31,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "ERC",
+          "seats": 7,
+          "yes": 7,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "Junts",
+          "seats": 7,
+          "yes": 7,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "EH Bildu",
+          "seats": 6,
+          "yes": 6,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "PNV",
+          "seats": 5,
+          "yes": 5,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "BNG",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "CC",
+          "seats": 1,
+          "yes": 1,
+          "no": 0,
+          "abstain": 0,
+          "absent": 0
+        },
+        {
+          "party": "UPN",
+          "seats": 1,
+          "yes": 0,
+          "no": 1,
+          "abstain": 0,
+          "absent": 0
+        }
+      ],
+      "url": "https://www.congreso.es/public_oficiales/L15/CONG/DS/PL/DSCD-15-PL-8.PDF"
+    }
+  ],
+  "senate": {
+    "about": "The Senate, for the README's Limits: the seats, the rule, and why it is not modelled. Checked once on 12 November 2026 against the sources below; not computed by the pipeline.",
+    "elected_2023": 208,
+    "constituencies_2023": 59,
+    "elected_2026": 209,
+    "constituencies_2026": 60,
+    "elected_2026_source": "Real Decreto 806/2026, art. 3.2: Ibiza and Formentera elect one senator each (Constitution, art. 69.3, as reformed in 2026; LOREG art. 165.2, as amended by Ley Orgánica 2/2026)",
+    "elected_2026_url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-20742",
+    "reform_url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-10881",
+    "rule": "LOREG art. 166: voters mark up to 3 of 4 candidates in a province, 2 of 3 in Gran Canaria, Mallorca and Tenerife, 2 of 2 in Ceuta and Melilla, 1 in the other islands; the candidates with the most votes are elected",
+    "rule_url": "https://www.boe.es/buscar/act.php?id=BOE-A-1985-11672",
+    "candidates_2023": 1152,
+    "rule_reproduces_2023": 208,
+    "rule_check": "the 2023 count (BOE-A-2023-18907): in each of the 59 constituencies the candidates with the most votes are the ones proclaimed",
+    "results_2023_url": "https://www.boe.es/diario_boe/xml.php?id=BOE-A-2023-18907",
+    "party_line_seats_2023": 192,
+    "party_line_changes_2023": 7,
+    "party_line_where": [
+      "Badajoz",
+      "Barcelona",
+      "Cáceres",
+      "Gipuzkoa",
+      "Huelva",
+      "Navarra",
+      "Valencia"
+    ],
+    "party_line_check": "outside the islands, every 2023 Senate candidate given their list's 2023 Congreso vote in the province, as a model driven by Congreso polls would have to: 7 of the 192 seats change hands",
+    "designated_at_dissolution": 58,
+    "members_at_dissolution": 266,
+    "majority_at_dissolution": 134,
+    "members_url": "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/modificacionescomposicion/designadosca/index.html",
+    "designated_note": "Constitution, art. 69.5: each autonomous community designates one senator plus one per million inhabitants (LOREG art. 165.4: on the population in force at the election), so the number designated after 29 November may differ from 58."
   }
 }

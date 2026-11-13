@@ -10,7 +10,9 @@ constituencies_2026  seats (decree), electors (INE) per constituency.
 candidacies_2026     every Congreso list proclaimed for 2026, with its label.
 polls.csv            every national poll (long format: one row per poll and party column).
 poll_results.csv     the result row of each past election's poll table (same columns).
-context.json         population, the 2023 investiture votes, 2023 seats.
+context.json         population, the 2023 investiture votes, 2023 seats, and the record of
+                     every investiture vote since 2016 (data/curated/investitures.csv);
+                     the Senate's seats and rule, for the README's Limits (senate.json).
 """
 
 from __future__ import annotations
@@ -21,7 +23,7 @@ import pandas as pd
 
 from . import boe, parties, polls
 from .provinces import CCAA, CODES, NAME
-from .sources import ELECTION_DATE, POLL_PAGES, PROCESSED, RAW
+from .sources import CURATED, ELECTION_DATE, POLL_PAGES, PROCESSED, RAW
 
 RESULT_FILES = {
     "2015": ("BOE-A-2016-867.xml", None),
@@ -115,6 +117,35 @@ def population() -> dict:
             "url": "https://www.ine.es/dyngs/Prensa/ECP3T26.pdf"}
 
 
+def record() -> list[dict]:
+    """Every investiture vote since 2016, and the 2018 censure motion, with each group's vote.
+
+    data/curated/investitures.csv was transcribed from the Diario de Sesiones del Congreso (the
+    roll call of each vote; its URL is on every row) with the groups' seats at the time; each
+    vote's totals add up to 350 and match the record. A candidate passes the first vote with
+    176 yes votes, the second with more yes than no; a censure motion needs 176.
+    """
+    df = pd.read_csv(CURATED / "investitures.csv", dtype={"round": int})
+    out = []
+    for (event, rnd), g in df.groupby(["event", "round"], sort=False):
+        r = g.iloc[0]
+        tot = {k: int(r[f"{k}_total"]) for k in ("yes", "no", "abstain", "absent")}
+        groups = [{"party": x.party, "seats": int(x.seats), "yes": int(x.yes), "no": int(x.no),
+                   "abstain": int(x.abstain), "absent": int(x.absent)} for x in g.itertuples()]
+        for k, v in tot.items():
+            if sum(x[k] for x in groups) != v:
+                raise ValueError(f"{event} vote {rnd}: the groups' {k} do not add up to {v}")
+        if sum(tot.values()) != 350:
+            raise ValueError(f"{event} vote {rnd}: {sum(tot.values())} deputies, not 350")
+        absolute = r["majority_needed"] == "absolute"
+        out.append({"event": event, "round": int(rnd), "date": r["date"], "kind": r["kind"],
+                    "candidate": r["candidate"], "party": r["candidate_party"],
+                    "majority": r["majority_needed"], **tot,
+                    "passed": tot["yes"] >= 176 if absolute else tot["yes"] > tot["no"],
+                    "groups": groups, "url": r["dscd_url"]})
+    return out
+
+
 def prepare() -> None:
     PROCESSED.mkdir(parents=True, exist_ok=True)
     results, summary, named = official_results()
@@ -128,7 +159,8 @@ def prepare() -> None:
     long.to_csv(PROCESSED / "polls.csv", index=False)
     res.to_csv(PROCESSED / "poll_results.csv", index=False)
     context = {"population": population(), "investitures": parties.INVESTITURES,
-               "seats_2023": parties.SEATS_2023}
+               "seats_2023": parties.SEATS_2023, "record": record(),
+               "senate": json.loads((CURATED / "senate.json").read_text())}
     (PROCESSED / "context.json").write_text(json.dumps(context, indent=2, ensure_ascii=False))
     for f in sorted(PROCESSED.iterdir()):
         print(f"  {f.name:32s} {f.stat().st_size:>9,d} B")

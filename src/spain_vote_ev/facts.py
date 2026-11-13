@@ -38,9 +38,9 @@ CONSTANTS = {
     "14", "15", "0.01", "0.02", "0.05", "20,000", "75", "90", "80", "95",
     "100", "1,000", "1080", "1350", "7.5",
     "1951", "1954", "1957", "1965", "1968", "1973", "1975", "1983", "1990", "2007", "2008",
-    "2012", "2015", "2016", "2018", "2019", "2020", "2023", "2024", "2026",
+    "2011", "2012", "2013", "2015", "2016", "2018", "2019", "2020", "2021", "2023", "2024",
+    "2026",
     "29", "27", "16",
-    "167", "165", "18",
     "8.1",
 }
 
@@ -77,16 +77,21 @@ class Fmt:
         return self._local(f"{x:g}")
 
     def sig(self, x: float, digits: int = 2) -> str:
-        """76,434 -> 76,000 / 76.000; 10,765,236 -> 10.8 million / 10,8 millones."""
-        if x >= 1e9:
+        """76,434 -> 76,000 / 76.000; 10,765,236 -> 10.8 million / 10,8 millones;
+        457,312,000 -> 457 million (no more than three digits in front of "million")."""
+        if x >= 999.5e6:
             if not self.es:
                 return f"{x / 1e9:.1f} billion"
             m = x / 1e6  # Spanish counts thousands of millions: 1.100 millones
             k = digits - 1 - floor(log10(m))
             return f"{self.num(round(m, k))} millones"
         if x >= 1e6:
-            m = round(x / 1e6, 1)
-            text = f"{m:.0f}" if m == int(m) and m >= 10 else f"{m:.1f}"
+            m = x / 1e6
+            if m >= 99.95:
+                text = f"{m:.0f}"
+            else:
+                m = round(m, 1)
+                text = f"{m:.0f}" if m == int(m) and m >= 10 else f"{m:.1f}"
             return f"{self._local(text)} {'millones' if self.es else 'million'}"
         k = digits - 1 - floor(log10(abs(x)))
         return self.num(round(x, k), max(k, 0))
@@ -129,6 +134,28 @@ class Fmt:
     def word(self, en: str, es: str) -> str:
         return es if self.es else en
 
+    def join(self, items: list[str]) -> str:
+        """'a, b and c' / 'a, b y c'."""
+        items = list(items)
+        if len(items) < 2:
+            return "".join(items)
+        return ", ".join(items[:-1]) + (" y " if self.es else " and ") + items[-1]
+
+    def month(self, iso: str) -> str:
+        """October 2016 / octubre de 2016."""
+        d = date.fromisoformat(iso)
+        return f"{MONTHS[self.lang][d.month - 1]}{' de' if self.es else ''} {d.year}"
+
+
+# The groups of the investiture record (data/curated/investitures.csv), shortened for tables.
+RECORD_NAMES = {"CDC (PDeCAT)": "PDeCAT", "DL (CDC)": "DL", "Navarra Suma (NA+)": "NA+",
+                "IU-UP (Unidad Popular)": "IU-UP",
+                "En Común-Unidas Podemos (Galicia)": "En Común-UP"}
+
+
+def record_name(party: str) -> str:
+    return RECORD_NAMES.get(party, re.sub(r"\s*\([^)]*list\)$", "", party))
+
 
 def long_date(iso: str) -> str:
     return Fmt("en").date(iso)
@@ -142,6 +169,58 @@ def pct(x: float, digits: int = 0) -> str:
     return Fmt("en").pct(x, digits)
 
 
+ELECTIONS = {"2015": ("2015", "2015"), "2016": ("2016", "2016"),
+             "2019A": ("April 2019", "abril de 2019"),
+             "2019N": ("November 2019", "noviembre de 2019"), "2023": ("2023", "2023")}
+
+
+# The variants of the robustness table (analysis.robustness), in both languages.
+ROBUSTNESS_LABELS = {
+    "base": ("Base: median of {firms} firms", "Base: mediana de {firms} empresas"),
+    "weighted_mean": ("Mean weighted by sample size", "Media ponderada por la muestra"),
+    "days7": ("Last 7 days only ({firms}\u00a0firms)",
+              "Solo los últimos 7 días ({firms}\u00a0empresas)"),
+    "house2023": ("Each firm corrected by its 2023 error",
+                  "Cada empresa corregida por su error de 2023"),
+    "no_cis": ("Without the CIS", "Sin el CIS"),
+    "no_party_polls": ("Without the poll released by a party ({party})",
+                       "Sin la encuesta publicada por un partido ({party})"),
+    "normal_errors": ("Normal errors (no Student-t)", "Errores normales (sin la $t$)"),
+    "student_t": ("Student-t errors", "Errores con la $t$ de Student"),
+    "no_record_abstain": ("Lists with no 2023 seat abstain",
+                          "Las listas sin escaño en 2023 se abstienen"),
+}
+
+
+# The same variant when more than one party has released a poll in the window.
+PARTY_POLLS = ("Without the polls released by parties ({party})",
+               "Sin las encuestas publicadas por partidos ({party})")
+
+
+def robustness_label(fm: Fmt, row: dict, firms: str, party: str) -> str:
+    en, es = ROBUSTNESS_LABELS[row["key"]]
+    if row["key"] == "no_party_polls" and "," in party:
+        en, es = PARTY_POLLS
+    return fm.word(en, es).format(firms=row.get("firms", firms), party=party)
+
+
+def compare(fm: Fmt, ratio: float, times: str | None, what: str) -> str:
+    """How a probability compares with a reference, in words that stay true on a rerun."""
+    if 2 / 3 < ratio < 3 / 2:
+        return fm.word(f"close to the odds of {what}", f"parecida a la de {what}")
+    if ratio >= 3 / 2:
+        if times:
+            return fm.word(f"about {times} times likelier than {what}",
+                           f"unas {times} veces mayor que la de {what}")
+        return fm.word(f"likelier than {what}", f"mayor que la de {what}")
+    return fm.word(f"less likely than {what}", f"menor que la de {what}")
+
+
+def small_pct(fm: Fmt, x: float) -> str:
+    """One decimal; two below 0.1% so that a small number does not read as zero."""
+    return fm.pct(x, 1 if x == 0 or x >= 0.001 else 2)
+
+
 def _government_facts(f: dict[str, str], fm: Fmt, prefix: str, g: dict) -> None:
     """Who is invested (summary["government"] and its variants)."""
     for cand, x in g["candidates"].items():
@@ -152,9 +231,74 @@ def _government_facts(f: dict[str, str], fm: Fmt, prefix: str, g: dict) -> None:
         if "yes_mean" in x:
             f[f"{prefix}.{cand}.yes"] = fm.num(x["yes_mean"])
             f[f"{prefix}.{cand}.yes80"] = f"{x['yes_lo80']}–{x['yes_hi80']}"
-    f[f"{prefix}.blocked"] = fm.pct(g["blocked"], 1)
-    f[f"{prefix}.second"] = fm.pct(g["second_vote"], 1)
+    f[f"{prefix}.blocked"] = small_pct(fm, g["blocked"])
+    f[f"{prefix}.second"] = small_pct(fm, g["second_vote"])
     f[f"{prefix}.both"] = fm.pct(g["both_possible"], 2)
+
+
+def _record_facts(f: dict[str, str], fm: Fmt, record: list[dict]) -> None:
+    """Every vote of the investiture record (rec.1 … rec.N, in date order) and what the
+    carousel and README say about it: which investitures passed only thanks to abstentions
+    (rec.decided) and how many deputies abstained in the latest year (rec.last.abstain)."""
+    if not record:
+        return
+    for i, v in enumerate(record, start=1):
+        k = f"rec.{i}"
+        f[f"{k}.date"] = fm.date(v["date"])
+        for x in ("yes", "no", "abstain", "absent"):
+            f[f"{k}.{x}"] = str(v[x])
+        for x, word in (("yes", "yes_from"), ("abstain", "abstained")):
+            f[f"{k}.{word}"] = ", ".join(f"{record_name(g['party'])} {g[x]}"
+                                        for g in v["groups"] if g[x]) or "—"
+    inv = [v for v in record if v["kind"] == "investiture"]
+    f["rec.votes"] = str(len(inv))
+    f["rec.debates"] = str(len({v["event"] for v in inv}))
+    f["rec.first"] = record[0]["date"][:4]
+    decided = [v for v in inv if v["passed"] and v["yes"] < 176 and v["abstain"]]
+    f["rec.decided"] = fm.join([fm.month(v["date"]) for v in decided])
+    f["rec.decided.n"] = str(len(decided))
+    last = record[-1]["date"][:4]
+    f["rec.last"] = last
+    n = sum(v["abstain"] for v in record if v["date"][:4] == last)
+    f["rec.last.abstain"] = str(n)
+    f["rec.last.abstained"] = (fm.word("nobody abstained", "nadie se abstuvo") if n == 0 else
+                               fm.word(f"{n} deputies abstained", f"se abstuvieron {n} diputados"))
+
+
+def _sigma_facts(f: dict[str, str], fm: Fmt, meta: dict) -> None:
+    """How the texts describe the national error, whichever way the pre-declared rule went
+    (Student-t errors adopted or not): sigma.how, sigma.dist, sigma.alt, sigma.limit."""
+    n = f["n_poll_errors"]
+    if meta.get("student_t"):
+        df = str(meta["sigma_df"])
+        f["sigma.how"] = fm.word(
+            f"Since σ is itself estimated from {n} errors, each simulated election draws its own "
+            f"scale, σ·√(df/χ²), with df = {df} degrees of freedom: the errors are Student-t.",
+            f"Como σ también se estima, con {n} errores, cada simulación saca su propia escala, "
+            f"σ·√(gl/χ²), con {df} grados de libertad: los errores son t de Student.")
+        f["sigma.dist"] = fm.word(f"Student-t, {df} degrees of freedom",
+                                  f"t de Student, {df} grados de libertad")
+        f["sigma.alt"] = fm.word("normal errors", "errores normales")
+        f["sigma.limit"] = fm.word(
+            f"The Student-t with {df} degrees of freedom still counts them as independent, so "
+            "the tails may be somewhat heavier than modelled.",
+            f"La t de Student con {df} grados de libertad aún los cuenta como independientes, "
+            "así que las colas pueden ser algo más gruesas que en el modelo.")
+        alt = "normal_errors"
+    else:
+        f["sigma.how"] = fm.word(
+            f"σ is itself estimated from {n} errors; Student-t errors, which allow for that, are "
+            "a variant.",
+            f"σ también se estima, con {n} errores; los errores con la t de Student, que lo "
+            "tienen en cuenta, son una variante.")
+        f["sigma.dist"] = fm.word("normal", "normal")
+        f["sigma.alt"] = fm.word("Student-t errors", "errores con la t de Student")
+        f["sigma.limit"] = fm.word(
+            "Normal errors take σ as known, so the tails may be somewhat heavier than modelled.",
+            "Los errores normales dan σ por sabido, así que las colas pueden ser algo más gruesas "
+            "que en el modelo.")
+        alt = "student_t"
+    f["sigma.alt.effect"] = f.get(f"rob.{alt}.effect", "—")
 
 
 def build(s: dict, lang: str = "en") -> dict[str, str]:
@@ -192,7 +336,15 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     f["window_between"] = fm.between(start_iso, polls["cutoff"])
     f["ratio_gse"] = f"{s['context']['gse_2012_one_in'] / nat['majority_any']['one_in']:.0f}"
     if "government" in nat:
-        f["ratio_gse_gov"] = f"{s['context']['gse_2012_one_in'] / nat['government']['one_in']:.0f}"
+        gov = nat["government"]["one_in"]
+        f["ratio_gse_gov"] = f"{s['context']['gse_2012_one_in'] / gov:.0f}"
+        f["ratio_gov_seat"] = fm.sig(gov / nat["seat"]["one_in"])
+        f["cmp.gov.lottery"] = compare(fm, LOTTERY / gov, None, fm.word(
+            "picking all six numbers of 49", "acertar los seis números de la Primitiva"))
+        f["cmp.gov.gse"] = compare(fm, s["context"]["gse_2012_one_in"] / gov,
+                                   f["ratio_gse_gov"], fm.word(
+                                       "deciding the 2008 US presidency",
+                                       f"decidir las presidenciales de EE.{NBSP}UU. de 2008"))
     prov = vote["provinces"]
     for ev in [e for e in ("seat", "majority_any", "government") if f"p_{e}" in prov[0]]:
         ranked = sorted(prov, key=lambda r: r[f"p_{ev}"], reverse=True)
@@ -240,6 +392,85 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
         for lab, k in gv["keys"].items():
             for cand in ("PP", "PSOE", "any"):
                 f[f"key.{lab}.{cand}"] = fm.pct(k[cand], 1 if k[cand] < 0.1 else 0)
+    rob = s.get("robustness", [])
+    party = ", ".join(polls["party_released"]) or fm.word("none", "ninguna")
+    for r in rob:
+        k = r["key"]
+        f[f"rob.{k}.name"] = robustness_label(fm, r, str(polls["firms"]), party)
+        if "n" in r:
+            f["rob.n"] = fm.num(r["n"])
+        if r.get("same_as_base"):
+            f[f"rob.{k}.effect"] = fm.word("as the base", "como la base")
+            continue
+        f[f"rob.{k}.effect"] = small_pct(fm, r["PP"])
+        for x in ("PP", "PSOE", "blocked"):
+            f[f"rob.{k}.{x}"] = small_pct(fm, r[x])
+        f[f"rob.{k}.second"] = small_pct(fm, r["second_vote"])
+        f[f"rob.{k}.gov"] = fm.sig(r["government_one_in"])
+        f[f"rob.{k}.seat"] = fm.sig(r["seat_one_in"])
+        if "firms" in r:
+            f[f"rob.{k}.firms"] = str(r["firms"])
+    moved = [r for r in rob if r["key"] != "base" and not r.get("same_as_base")]
+    if moved:
+        base = next(r for r in rob if r["key"] == "base")
+        big = max(moved, key=lambda r: abs(r["PP"] - base["PP"]))
+        name = f[f"rob.{big['key']}.name"]
+        f["rob.max.key"] = big["key"]
+        f["rob.max.name"] = name[0].lower() + name[1:]
+        for x in ("PP", "PSOE", "blocked", "gov"):
+            f[f"rob.max.{x}"] = f[f"rob.{big['key']}.{x}"]
+        f["rob.variants"] = str(len(moved))
+        rows = [base, *moved]
+        for x in ("PP", "PSOE"):
+            lo, hi = min(r[x] for r in rows), max(r[x] for r in rows)
+            f[f"rob.range.{x}"] = f"{small_pct(fm, lo)} {fm.word('to', 'a')} {small_pct(fm, hi)}"
+        for r in moved:
+            if "adjusted" in r:
+                f[f"rob.{r['key']}.adjusted"] = fm.of(r["adjusted"], r["firms"])
+        f["rob.max.assumes"] = fm.word(
+            " It assumes each firm repeats its 2023 error.",
+            " Supone que cada empresa repite su error de 2023.") \
+            if big["key"] == "house2023" else ""
+        cis_out = any(r["key"] == "no_cis" and r.get("same_as_base") for r in rob)
+        f["rob.no_cis"] = (fm.word("No CIS poll falls in the window.",
+                                   "No hay encuesta del CIS en el periodo.") if cis_out else "")
+        f["cis.status"] = (fm.word(
+            "The CIS falls outside the 14-day window; how it compares with the other firms is "
+            "in the repository.",
+            "El CIS cae fuera del periodo de 14 días; su comparación con las demás empresas "
+            "está en el repositorio.") if cis_out else fm.word(
+            f"The CIS is in the median; without it, the PP's candidate is invested in "
+            f"{f.get('rob.no_cis.PP', '')} of the runs.",
+            f"El CIS está en la mediana; sin él, el candidato del PP sale investido en el "
+            f"{f.get('rob.no_cis.PP', '')} de las simulaciones."))
+    comp = s.get("completeness")
+    if comp:
+        f["comp.candidacies"] = str(comp["candidacies"])
+        f["comp.others"] = str(comp["in_others"])
+        f["comp.with_past"] = str(len(comp["with_a_past_result"]))
+        f["comp.flagged"] = str(len(comp["flagged"]))
+        for i, r in enumerate(comp["with_a_past_result"][:10], start=1):
+            f[f"comp.{i}.share"] = fm.pct(r["best_share"], 1)
+            f[f"comp.{i}.min"] = fm.pct(r["min_winning_share"], 1)
+        if comp["with_a_past_result"]:
+            top = comp["with_a_past_result"][0]
+            f["comp.top.list"] = top["list"]
+            f["comp.top.where"] = top["constituency"]
+            f["comp.top.share"] = fm.pct(top["best_share"], 1)
+            f["comp.top.year"] = ELECTIONS[top["best_election"]][fm.es]
+            f["comp.top.min"] = fm.pct(top["min_winning_share"], 1)
+        f["comp.few_firms"] = ", ".join(comp["poll_columns_below_min_firms"]) or fm.word(
+            "none", "ninguna")
+        n_flag = len(comp["flagged"])
+        f["comp.verdict"] = fm.word(
+            "none has reached, in its constituency, the smallest share that has won a seat "
+            "there since 2015",
+            "ninguna ha llegado nunca en su circunscripción al porcentaje más bajo que ha dado "
+            "un escaño allí desde 2015") if not n_flag else fm.word(
+            f"{n_flag} have reached the smallest share that has won a seat there since 2015, "
+            "so a seat for them is possible and not modelled",
+            f"{n_flag} han llegado alguna vez al porcentaje más bajo que ha dado un escaño allí "
+            "desde 2015: un escaño suyo es posible y no está en el modelo")
     cal = s["calibration"]
     f["sigma_nat"] = fm.num(cal["sigma_national_logit"], 2)
     f["tau_ccaa"] = fm.num(cal["tau_ccaa"], 2)
@@ -260,6 +491,9 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
     f["bt.cov80"] = fm.pct(tried["cov80"])
     f["bt.cov95"] = fm.pct(tried["cov95"])
     f["bt.factor"] = fm.num(bt["chosen_factor"], 2)
+    f["bt.widen"] = (fm.word("no widening", "no se ensanchan") if bt["chosen_factor"] == 1 else
+                     fm.word(f"every error widened by a factor of {f['bt.factor']}",
+                             f"todos los errores se ensanchan por {f['bt.factor']}"))
     lead = bt["at_2026_lead"]
     f["bt_lead.in80"] = fm.of(lead["in80"], lead["lists"])
     f["bt_lead.in95"] = fm.of(lead["in95"], lead["lists"])
@@ -332,7 +566,60 @@ def build(s: dict, lang: str = "en") -> dict[str, str]:
             f[f"inv.{who}.{p}"] = str(k)
     for p, k in ctx["seats_2023"].items():
         f[f"seats23.{p}"] = str(k)
+    _record_facts(f, fm, ctx.get("record", []))
+    sen = ctx.get("senate")
+    if sen:
+        for k, v in sen.items():
+            if isinstance(v, int):
+                f[f"senate.{k}"] = fm.num(v)
+        f["senate.party_line_where"] = fm.join(sen["party_line_where"])
     f["n_backtest"] = fm.num(s["backtest"]["rule"]["n"])
+    if meta.get("student_t"):
+        f["sigma_df"] = str(meta["sigma_df"])
+    _sigma_facts(f, fm, meta)
+    f["bt.factors"] = ", ".join(fm.num(x, 2) for x in s["backtest"]["rule"]["factors"])
+    m = re.fullmatch(r"(\d+) de (\w+) de (\d{4})", s["context"]["population"]["date"])
+    if m:
+        day = date(int(m[3]), MONTHS["es"].index(m[2]) + 1, int(m[1]))
+        f["population_day"] = fm.date(day.isoformat())
+    for k, v in th.get("canvass", {}).items():
+        f[f"canvass.{k}"] = (fm.g(v) if isinstance(v, float) else fm.num(v)).replace("-", "−")
+    sr = bt.get("sigma_rule")
+    if sr:
+        f["sr.lead"] = str(sr["lead_days"])
+        f["sr.adopted"] = fm.word("Student-t", "t de Student") if sr["adopt_student_t"] else \
+            fm.word("normal", "normal")
+        for name, key in (("normal", "n"), ("student_t", "t")):
+            for scope in ("all", "pair"):
+                x = sr[name][scope]
+                tag = f"sr.{key}" + ("" if scope == "all" else ".pair")
+                f[f"{tag}.in80"] = fm.of(x["in80"], x["lists"])
+                f[f"{tag}.in95"] = fm.of(x["in95"], x["lists"])
+                f[f"{tag}.cov80"] = fm.pct(x["cov80"])
+                f[f"{tag}.cov95"] = fm.pct(x["cov95"])
+                f[f"{tag}.dist"] = fm.num(x["distance"], 3)
+            for e, x in sr[name]["by_election"].items():
+                f[f"sr.{key}.{e}.in80"] = fm.of(x["in80"], x["lists"])
+                f[f"sr.{key}.{e}.in95"] = fm.of(x["in95"], x["lists"])
+        t, n = sr["student_t"]["all"], sr["normal"]["all"]
+        f["sr.result"] = fm.word(
+            "so Student-t errors are adopted" if sr["adopt_student_t"] else
+            "so the errors stay normal and the Student-t is a variant",
+            "así que se adoptan los errores con la t de Student" if sr["adopt_student_t"] else
+            "así que los errores siguen normales y la t de Student queda como variante")
+        f["sr.closer"] = fm.word("closer to", "más cerca de") if t["distance"] < n["distance"] \
+            else fm.word("no closer to", "no más cerca de")
+        for run in sr["student_t" if sr["adopt_student_t"] else "normal"]["runs"]:
+            e = run["election"]
+            f[f"sr.{e}.cutoff"] = fm.date(run["cutoff"])
+            f[f"sr.{e}.firms"] = str(run["firms"])
+            f[f"sr.{e}.sigma"] = fm.num(run["calibration"]["sigma_national_logit"], 2)
+            f[f"sr.{e}.n_errors"] = str(run["calibration"]["n_poll_errors"])
+            f[f"sr.{e}.name"] = ELECTIONS[e][fm.es]
+            misses = [x for x in run["lists"] if x["counted"] and not x["in80"]]
+            f[f"sr.{e}.misses80"] = ", ".join(
+                f"{DISPLAY.get(x['list'], x['list'])} ({x['actual']} {vs} {x['lo80']}–"
+                f"{x['hi80']})" for x in misses) or fm.word("none", "ninguna")
     return f
 
 
@@ -356,7 +643,8 @@ def _clean(text: str) -> str:
     text = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", " ", text)
     text = re.sub(r"BOE-A-\d{4}-\d+|DSCD-[\w-]+|SHA-256", " ", text)
     text = re.sub(r"\b\d+\.\d+\.\d+\b", " ", text)
-    return re.sub(r"\b(?:art\.|article|artículo)\s*\d+(?:\.\d+)?", " ", text, flags=re.I)
+    return re.sub(r"\b(?:arts?\.|articles?|artículos?)\s*\d+(?:\.\d+)?"
+                  r"(?:\s*(?:[–-]|and|to|y|a)\s*\d+(?:\.\d+)?)*", " ", text, flags=re.I)
 
 
 def _canonical(run: str, lang: str) -> str:

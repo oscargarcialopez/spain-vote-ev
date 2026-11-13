@@ -12,6 +12,7 @@ NB = facts.NBSP
 @pytest.mark.parametrize("x, text", [
     (76_433.96, "76,000"), (10_765_236.5, "10.8 million"), (60_000_000, "60 million"),
     (13_983_816, "14 million"), (1_076_523_646, "1.1 billion"), (92.77, "93"), (4.6386, "4.6"),
+    (457_312_000, "457 million"), (267_600_000, "268 million"), (999_700_000, "1.0 billion"),
 ])
 def test_sig(x, text):
     assert facts.sig(x) == text
@@ -20,7 +21,7 @@ def test_sig(x, text):
 @pytest.mark.parametrize("x, text", [
     (76_433.96, "76.000"), (10_765_236.5, "10,8 millones"), (60_000_000, "60 millones"),
     (13_983_816, "14 millones"), (1_076_523_646, "1.100 millones"), (92.77, "93"),
-    (4.6386, "4,6"), (1_234.5, "1.200"),
+    (4.6386, "4,6"), (1_234.5, "1.200"), (457_312_000, "457 millones"),
 ])
 def test_sig_in_spanish(x, text):
     assert facts.Fmt("es").sig(x) == text
