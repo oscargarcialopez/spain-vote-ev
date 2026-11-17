@@ -573,10 +573,11 @@ def page_title(s: dict, f: dict, L: Lang, out: Path, png: Path | None) -> Page:
         "references (Gelman, Silver and Edlin, 2012).",
         "Probabilidad de que un voto decida. Barras negras: este modelo, votante medio de "
         "España. Rayadas: referencias (Gelman, Silver y Edlin, 2012)."), labels)
-    note = L("Code, data and method: linked in the first comment.",
-             "Código, datos y método: enlace en el primer comentario.")
-    pg.raw("#v(1fr)\n#block(width: 100%, {\n  line(length: 30%, stroke: 0.4pt)\n  v(-2pt)\n"
-           f"  text(10.5pt)[{T(note)}]\n}})", P(note))
+    # The Spanish carousel goes with a post that already says where the code is (13-nov).
+    if L("en", "es") == "en":
+        note = "Code, data and method: linked in the first comment."
+        pg.raw("#v(1fr)\n#block(width: 100%, {\n  line(length: 30%, stroke: 0.4pt)\n  v(-2pt)\n"
+               f"  text(10.5pt)[{T(note)}]\n}})", P(note))
     return pg
 
 

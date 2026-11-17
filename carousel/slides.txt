@@ -36,8 +36,6 @@ probabilidad, 1 entre N (escala logarítmica)
 
 1.000 millones
 
-Código, datos y método: enlace en el primer comentario.
-
 ## Diapositiva 2
 
 La pregunta
